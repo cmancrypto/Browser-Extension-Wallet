@@ -1,0 +1,70 @@
+import { ClassValue } from 'clsx';
+import React, { Children } from 'react';
+
+import { cn } from '@/helpers/utils';
+
+type StepperProps = {
+  children: React.ReactNode;
+  active: number;
+  containerClass?: ClassValue | string;
+  progressBarClass?: ClassValue | string;
+  labels: string[];
+};
+
+export const Stepper: React.FC<StepperProps> = ({
+  children,
+  active,
+  containerClass,
+  progressBarClass,
+  labels,
+}) => {
+  const childrenArray = Children.toArray(children);
+  const steps = childrenArray.filter(item => {
+    if (React.isValidElement(item)) {
+      return !item.props['data-hidden'];
+    }
+
+    return false;
+  });
+
+  return (
+    <div className={cn('flex items-center flex-col', containerClass as ClassValue | string)}>
+      {active < steps.length && (
+        <ol
+          className={cn('flex items-center w-full mb-2', progressBarClass as ClassValue | string)}
+        >
+          {steps.map((_, index) => (
+            <li
+              key={`step-${index}`}
+              className={cn(
+                'flex items-center w-full relative text-indigo-600',
+                "not-last:after:content-[''] not-last:after:absolute not-last:after:top-[15px] not-last:after:left-[67px] not-last:after:right-[-12px] not-last:after:h-1.5 not-last:after:bg-neutral-2 not-last:after:inline-block not-last:after:rounded-full",
+                active > index && 'not-last:after:bg-blue',
+                'last:w-auto',
+              )}
+            >
+              <div
+                className={cn(
+                  'whitespace-nowrap max-w-20 w-full z-10 flex flex-col items-center text-white',
+                  active >= index && 'text-blue',
+                )}
+              >
+                <span
+                  className={cn(
+                    'w-[34px] h-[34px] bg-neutral-2 rounded-full flex justify-center items-center text-large/[28px] text-white',
+                    active === index && 'border border-blue text-blue bg-transparent',
+                    active > index && 'bg-blue text-black',
+                  )}
+                >
+                  {index + 1}
+                </span>{' '}
+                <p className={cn('mt-2 text-small text-nowrap')}>{labels[index]}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+      {childrenArray[active]}
+    </div>
+  );
+};
