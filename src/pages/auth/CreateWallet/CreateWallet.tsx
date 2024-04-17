@@ -29,16 +29,16 @@ export const CreateWallet = () => {
   const prevStep = () => setActive(current => (current > 0 ? current - 1 : current));
 
   return (
-    <div className="mt-12 h-full">
+    <div className="mt-6 h-full">
       <Stepper
         active={active}
         labels={STEPS_LABELS}
         progressBarClass="px-9"
         containerClass="h-full"
       >
-        <div className="w-full h-full pt-12 px-9 flex flex-col">
+        <div className="w-full h-full pt-6 px-8 flex flex-col">
           <h1 className="text-white text-h1 font-semibold">{STEPS_LABELS[0]}</h1>
-          <form className="mt-10 flex-1">
+          <form className="mt-5 flex-1">
             <Input
               variant="primary"
               className="w-full"
@@ -55,7 +55,7 @@ export const CreateWallet = () => {
               icon={<EyeOpen />}
             />
           </form>
-          <div className="flex w-full justify-between gap-x-5 pb-4">
+          <div className="flex w-full justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" asChild>
               <NavLink to={ROUTES.AUTH.ROOT}>Back</NavLink>
             </Button>
@@ -64,13 +64,13 @@ export const CreateWallet = () => {
             </Button>
           </div>
         </div>
-        <div className="w-full h-full pt-12 flex flex-col">
+        <div className="w-full h-full pt-6 flex flex-col">
           <h1 className="text-white text-h1 font-semibold">{STEPS_LABELS[1]}</h1>
-          <p className="mt-2.5 text-neutral-1 leading-7">Backup your secret recovery phrase</p>
-          <div className="mt-10 flex-1">
+          <p className="mt-1.5 text-neutral-1 leading-7">Backup your secret recovery phrase</p>
+          <div className="mt-5 flex-1">
             <RecoveryPhraseGrid phrase={EXAMPLE_PHRASE} withButtons />
           </div>
-          <div className="flex w-full px-10 justify-between gap-x-5 pb-4">
+          <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
             </Button>
@@ -79,13 +79,13 @@ export const CreateWallet = () => {
             </Button>
           </div>
         </div>
-        <div className="w-full h-full pt-12 flex flex-col">
+        <div className="w-full h-full pt-6 flex flex-col">
           <h1 className="text-white text-h1 font-semibold">{STEPS_LABELS[2]}</h1>
-          <p className="mt-2.5 text-neutral-1 leading-7">Confirm your secret recovery phrase</p>
-          <div className="mt-10 flex-1">
+          <p className="mt-1.5 text-neutral-1 leading-7">Confirm your secret recovery phrase</p>
+          <div className="mt-5 flex-1">
             <RecoveryPhraseGrid phrase={EXAMPLE_PHRASE} verifyPhrase />
           </div>
-          <div className="flex w-full px-10 justify-between gap-x-5 pb-4">
+          <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
             </Button>
@@ -94,13 +94,13 @@ export const CreateWallet = () => {
             </Button>
           </div>
         </div>
-        <div className="w-full h-full pt-6 flex flex-col px-16" data-hidden="true">
-          <div className="px-[60px] pb-12">
-            <VerifySuccess />
+        <div className="w-full h-full pt-3 flex flex-col px-16" data-hidden="true">
+          <div className="px-10 pb-2">
+            <VerifySuccess width="100%" />
           </div>
           <h1 className="text-white text-h1 font-semibold">Congratulations!</h1>
-          <p className="mt-2.5 text-neutral-1 leading-7">Your wallet is created succesfully</p>
-          <Button className="mt-[60px]" asChild>
+          <p className="mt-1.5 text-neutral-1 leading-7">Your wallet is created succesfully</p>
+          <Button className="mt-8" asChild>
             <NavLink to={ROUTES.AUTH.ROOT}>Got it</NavLink>
           </Button>
         </div>

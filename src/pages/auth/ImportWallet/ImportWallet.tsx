@@ -21,13 +21,13 @@ const EXAMPLE_PHRASE = [
 ];
 
 export const ImportWallet: React.FC = () => (
-  <div className="pt-12 text-white h-full flex flex-col">
+  <div className="pt-6 text-white h-full flex flex-col">
     <h1 className="text-h1 font-semibold">Import wallet</h1>
-    <p className="mt-2.5 text-neutral-1 leading-7">Write your recovery phrase</p>
-    <div className="mt-20 flex-1">
+    <p className="mt-1.5 text-neutral-1 leading-7">Write your recovery phrase</p>
+    <div className="mt-10 flex-1">
       <RecoveryPhraseGrid phrase={EXAMPLE_PHRASE} />
     </div>
-    <div className="flex w-full px-10 justify-between gap-x-5 pb-4">
+    <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
       <Button variant="secondary" className="w-full" asChild>
         <NavLink to={ROUTES.AUTH.ROOT}>Back</NavLink>
       </Button>

@@ -44,13 +44,13 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
   return (
     <div className="w-full">
-      <ul className="grid grid-cols-3 gap-y-5 gap-x-[18px] p-5 border border-grey rounded-lg">
+      <ul className="grid grid-cols-3 gap-y-2.5 gap-x-2.5 p-2.5 border border-grey rounded-lg">
         {resultPhrase.map((word, index) => (
           <li key={word.id} className="inline-flex items-center max-w-full">
             <span className="mr-1 text-base/[25px] text-white w-5 text-left">{index + 1}.</span>
             <Input
               className={cn(
-                'border border-white text-white rounded-3xl h-[30px] px-4 py-1.5 w-full focus:outline-0 text-center',
+                'border border-white text-white rounded-3xl h-[30px] px-3 py-1.5 w-full focus:outline-0 text-center',
                 (verifyPhrase && HIDDEN_INDEXES.includes(index) && 'border-blue') as ClassValue,
               )}
               value={isShown ? word.value : '*****'}
@@ -59,14 +59,14 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
         ))}
       </ul>
       {withButtons && (
-        <div className="flex justify-between px-10 mt-6">
+        <div className="flex justify-between px-5 mt-4">
           <Button variant="transparent" size="small" onClick={handleShowPhrase}>
             <EyeOpen />
-            <span className="ml-2.5 text-large">Hide seed phrase</span>
+            <span className="ml-2.5 text-lg">Hide seed phrase</span>
           </Button>
           <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
             <Copy />
-            <span className="ml-2.5 text-large">Copy to clipboard</span>
+            <span className="ml-2.5 text-lg">Copy to clipboard</span>
           </Button>
         </div>
       )}

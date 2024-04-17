@@ -5,8 +5,8 @@ import { Logo } from '@/assets/icons';
 
 const AuthLayout: React.FC = () => (
   <div className="max-w-full bg-background-black h-full p-5 flex flex-col">
-    <header className="py-4 flex justify-center items-center">
-      <Logo className="h-11" />
+    <header className="py-2 flex justify-center items-center">
+      <Logo className="h-10" />
     </header>
     <Outlet />
   </div>
