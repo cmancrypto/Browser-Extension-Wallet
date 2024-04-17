@@ -1,19 +1,19 @@
 import React from 'react';
 
-export const Logo: React.FC<React.SVGProps<SVGSVGElement>> = props => (
+export const LogoIcon: React.FC<React.SVGProps<SVGSVGElement>> = props => (
   <svg
-    width="210"
-    height="44"
-    viewBox="0 0 210 44"
+    width="57"
+    height="60"
+    viewBox="0 0 57 60"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     xlinkHref="http://www.w3.org/1999/xlink"
     {...props}
   >
-    <path fill="url(#logo)" d="M.5 0h209v44H.5z" />
+    <path fill="url(#logoIcon)" d="M0 0h57v60H0z" />
     <defs>
-      <pattern id="logo" patternContentUnits="objectBoundingBox" width="1" height="1">
-        <use xlinkHref="#b" transform="matrix(.0009 0 0 .00427 -.086 -.318)" />
+      <pattern id="logoIcon" patternContentUnits="objectBoundingBox" width="1" height="1">
+        <use xlinkHref="#b" transform="matrix(.00444 0 0 .00427 -.426 -.295)" />
       </pattern>
       <image
         id="b"

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-import { ROUTES } from '@/constants/routes';
+import { ROUTES } from '@/constants';
 import { getAccessToken } from '@/helpers/auth';
 
 interface AuthGuardProps {

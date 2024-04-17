@@ -1,8 +1,14 @@
+const APP_ROOT = '/';
 const AUTH_ROOT = '/auth';
 
 export const ROUTES = {
   APP: {
-    ROOT: '/',
+    ROOT: APP_ROOT,
+    TRANSACTIONS_HISTORY: `/history`,
+    TRANSACTION: `/history/:id`,
+    SEND: '/send',
+    RECEIVE: '/send',
+    ADD_NETWORK: '/add-network',
   },
   AUTH: {
     ROOT: AUTH_ROOT,

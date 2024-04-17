@@ -19,7 +19,12 @@
     "https://*/*",
     "http://*/*"
   ],
-  "permissions": ["activeTab", "tabs", "storage", "clipboardWrite"],
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "clipboardWrite"
+  ],
   "web_accessible_resources": [
     {
       "resources": ["index.html"],

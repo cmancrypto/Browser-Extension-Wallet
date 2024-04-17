@@ -4,6 +4,7 @@ export const LogoWhite: React.FC<React.SVGProps<SVGSVGElement>> = props => (
   <svg
     width="216"
     height="224"
+    viewBox="0 0 216 224"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     xlinkHref="http://www.w3.org/1999/xlink"
