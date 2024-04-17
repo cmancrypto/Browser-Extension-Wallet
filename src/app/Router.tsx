@@ -3,7 +3,16 @@ import { Navigate, useRoutes } from 'react-router-dom';
 
 import { ROUTES } from '@/constants';
 import { AuthGuard, GuestGuard } from '@/guards';
-import { CreateWallet, ImportWallet, NewWallet } from '@/pages';
+import {
+  AddNewNetwork,
+  CreateWallet,
+  ImportWallet,
+  Main,
+  NewWallet,
+  Send,
+  Transaction,
+  TransactionsHistory,
+} from '@/pages';
 
 const AuthLayout = lazy(() => import('@/layouts/auth/AuthLayout'));
 const MainLayout = lazy(() => import('@/layouts/main/MainLayout'));
@@ -42,7 +51,23 @@ export const AppRouter: React.FC = (): React.ReactElement | null =>
       children: [
         {
           path: ROUTES.APP.ROOT,
-          element: <></>,
+          element: <Main />,
+        },
+        {
+          path: ROUTES.APP.TRANSACTIONS_HISTORY,
+          element: <TransactionsHistory />,
+        },
+        {
+          path: ROUTES.APP.TRANSACTION,
+          element: <Transaction />,
+        },
+        {
+          path: ROUTES.APP.SEND,
+          element: <Send />,
+        },
+        {
+          path: ROUTES.APP.ADD_NETWORK,
+          element: <AddNewNetwork />,
         },
       ],
     },
