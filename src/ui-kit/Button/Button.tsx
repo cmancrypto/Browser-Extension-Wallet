@@ -14,7 +14,7 @@ type ButtonConfig = {
 };
 
 const buttonVariants = cva<ButtonConfig>(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-full text-large',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm',
   {
     variants: {
       variant: {
@@ -31,10 +31,14 @@ const buttonVariants = cva<ButtonConfig>(
           'active:bg-blue-pressed-secondary active:text-blue active:border-blue',
           'disabled:border-neutral-3 disabled:text-neutral-3 disabled:bg-transparent',
         ],
+        icon: ['rounded-full bg-neutral-2 text-white', ''],
+        link: ['text-blue text-sm hover:text-blue-dark bg-transparent'],
       },
       size: {
-        default: 'h-12 p-2.5',
+        default: 'h-10 p-2.5',
         small: 'h-6 p-0 min-h-6',
+        'rounded-default': 'max-w-8 max-h-8 w-8 h-8',
+        xsmall: 'h-[18px] p-0',
       },
     },
     defaultVariants: {

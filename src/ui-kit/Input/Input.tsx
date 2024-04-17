@@ -11,23 +11,28 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   errorText?: string;
   icon?: ReactNode;
   wrapperClass?: string;
+  iconRole?: string;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant, className, type, label, error, errorText, icon, wrapperClass, ...props }, ref) => {
+  (
+    { variant, className, type, label, error, errorText, icon, wrapperClass, iconRole, ...props },
+    ref,
+  ) => {
     switch (variant) {
       case 'primary': {
         return (
           <div className={cn('text-left relative', wrapperClass as string)}>
-            {label && <label className="block mb-1.5 text-base text-white">{label}</label>}
+            {label && <label className="block mb-1.5 text-xs text-white/80">{label}</label>}
             <input
               type={type}
               className={cn(
-                'flex h-12 w-full rounded-lg border border-neutral-3 bg-transparent px-3 py-3.5 text-base text-neutral-3',
+                'flex h-10 w-full rounded-md border border-neutral-3 bg-transparent px-2 py-1.5 text-base text-neutral-3',
                 'hover:border-neutral-1 hover:text-neutral-1',
                 'focus:outline-0 focus:border-blue focus:text-white',
+                'placeholder:text-xs placeholder:text-neutral-3',
                 !!error &&
-                  'border-error-red text-error-red hover:border-error-red hover:text-error-red focus:border-error-red focus:text-error-red',
+                  'border-error text-error hover:border-error hover:text-error focus:border-error focus:text-error',
                 !!icon && 'pr-11.5',
                 className as ClassValue,
               )}
@@ -36,17 +41,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             />
             {icon && (
               <div
-                role="button"
+                role={iconRole}
                 className={cn(
-                  `absolute ${label ? 'top-[34px]' : 'top-3'} right-3 w-6 h-6 flex items-center justify-center`,
+                  `absolute ${label ? 'top-[34px]' : 'top-2'} right-3 w-6 h-6 flex items-center justify-center`,
                   'text-neutral-3 hover:text-neutral-1 focus:text-white',
-                  !!error && 'text-error-red hover:text-error-red focus:text-error-red',
+                  !!error && 'text-error hover:text-error focus:text-error',
                 )}
               >
                 {icon}
               </div>
             )}
-            {errorText && <span className="mt-1.5 text-small text-error-red">{errorText}</span>}
+            {errorText && <span className="mt-1.5 text-sm text-error">{errorText}</span>}
           </div>
         );
       }
