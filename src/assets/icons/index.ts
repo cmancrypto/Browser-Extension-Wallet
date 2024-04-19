@@ -15,6 +15,7 @@ export * from './LogoWhite';
 export * from './Pending';
 export * from './QRCode';
 export * from './Security';
+export * from './Spinner';
 export * from './Success';
 export * from './Support';
 export * from './UniswapLogo';
