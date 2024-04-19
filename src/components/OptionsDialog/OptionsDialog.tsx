@@ -1,11 +1,43 @@
 import { Dialog, DialogTrigger } from '@radix-ui/react-dialog';
+import { LogOut } from 'lucide-react';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, DotsVertical, Expand, Security, Support } from '@/assets/icons';
+import { ROUTES } from '@/constants';
+import { removeLocalStorageItem } from '@/helpers';
 import { Button, DialogContent } from '@/ui-kit';
 
+const OPTIONS = [
+  {
+    id: 1,
+    name: 'Expand view',
+    icon: <Expand />,
+    to: '#',
+  },
+  {
+    id: 2,
+    name: 'Support',
+    icon: <Support />,
+    to: '#',
+  },
+  {
+    id: 3,
+    name: 'Security',
+    icon: <Security />,
+    to: '#',
+  },
+];
+
 export const OptionsDialog: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    removeLocalStorageItem('accessToken');
+
+    navigate(ROUTES.AUTH.ROOT);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -16,39 +48,32 @@ export const OptionsDialog: React.FC = () => {
       <DialogContent>
         <h3 className="text-h5 font-bold">Options</h3>
         <div className="grid">
-          <NavLink
-            to={'/'}
-            className="flex items-center text-sm text-white font-normal py-3 not-last:border-b not-last:border-neutral-4 hover:text-white"
+          {OPTIONS.map(option => (
+            <NavLink
+              key={option.id}
+              to={option.to}
+              className="flex items-center text-sm text-white font-normal py-3 not-last:border-b not-last:border-neutral-4 hover:text-white"
+            >
+              <div className="h-8 w-8 bg-blue rounded-full flex items-center justify-center p-1.5 mr-2.5 text-black">
+                {option.icon}
+              </div>
+              {option.name}
+              <div className="flex-1" />
+              <ArrowLeft className="rotate-180 h-3 w-3" />
+            </NavLink>
+          ))}
+          <Button
+            variant="transparent"
+            className="flex items-center text-sm text-white font-normal py-3 px-0 h-auto rounded-none hover:text-white"
+            onClick={handleLogOut}
           >
             <div className="h-8 w-8 bg-blue rounded-full flex items-center justify-center p-1.5 mr-2.5 text-black">
-              <Expand />
+              <LogOut width={16} />
             </div>
-            Expand view
+            Logout
             <div className="flex-1" />
             <ArrowLeft className="rotate-180 h-3 w-3" />
-          </NavLink>
-          <NavLink
-            to={'/'}
-            className="flex items-center text-sm text-white font-normal py-3 not-last:border-b not-last:border-neutral-4 hover:text-white"
-          >
-            <div className="h-8 w-8 bg-blue rounded-full flex items-center justify-center p-1.5 mr-2.5 text-black">
-              <Support />
-            </div>
-            Support
-            <div className="flex-1" />
-            <ArrowLeft className="rotate-180 h-3 w-3" />
-          </NavLink>
-          <NavLink
-            to={'/'}
-            className="flex items-center text-sm text-white font-normal py-3 not-last:border-b not-last:border-neutral-4 hover:text-white"
-          >
-            <div className="h-8 w-8 bg-blue rounded-full flex items-center justify-center p-1.5 mr-2.5 text-black">
-              <Security />
-            </div>
-            Security
-            <div className="flex-1" />
-            <ArrowLeft className="rotate-180 h-3 w-3" />
-          </NavLink>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

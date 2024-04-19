@@ -43,7 +43,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               <div
                 role={iconRole}
                 className={cn(
-                  `absolute ${label ? 'top-[34px]' : 'top-2'} right-3 w-6 h-6 flex items-center justify-center`,
+                  `absolute ${label ? 'top-[27px]' : 'top-2'} right-3 w-6 h-6 flex items-center justify-center`,
                   'text-neutral-3 hover:text-neutral-1 focus:text-white',
                   !!error && 'text-error hover:text-error focus:text-error',
                 )}

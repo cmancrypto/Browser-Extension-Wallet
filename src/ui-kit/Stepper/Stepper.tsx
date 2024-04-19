@@ -51,14 +51,14 @@ export const Stepper: React.FC<StepperProps> = ({
               >
                 <span
                   className={cn(
-                    'w-[34px] h-[34px] bg-neutral-2 rounded-full flex justify-center items-center text-lg/[28px] text-white',
+                    'w-7 h-7 bg-neutral-2 rounded-full flex justify-center items-center text-sm text-white',
                     active === index && 'border border-blue text-blue bg-transparent',
                     active > index && 'bg-blue text-black',
                   )}
                 >
                   {index + 1}
                 </span>{' '}
-                <p className={cn('mt-2 text-sm text-nowrap')}>{labels[index]}</p>
+                <p className={cn('mt-2 text-xs text-nowrap')}>{labels[index]}</p>
               </div>
             </li>
           ))}
