@@ -6,7 +6,9 @@ import { AuthGuard, GuestGuard } from '@/guards';
 import {
   AddNewNetwork,
   CreateWallet,
+  ForgotPassword,
   ImportWallet,
+  Login,
   Main,
   NewWallet,
   Send,
@@ -29,15 +31,23 @@ export const AppRouter: React.FC = (): React.ReactElement | null =>
       children: [
         {
           path: ROUTES.AUTH.ROOT,
+          element: <Login />,
+        },
+        {
+          path: ROUTES.AUTH.NEW_WALLET.ROOT,
           element: <NewWallet />,
         },
         {
-          path: ROUTES.AUTH.CREATE_WALLET,
+          path: ROUTES.AUTH.NEW_WALLET.CREATE,
           element: <CreateWallet />,
         },
         {
-          path: ROUTES.AUTH.IMPORT_WALLET,
+          path: ROUTES.AUTH.NEW_WALLET.IMPORT,
           element: <ImportWallet />,
+        },
+        {
+          path: ROUTES.AUTH.FORGOT_PASSWORD,
+          element: <ForgotPassword />,
         },
       ],
     },

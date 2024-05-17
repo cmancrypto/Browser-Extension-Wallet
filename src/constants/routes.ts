@@ -12,7 +12,11 @@ export const ROUTES = {
   },
   AUTH: {
     ROOT: AUTH_ROOT,
-    CREATE_WALLET: `${AUTH_ROOT}/create-wallet`,
-    IMPORT_WALLET: `${AUTH_ROOT}/import-wallet`,
+    NEW_WALLET: {
+      ROOT: `${AUTH_ROOT}/wallet`,
+      CREATE: `${AUTH_ROOT}/wallet/create`,
+      IMPORT: `${AUTH_ROOT}/wallet/import`,
+    },
+    FORGOT_PASSWORD: `${AUTH_ROOT}/forgot-password`,
   },
 };

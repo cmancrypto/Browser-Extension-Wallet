@@ -45,7 +45,7 @@ export const CreateWallet = () => {
           </form>
           <div className="flex w-full justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" asChild>
-              <NavLink to={ROUTES.AUTH.ROOT}>Back</NavLink>
+              <NavLink to={ROUTES.AUTH.NEW_WALLET.ROOT}>Back</NavLink>
             </Button>
             <Button className="w-full" onClick={nextStep}>
               Next

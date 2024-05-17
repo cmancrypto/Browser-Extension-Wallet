@@ -24,7 +24,7 @@ export default {
       success: '#048A4E',
       'success-dark': '#2D403A',
       warning: '#D9B32E',
-      'warning-dark': '#D9B32E',
+      'warning-dark': '#9C791C',
       error: '#FC2A58',
       'error-dark': '#9C0A36',
       blue: {
