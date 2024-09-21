@@ -60,8 +60,19 @@ export default {
     },
   },
   plugins: [
-    plugin(function ({ addVariant }) {
+    plugin(function ({ addVariant, addUtilities }) {
       addVariant('not-last', '&:not(:last-child)');
+      addUtilities({
+        '.hide-scrollbar': {
+          /* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          /* Hide scrollbar for Firefox and Edge */
+          'scrollbar-width': 'none', // Firefox
+          '-ms-overflow-style': 'none', // IE and Edge
+        },
+      });
     }),
   ],
 };

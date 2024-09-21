@@ -2,18 +2,14 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { RecoveryPhraseGrid } from '@/components';
-import { EMPTY_RECOVERY_PHRASE, ROUTES } from '@/constants';
+import { ROUTES } from '@/constants';
 import { Button } from '@/ui-kit';
 
 export const ImportWallet: React.FC = () => {
-  const [phraseResult, setPhraseResult] = useState(EMPTY_RECOVERY_PHRASE);
+  const [isVerified, setIsVerified] = useState(false);
 
-  const handleResult = (index: number, value: string) => {
-    const result = [...phraseResult];
-
-    result[index].value = value;
-
-    setPhraseResult(result);
+  const handleResult = (allVerified: boolean) => {
+    setIsVerified(allVerified);
   };
 
   return (
@@ -27,7 +23,9 @@ export const ImportWallet: React.FC = () => {
         <Button variant="secondary" className="w-full" asChild>
           <NavLink to={ROUTES.AUTH.ROOT}>Back</NavLink>
         </Button>
-        <Button className="w-full">Next</Button>
+        <Button className="w-full" disabled={!isVerified}>
+          Next
+        </Button>
       </div>
     </div>
   );

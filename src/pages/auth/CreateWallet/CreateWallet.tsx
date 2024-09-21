@@ -12,7 +12,18 @@ export const CreateWallet = () => {
   const [active, setActive] = useState(0);
   const [mnemonic12, setMnemonic12] = useState<string>('');
   const [mnemonic24, setMnemonic24] = useState<string>('');
-  const [use24Words, setUse24Words] = useState(true);
+  const [use24Words, setUse24Words] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+
+  // Select random hidden indexes for verification step
+  const getRandomIndexes = () => {
+    const phraseLength = use24Words ? 24 : 12;
+    const indexes = Array.from(Array(phraseLength).keys());
+    const shuffled = indexes.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+
+  const [randomHiddenIndexes, setRandomHiddenIndexes] = useState(getRandomIndexes());
 
   // Separate states for each password's visibility
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -33,6 +44,14 @@ export const CreateWallet = () => {
     generateMnemonics();
   }, []);
 
+  useEffect(() => {
+    if (active !== 2) {
+      setIsVerified(false);
+      // Reset verification words on change of screen
+      setRandomHiddenIndexes(getRandomIndexes());
+    }
+  }, [active]);
+
   // Proceed to next step
   const nextStep = () => setActive(current => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive(current => (current > 0 ? current - 1 : current));
@@ -43,6 +62,16 @@ export const CreateWallet = () => {
     navigator.clipboard.writeText(phraseToCopy);
   };
 
+  // No need to reset randomHiddenIndexes after verification
+  const handleResult = (allVerified: boolean) => {
+    setIsVerified(allVerified);
+  };
+
+  // Regenerate random indexes when use24Words is toggled
+  useEffect(() => {
+    setRandomHiddenIndexes(getRandomIndexes());
+  }, [use24Words]);
+
   return (
     <div className="mt-6 h-full">
       <Stepper
@@ -51,7 +80,6 @@ export const CreateWallet = () => {
         progressBarClass="px-9"
         containerClass="h-full"
       >
-        {/* TODO: ensure passwords match, ensure a value is entered before moving on */}
         {/* Step 1: Create password */}
         <div className="w-full h-full pt-7 px-8 flex flex-col">
           <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
@@ -102,31 +130,30 @@ export const CreateWallet = () => {
           {/* 12 Words vs 24 Words selection */}
           <div className="flex justify-center mt-5">
             <Button
-              variant={use24Words ? 'selected' : 'unselected'}
-              onClick={() => setUse24Words(true)}
-            >
-              24 Words
-            </Button>
-            <Button
               variant={!use24Words ? 'selected' : 'unselected'}
               onClick={() => setUse24Words(false)}
               className="ml-4"
             >
               12 Words
             </Button>
+            <Button
+              variant={use24Words ? 'selected' : 'unselected'}
+              onClick={() => setUse24Words(true)}
+            >
+              24 Words
+            </Button>
           </div>
 
-          <div className="mt-9 flex-1">
+          <div className="mt-3 flex-1">
             <RecoveryPhraseGrid
               phrase={(use24Words ? mnemonic24 : mnemonic12).split(' ').map((word, index) => ({
                 id: index,
                 value: word,
               }))}
-              readOnly
               withButtons
             />
           </div>
-          <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
+          <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
             </Button>
@@ -149,15 +176,17 @@ export const CreateWallet = () => {
                 id: index,
                 value: word,
               }))}
-              readOnly
               withButtons
+              isVerifyMode={true}
+              hiddenIndexes={randomHiddenIndexes}
+              handleResult={handleResult}
             />
           </div>
           <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
             </Button>
-            <Button className="w-full" onClick={nextStep}>
+            <Button className="w-full" onClick={nextStep} disabled={!isVerified}>
               Next
             </Button>
           </div>
