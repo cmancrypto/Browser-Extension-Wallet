@@ -12,11 +12,24 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   icon?: ReactNode;
   wrapperClass?: string;
   iconRole?: string;
+  onIconClick?: () => void;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
-    { variant, className, type, label, error, errorText, icon, wrapperClass, iconRole, ...props },
+    {
+      variant,
+      className,
+      type,
+      label,
+      error,
+      errorText,
+      icon,
+      wrapperClass,
+      iconRole,
+      onIconClick,
+      ...props
+    },
     ref,
   ) => {
     switch (variant) {
@@ -47,6 +60,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                   'text-neutral-3 hover:text-neutral-1 focus:text-white',
                   !!error && 'text-error hover:text-error focus:text-error',
                 )}
+                onClick={onIconClick}
               >
                 {icon}
               </div>
@@ -61,4 +75,5 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     }
   },
 );
+
 Input.displayName = 'Input';
