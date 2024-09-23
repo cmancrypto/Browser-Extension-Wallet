@@ -13,17 +13,5 @@ export const EMPTY_RECOVERY_PHRASE = [
   { id: 12, value: '' },
 ];
 
-export const EXAMPLE_RECOVERY_PHRASE = [
-  { id: 1, value: 'gasp' },
-  { id: 2, value: 'focus' },
-  { id: 3, value: 'large' },
-  { id: 4, value: 'fruit' },
-  { id: 5, value: 'mountain' },
-  { id: 6, value: 'spider' },
-  { id: 7, value: 'ball' },
-  { id: 8, value: 'flag' },
-  { id: 9, value: 'visual' },
-  { id: 10, value: 'game' },
-  { id: 11, value: 'sheriff' },
-  { id: 12, value: 'strategy' },
-];
+export const NETWORK = 'symphony';
+export const WALLET_PREFIX = 'symphony';

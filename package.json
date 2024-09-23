@@ -25,6 +25,7 @@
     "autoprefixer": "~10.4.19",
     "class-variance-authority": "~0.7.0",
     "clsx": "~2.1.0",
+    "crypto-js": "^4.2.0",
     "lucide-react": "~0.367.0",
     "postcss": "~8.4.38",
     "react": "~18.2.0",
@@ -37,6 +38,7 @@
     "vite-tsconfig-paths": "~4.3.2"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@typescript-eslint/eslint-plugin": "~7.5.0",
     "@typescript-eslint/parser": "~7.5.0",
     "eslint": "~8.57.0",

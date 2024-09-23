@@ -26,6 +26,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   const [inputBorderColors, setInputBorderColors] = useState<{ [key: number]: string }>({});
 
   const resultPhrase = useMemo(() => {
+    // TODO: this is called from import wallet.  generate and pass empty 12 or 24 word phrase from there, then remove
     if (!phrase) return EMPTY_RECOVERY_PHRASE;
 
     if (isVerifyMode) {

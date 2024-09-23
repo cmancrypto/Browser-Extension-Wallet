@@ -5,6 +5,7 @@ import { EyeOpen, EyeClose, VerifySuccess } from '@/assets/icons';
 import { RecoveryPhraseGrid } from '@/components';
 import { ROUTES } from '@/constants';
 import { Button, Input, Stepper } from '@/ui-kit';
+import { createWallet, generateToken } from '@/helpers/wallet';
 
 const STEPS_LABELS = ['Create password', 'Recovery phrase', 'Verify phrase'];
 
@@ -15,6 +16,20 @@ export const CreateWallet = () => {
   const [use24Words, setUse24Words] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [passwordStatus, setPasswordStatus] = useState<'error' | 'success' | null>(null);
+  const [confirmPasswordStatus, setConfirmPasswordStatus] = useState<'error' | 'success' | null>(
+    null,
+  );
+  const [passwordsAreVerified, setPasswordsAreVerified] = useState(false);
+
+  // Proceed to next step
+  const nextStep = () => setActive(current => (current < 3 ? current + 1 : current));
+  const prevStep = () => setActive(current => (current > 0 ? current - 1 : current));
+
   // Select random hidden indexes for verification step
   const getRandomIndexes = () => {
     const phraseLength = use24Words ? 24 : 12;
@@ -24,13 +39,6 @@ export const CreateWallet = () => {
   };
 
   const [randomHiddenIndexes, setRandomHiddenIndexes] = useState(getRandomIndexes());
-
-  // Separate states for each password's visibility
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Generate the mnemonic phrases on component mount
   useEffect(() => {
@@ -52,10 +60,6 @@ export const CreateWallet = () => {
     }
   }, [active]);
 
-  // Proceed to next step
-  const nextStep = () => setActive(current => (current < 3 ? current + 1 : current));
-  const prevStep = () => setActive(current => (current > 0 ? current - 1 : current));
-
   // Copy recovery phrase to clipboard
   const handleCopyToClipboard = () => {
     const phraseToCopy = use24Words ? mnemonic24 : mnemonic12;
@@ -72,6 +76,54 @@ export const CreateWallet = () => {
     setRandomHiddenIndexes(getRandomIndexes());
   }, [use24Words]);
 
+  // TODO: handle error printout (in place of subtitle on verify screen?)
+  // TODO: re-verify for reset wallet screen
+  // TODO: re-verify for import wallet screen
+  // Check everything is completed properly and pass to confirmation screen
+  const handleCreateWallet = async () => {
+    try {
+      // Generate wallet from the mnemonic and create the token
+      const { walletAddress } = await createWallet(use24Words ? mnemonic24 : mnemonic12, password);
+      generateToken(walletAddress);
+
+      // Navigate to confirmation page after wallet creation
+      nextStep();
+    } catch (error) {
+      console.error('Error creating wallet:', error);
+    }
+  };
+
+  const validatePassword = () => {
+    const isPasswordValid = password.length >= 8;
+
+    setPasswordStatus(isPasswordValid ? 'success' : 'error');
+
+    // Enable the "Next" button only when both passwords are valid
+    setPasswordsAreVerified(isPasswordValid && confirmPasswordStatus === 'success');
+  };
+
+  // Validate confirm password
+  const validateConfirmPassword = () => {
+    const isConfirmPasswordValid = confirmPassword === password;
+
+    setConfirmPasswordStatus(isConfirmPasswordValid ? 'success' : 'error');
+
+    // Enable the "Next" button only when both passwords are valid
+    setPasswordsAreVerified(passwordStatus === 'success' && isConfirmPasswordValid);
+  };
+
+  // Clear the error on typing for password
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    setPasswordStatus(null);
+  };
+
+  // Clear the error on typing for confirm password
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setConfirmPasswordStatus(null);
+  };
+
   return (
     <div className="mt-6 h-full">
       <Stepper
@@ -87,36 +139,44 @@ export const CreateWallet = () => {
             {/* New Password Input */}
             <Input
               variant="primary"
-              className="w-full"
-              wrapperClass="mb-4"
+              showsErrorText={true}
+              status={passwordStatus}
+              errorText={passwordStatus === 'error' ? 'Password must be at least 8 characters' : ''}
               label="New password (8 characters min)"
               placeholder="Enter password"
               type={passwordVisible ? 'text' : 'password'}
               value={password}
-              onChange={e => setPassword(e.target.value)}
-              icon={passwordVisible ? <EyeClose width={20} /> : <EyeOpen width={20} />}
+              onChange={handlePasswordChange}
+              onBlur={validatePassword}
+              icon={passwordVisible ? <EyeOpen width={20} /> : <EyeClose width={20} />}
               iconRole="button"
               onIconClick={() => setPasswordVisible(!passwordVisible)}
+              wrapperClass="mb-4"
             />
+
             {/* Confirm Password Input */}
             <Input
               variant="primary"
-              className="w-full"
+              showsErrorText={true}
+              status={confirmPasswordStatus}
+              errorText={confirmPasswordStatus === 'error' ? 'Passwords do not match' : ''}
               label="Confirm password"
               placeholder="Repeat password"
               type={confirmPasswordVisible ? 'text' : 'password'}
               value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              icon={confirmPasswordVisible ? <EyeClose width={20} /> : <EyeOpen width={20} />}
+              onChange={handleConfirmPasswordChange}
+              onBlur={validateConfirmPassword}
+              icon={confirmPasswordVisible ? <EyeOpen width={20} /> : <EyeClose width={20} />}
               iconRole="button"
               onIconClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
             />
           </form>
+
           <div className="flex w-full justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" asChild>
               <NavLink to={ROUTES.AUTH.NEW_WALLET.ROOT}>Back</NavLink>
             </Button>
-            <Button className="w-full" onClick={nextStep}>
+            <Button className="w-full" onClick={nextStep} disabled={!passwordsAreVerified}>
               Next
             </Button>
           </div>
@@ -186,7 +246,7 @@ export const CreateWallet = () => {
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
             </Button>
-            <Button className="w-full" onClick={nextStep} disabled={!isVerified}>
+            <Button className="w-full" onClick={handleCreateWallet} disabled={!isVerified}>
               Next
             </Button>
           </div>

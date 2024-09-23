@@ -1,34 +1,32 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 
 import { ROUTES } from '@/constants';
-import { getAccessToken } from '@/helpers/auth';
+import { getStoredAccessToken } from '@/helpers';
 
 interface AuthGuardProps {
   children?: React.ReactNode;
 }
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
-  const token = getAccessToken();
-
+  const token = getStoredAccessToken();
   const { pathname } = useLocation();
-
   const [requestedLocation, setRequestedLocation] = useState<string | null>(null);
 
+  // If no token (not authenticated), save the requested location (if not saved)
   if (!token) {
     if (pathname !== requestedLocation) {
       setRequestedLocation(pathname);
     }
-
     return <Navigate to={ROUTES.AUTH.ROOT} />;
   }
 
+  // Once the user is authenticated, if there was a requested location, navigate to it
   if (requestedLocation && pathname !== requestedLocation) {
+    const redirectLocation = requestedLocation;
     setRequestedLocation(null);
-
-    return <Navigate to={requestedLocation} />;
+    return <Navigate to={redirectLocation} />;
   }
 
-  return children;
+  return <>{children}</>;
 };

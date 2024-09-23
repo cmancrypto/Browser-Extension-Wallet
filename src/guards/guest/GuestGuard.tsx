@@ -2,14 +2,14 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { ROUTES } from '@/constants/routes';
-import { getAccessToken } from '@/helpers/auth';
+import { getStoredAccessToken } from '@/helpers';
 
 interface GuestGuardProps {
   children?: React.ReactNode;
 }
 
 export const GuestGuard = ({ children }: GuestGuardProps) => {
-  const token = getAccessToken();
+  const token = getStoredAccessToken();
   console.log(token);
   if (token) {
     return <Navigate to={ROUTES.APP.ROOT} />;

@@ -5,8 +5,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 
 import { ArrowLeft, DotsVertical, Expand, Security, Support } from '@/assets/icons';
 import { ROUTES } from '@/constants';
-import { removeLocalStorageItem } from '@/helpers';
 import { Button, DialogContent } from '@/ui-kit';
+import { removeStoredAccessToken } from '@/helpers';
 
 const OPTIONS = [
   {
@@ -33,7 +33,7 @@ export const OptionsDialog: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogOut = () => {
-    removeLocalStorageItem('accessToken');
+    removeStoredAccessToken();
 
     navigate(ROUTES.AUTH.ROOT);
   };
