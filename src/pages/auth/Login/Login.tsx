@@ -18,10 +18,10 @@ export const Login: React.FC = () => {
   };
 
   const handleUnlock = async () => {
+    // TOOD: include error message if no wallet exists on this device
     const isAuthorized = await tryAuthorizeWalletAccess(password);
     if (isAuthorized) {
       // If password is correct, navigate to app root
-      console.log('correct password.  navigating to app root');
       navigate(ROUTES.APP.ROOT);
     } else {
       // If password is incorrect, set status to error
@@ -37,6 +37,7 @@ export const Login: React.FC = () => {
         <form className="mt-9 flex-1">
           <Input
             variant="primary"
+            showsErrorText={true}
             status={passwordStatus}
             errorText={passwordStatus === 'error' ? 'Incorrect password' : ''}
             className="w-full"
@@ -50,11 +51,6 @@ export const Login: React.FC = () => {
             iconRole="button"
             onIconClick={() => setPasswordVisible(!passwordVisible)}
           />
-          <div className="w-full flex">
-            <Button variant="link" size="xsmall" className="text-sm" asChild>
-              <NavLink to={ROUTES.AUTH.FORGOT_PASSWORD}>Forgot password?</NavLink>
-            </Button>
-          </div>
         </form>
         <div className="flex flex-col gap-y-4 w-full justify-between gap-x-5 pb-2">
           <Button className="w-full text-black" onClick={handleUnlock}>

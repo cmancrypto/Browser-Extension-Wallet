@@ -11,6 +11,7 @@ const AuthLayout: React.FC = () => {
   const navigate = useNavigate();
 
   const onLogoClick = () => {
+    // TODO: remove
     storeAccessToken(EXAMPLE_TOKEN);
 
     navigate(ROUTES.APP.ROOT);

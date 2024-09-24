@@ -3,3 +3,4 @@ export * from './Loader';
 export * from './OptionsDialog';
 export * from './ReceiveDialog';
 export * from './RecoveryPhraseGrid';
+export * from './WalletSuccessScreen';

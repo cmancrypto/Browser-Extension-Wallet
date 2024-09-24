@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Secp256k1HdWallet } from '@cosmjs/amino';
-import { EyeOpen, EyeClose, VerifySuccess } from '@/assets/icons';
-import { RecoveryPhraseGrid } from '@/components';
+import { EyeOpen, EyeClose } from '@/assets/icons';
+import { RecoveryPhraseGrid, WalletSuccessScreen } from '@/components';
 import { ROUTES } from '@/constants';
 import { Button, Input, Stepper } from '@/ui-kit';
 import { createWallet, generateToken } from '@/helpers/wallet';
+import { useAtom } from 'jotai';
+import { mnemonic12State, mnemonic24State, mnemonicVerifiedState, use24WordsState } from '@/atoms';
 
 const STEPS_LABELS = ['Create password', 'Recovery phrase', 'Verify phrase'];
 
 export const CreateWallet = () => {
   const [active, setActive] = useState(0);
-  const [mnemonic12, setMnemonic12] = useState<string>('');
-  const [mnemonic24, setMnemonic24] = useState<string>('');
-  const [use24Words, setUse24Words] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [mnemonic12, setMnemonic12] = useAtom(mnemonic12State);
+  const [mnemonic24, setMnemonic24] = useAtom(mnemonic24State);
+  const [use24Words, setUse24Words] = useAtom(use24WordsState);
+  const [mnemonicVerified, setMnemonicVerified] = useAtom(mnemonicVerifiedState);
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,8 +47,8 @@ export const CreateWallet = () => {
     const generateMnemonics = async () => {
       const wallet12 = await Secp256k1HdWallet.generate(12);
       const wallet24 = await Secp256k1HdWallet.generate(24);
-      setMnemonic12(wallet12.mnemonic);
-      setMnemonic24(wallet24.mnemonic);
+      setMnemonic12(wallet12.mnemonic.split(' '));
+      setMnemonic24(wallet24.mnemonic.split(' '));
     };
 
     generateMnemonics();
@@ -54,21 +56,25 @@ export const CreateWallet = () => {
 
   useEffect(() => {
     if (active !== 2) {
-      setIsVerified(false);
+      setMnemonicVerified(false);
       // Reset verification words on change of screen
       setRandomHiddenIndexes(getRandomIndexes());
     }
   }, [active]);
 
-  // Copy recovery phrase to clipboard
-  const handleCopyToClipboard = () => {
-    const phraseToCopy = use24Words ? mnemonic24 : mnemonic12;
-    navigator.clipboard.writeText(phraseToCopy);
+  const getCurrentMnemonic = () => (use24Words ? mnemonic24 : mnemonic12);
+  const getStringMnemonic = () => getCurrentMnemonic().join(' ');
+
+  const clearState = () => {
+    setMnemonic12(new Array(12).fill(''));
+    setMnemonic24(new Array(24).fill(''));
+    setUse24Words(false);
+    setMnemonicVerified(false);
   };
 
-  // No need to reset randomHiddenIndexes after verification
-  const handleResult = (allVerified: boolean) => {
-    setIsVerified(allVerified);
+  // Copy recovery phrase to clipboard
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(getStringMnemonic());
   };
 
   // Regenerate random indexes when use24Words is toggled
@@ -76,17 +82,28 @@ export const CreateWallet = () => {
     setRandomHiddenIndexes(getRandomIndexes());
   }, [use24Words]);
 
+  // TODO: split screens out to other files
+  // TODO: extract password component out to own file
+  // TODO: ensure copy-paste functionality for import wallet (copy 12 words, 24 words, vs 1 word, vs x words from y position)
   // TODO: handle error printout (in place of subtitle on verify screen?)
-  // TODO: re-verify for reset wallet screen
   // TODO: re-verify for import wallet screen
+  // TODO: test path for no wallet exists and user attempts login
+  // TODO: add asset list
+  // TODO: add send transaction
+  // TODO: add qr code screen for receive
+  // TODO: add swap transaction
+  // TODO: create add wallet screen to allow management of multiple accounts
+  // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
+  // TODO: add qr code screen for transfer data (including account data)
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
     try {
       // Generate wallet from the mnemonic and create the token
-      const { walletAddress } = await createWallet(use24Words ? mnemonic24 : mnemonic12, password);
+      const { walletAddress } = await createWallet(getStringMnemonic(), password);
       generateToken(walletAddress);
 
-      // Navigate to confirmation page after wallet creation
+      // Clear state and navigate to confirmation page after wallet creation
+      clearState();
       nextStep();
     } catch (error) {
       console.error('Error creating wallet:', error);
@@ -205,13 +222,7 @@ export const CreateWallet = () => {
           </div>
 
           <div className="mt-3 flex-1">
-            <RecoveryPhraseGrid
-              phrase={(use24Words ? mnemonic24 : mnemonic12).split(' ').map((word, index) => ({
-                id: index,
-                value: word,
-              }))}
-              withButtons
-            />
+            <RecoveryPhraseGrid />
           </div>
           <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
@@ -231,38 +242,21 @@ export const CreateWallet = () => {
           <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[2]}</h1>
           <p className="mt-2.5 text-neutral-1 text-base">Confirm your secret recovery phrase</p>
           <div className="mt-9 flex-1">
-            <RecoveryPhraseGrid
-              phrase={(use24Words ? mnemonic24 : mnemonic12).split(' ').map((word, index) => ({
-                id: index,
-                value: word,
-              }))}
-              withButtons
-              isVerifyMode={true}
-              hiddenIndexes={randomHiddenIndexes}
-              handleResult={handleResult}
-            />
+            {/* TODO: handle hidden indexes with copy mnemonic */}
+            <RecoveryPhraseGrid isVerifyMode={true} hiddenIndexes={randomHiddenIndexes} />
           </div>
           <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
             </Button>
-            <Button className="w-full" onClick={handleCreateWallet} disabled={!isVerified}>
+            <Button className="w-full" onClick={handleCreateWallet} disabled={!mnemonicVerified}>
               Next
             </Button>
           </div>
         </div>
 
         {/* Final step: Wallet creation success */}
-        <div className="w-full h-full pt-3 flex flex-col px-16" data-hidden="true">
-          <div className="px-10 pb-2">
-            <VerifySuccess width="100%" />
-          </div>
-          <h1 className="text-white text-h3 font-semibold">Congratulations!</h1>
-          <p className="mt-2.5 text-neutral-1 text-base">Your wallet is created successfully</p>
-          <Button className="mt-8" asChild>
-            <NavLink to={ROUTES.AUTH.ROOT}>Got it</NavLink>
-          </Button>
-        </div>
+        {active === 3 && <WalletSuccessScreen caption="Your wallet was created successfully" />}
       </Stepper>
     </div>
   );

@@ -1,87 +1,126 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Copy, EyeClose, EyeOpen } from '@/assets/icons';
-import { EMPTY_RECOVERY_PHRASE } from '@/constants';
 import { cn } from '@/helpers/utils';
 import { Button, Input } from '@/ui-kit';
+import { EnglishMnemonic } from '@cosmjs/crypto';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { mnemonic12State, mnemonic24State, mnemonicVerifiedState, use24WordsState } from '@/atoms';
 
 type RecoveryPhraseGridProps = {
-  phrase?: { id: number; value: string }[];
-  withButtons?: boolean;
   isVerifyMode?: boolean;
   hiddenIndexes?: number[];
-  handleResult?: (allVerified: boolean) => void;
+  isEditable?: boolean;
 };
 
 export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
-  phrase,
-  withButtons = false,
   isVerifyMode = false,
   hiddenIndexes = [],
-  handleResult,
+  isEditable = false,
 }) => {
-  const [isShown, setIsShown] = useState<boolean>(isVerifyMode ? false : true);
+  const [mnemonic12, setMnemonic12] = useAtom(mnemonic12State);
+  const [mnemonic24, setMnemonic24] = useAtom(mnemonic24State);
+  const use24Words = useAtomValue(use24WordsState);
+  const setMnemonicVerified = useSetAtom(mnemonicVerifiedState);
+
+  // User input state tracking
+  const [localMnemonic, setLocalMnemonic] = useState<string[]>([]);
+  const [isShown, setIsShown] = useState<boolean>(!isVerifyMode);
   const [shadow, setShadow] = useState<string>('');
   const phraseBoxRef = useRef<HTMLDivElement>(null);
-  const [userInput, setUserInput] = useState<{ [key: number]: string }>({});
   const [inputBorderColors, setInputBorderColors] = useState<{ [key: number]: string }>({});
+  const [isFocused, setIsFocused] = useState<number | null>(null);
 
-  const resultPhrase = useMemo(() => {
-    // TODO: this is called from import wallet.  generate and pass empty 12 or 24 word phrase from there, then remove
-    if (!phrase) return EMPTY_RECOVERY_PHRASE;
+  const getCurrentMnemonic = () => (use24Words ? mnemonic24 : mnemonic12);
 
-    if (isVerifyMode) {
-      // Hide the words at the passed hiddenIndexes
-      return phrase.map((item, index) =>
-        hiddenIndexes.includes(index) ? { id: item.id, value: '' } : item,
-      );
-    }
+  useEffect(() => {
+    setLocalMnemonic(
+      getCurrentMnemonic().map((word, index) => (hiddenIndexes.includes(index) ? '' : word)),
+    );
+  }, [isVerifyMode, use24Words]);
 
-    return phrase;
-  }, [phrase, isVerifyMode, hiddenIndexes]);
+  const updateMnemonic = (mnemonic: string[]) => {
+    use24Words ? setMnemonic24(mnemonic) : setMnemonic12(mnemonic);
+  };
 
-  const handleShowPhrase = () => setIsShown(prevState => !prevState);
+  const handleShowPhrase = () => setIsShown(prev => !prev);
 
   const handleCopyToClipboard = () => {
-    const joinedPhraseString = phrase?.map(word => word.value).join(' ') || '';
+    const joinedPhraseString = localMnemonic.join(' ');
     navigator.clipboard.writeText(joinedPhraseString);
   };
 
-  const checkAllVerified = () => {
-    if (isVerifyMode && handleResult && phrase) {
-      const allVerified = hiddenIndexes.every(
-        i => userInput[i] && phrase[i].value.toLowerCase() === userInput[i].toLowerCase(),
-      );
+  const validateWord = (word: string) => EnglishMnemonic.wordlist.includes(word);
 
-      if (allVerified) {
-        handleResult(true);
-      } else {
-        handleResult(false);
-      }
+  const checkHiddenWordsVerified = () => {
+    const allHiddenWordsVerified = hiddenIndexes.every(
+      index => localMnemonic[index] === getCurrentMnemonic()[index],
+    );
+    setMnemonicVerified(allHiddenWordsVerified);
+
+    if (allHiddenWordsVerified) {
+      // Overwrite the atom mnemonic with verified input
+      updateMnemonic(localMnemonic);
     }
   };
 
   const onChangeInput = (index: number, value: string) => {
     const trimmedValue = value.trim();
 
-    // Update the input value and re-verify
-    setUserInput(prev => ({ ...prev, [index]: trimmedValue }));
+    setLocalMnemonic(prev => {
+      const updated = [...prev];
+      updated[index] = trimmedValue;
+      return updated;
+    });
   };
 
   const handleBlur = (index: number, value: string) => {
     const trimmedValue = value.trim();
+    setIsFocused(null);
 
-    if (phrase && phrase[index].value.toLowerCase() === trimmedValue.toLowerCase()) {
-      setInputBorderColors(prev => ({ ...prev, [index]: 'border-success' }));
-    } else {
-      setInputBorderColors(prev => ({ ...prev, [index]: 'border-error' }));
+    const isValidWord = validateWord(trimmedValue);
+
+    setInputBorderColors(prev => ({
+      ...prev,
+      [index]: isValidWord ? 'border-success' : 'border-error',
+    }));
+
+    if (!isValidWord) {
+      // Set mnemonicVerified to false if any word fails validation
+      setMnemonicVerified(false);
     }
 
-    checkAllVerified();
+    // If in verify mode, check if all hidden words are verified
+    if (isVerifyMode) {
+      checkHiddenWordsVerified();
+    } else if (localMnemonic.every(word => word.trim().length > 0)) {
+      validateMnemonic();
+    }
   };
+
+  const validateMnemonic = () => {
+    try {
+      new EnglishMnemonic(localMnemonic.join(' '));
+      setMnemonicVerified(true);
+      setInputBorderColors(
+        localMnemonic.reduce((acc, _, index) => ({ ...acc, [index]: 'border-success' }), {}),
+      );
+      updateMnemonic(localMnemonic);
+    } catch (error) {
+      setMnemonicVerified(false);
+      setInputBorderColors(
+        localMnemonic.reduce((acc, word, index) => {
+          const isValid = validateWord(word);
+          return { ...acc, [index]: isValid ? 'border-success' : 'border-error' };
+        }, {}),
+      );
+    }
+  };
+
+  const handleFocus = (index: number) => setIsFocused(index);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Enter' || e.key === 'Tab') {
-      handleBlur(index, userInput[index] || '');
+      handleBlur(index, localMnemonic[index] || '');
     }
   };
 
@@ -104,7 +143,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
     handleScroll();
 
     return () => el?.removeEventListener('scroll', handleScroll);
-  }, [phrase]);
+  }, [use24Words]);
 
   return (
     <div className="w-full">
@@ -114,31 +153,31 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
         style={{ boxShadow: shadow }}
       >
         <ul className="grid grid-cols-3 gap-y-3.5 gap-x-2.5">
-          {resultPhrase.map((word, index) => (
-            <li key={word.id} className="inline-flex items-center max-w-full">
+          {localMnemonic.map((word, index) => (
+            <li key={index} className="inline-flex items-center max-w-full">
               <span className="mr-1 text-sm/[24px] text-white w-5 text-left">{index + 1}.</span>
 
-              {isVerifyMode && hiddenIndexes.includes(index) ? (
+              {isEditable || (isVerifyMode && hiddenIndexes.includes(index)) ? (
                 <Input
                   type="text"
                   onChange={e => onChangeInput(index, e.target.value)}
-                  onBlur={() => handleBlur(index, userInput[index] || '')}
+                  onBlur={() => handleBlur(index, localMnemonic[index] || '')}
+                  onFocus={() => handleFocus(index)}
                   onKeyDown={e => handleKeyDown(e, index)}
-                  value={userInput[index] || ''}
+                  value={localMnemonic[index] || ''}
                   className={cn(
                     'border text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center',
-                    inputBorderColors[index] || 'border-blue',
+                    inputBorderColors[index] ||
+                      (isFocused === index ? 'border-blue' : 'border-gray-500'),
                   )}
                 />
               ) : (
                 <Input
                   type="password"
-                  readOnly={!isVerifyMode}
+                  readOnly
                   tabIndex={-1}
-                  className={cn(
-                    'border border-white text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center',
-                  )}
-                  value={isShown ? word.value : '*****'}
+                  className="border border-white text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center cursor-default"
+                  value={isShown ? word : '*****'}
                 />
               )}
             </li>
@@ -146,20 +185,18 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
         </ul>
       </div>
 
-      {withButtons && (
-        <div className={`flex ${isVerifyMode ? 'justify-center' : 'justify-between px-5'} mt-3`}>
-          <Button variant="transparent" size="small" onClick={handleShowPhrase}>
-            {isShown ? <EyeClose height={20} /> : <EyeOpen height={20} />}
-            <span className="ml-2.5 text-base">{isShown ? 'Hide' : 'Show'} seed phrase</span>
+      <div className={`flex ${isVerifyMode ? 'justify-center' : 'justify-between px-5'} mt-3`}>
+        <Button variant="transparent" size="small" onClick={handleShowPhrase}>
+          {isShown ? <EyeClose height={20} /> : <EyeOpen height={20} />}
+          <span className="ml-2.5 text-base">{isShown ? 'Hide' : 'Show'} seed phrase</span>
+        </Button>
+        {!isVerifyMode && (
+          <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
+            <Copy width={20} />
+            <span className="ml-2.5 text-base">Copy to clipboard</span>
           </Button>
-          {!isVerifyMode && (
-            <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
-              <Copy width={20} />
-              <span className="ml-2.5 text-base">Copy to clipboard</span>
-            </Button>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

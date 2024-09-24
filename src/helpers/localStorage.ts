@@ -30,6 +30,7 @@ export const getStoredAccessToken = (): string | null => {
  * @param {string} token The access token to be saved.
  */
 export const storeAccessToken = (token: string): void => {
+  // TODO: enable burner accounts by enabling login through multiple passwords to different access tokens
   setLocalStorageItem('accessToken', token);
 };
 
@@ -38,6 +39,7 @@ export const storeAccessToken = (token: string): void => {
  * @returns { { hash: string, salt: string } | null } The hashed password and salt or null if not found.
  */
 export const getStoredPassword = (): { hash: string; salt: string } | null => {
+  // TODO: enable burner accounts by enabling login through multiple passwords to different access tokens
   const storedHash = getLocalStorageItem('passwordHash');
   return storedHash ? JSON.parse(storedHash) : null;
 };

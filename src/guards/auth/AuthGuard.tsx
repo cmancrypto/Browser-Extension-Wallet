@@ -8,6 +8,8 @@ interface AuthGuardProps {
   children?: React.ReactNode;
 }
 
+// TODO: look into this saved navigation callback
+// TODO: check if wallet exists as well as if there's an access token
 export const AuthGuard = ({ children }: AuthGuardProps) => {
   const token = getStoredAccessToken();
   const { pathname } = useLocation();
