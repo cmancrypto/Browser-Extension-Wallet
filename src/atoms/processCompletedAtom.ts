@@ -1,3 +1,3 @@
 import { atom } from 'jotai';
 
-export const processCompleteddAtom = atom<boolean>(false);
+export const processCompletedAtom = atom<boolean>(false);

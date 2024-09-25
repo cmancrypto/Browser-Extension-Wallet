@@ -82,9 +82,11 @@ export const CreateWallet = () => {
     setRandomHiddenIndexes(getRandomIndexes());
   }, [use24Words]);
 
+  // TODO: ensure copy-paste functionality for import wallet (copy 12 words, 24 words, vs 1 word, vs x words from y position)
+  // TODO: show green or red border for passphrase box on full verify, clear on start of typing
+  // TODO: clear green or red border for passphrase words on start of typing
   // TODO: split screens out to other files
   // TODO: extract password component out to own file
-  // TODO: ensure copy-paste functionality for import wallet (copy 12 words, 24 words, vs 1 word, vs x words from y position)
   // TODO: handle error printout (in place of subtitle on verify screen?)
   // TODO: re-verify for import wallet screen
   // TODO: test path for no wallet exists and user attempts login
