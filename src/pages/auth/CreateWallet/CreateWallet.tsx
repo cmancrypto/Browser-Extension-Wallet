@@ -84,6 +84,7 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Auth TODOs */
+  // TODO: onPaste verify for password fields
   // TODO: password error fields, ensure no focus
   // TODO: password verify on completion of typing.  don't confirm or deny on empty string, clear on typing
   // TODO: if confirm password is empty, don't validate.  if testpass changes and confirm password has text, auto-verify
@@ -262,7 +263,6 @@ export const CreateWallet = () => {
           <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[2]}</h1>
           <p className="mt-2.5 text-neutral-1 text-base">Confirm your secret recovery phrase</p>
           <div className="mt-9 flex-1">
-            {/* TODO: handle hidden indexes with copy mnemonic */}
             <RecoveryPhraseGrid isVerifyMode={true} hiddenIndexes={randomHiddenIndexes} />
           </div>
           <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
