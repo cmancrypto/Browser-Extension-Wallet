@@ -84,7 +84,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Auth TODOs */
-  // TODO: fix titles and subtitles on import pages (and check create pages)
   // TODO: password error fields, ensure no focus
   // TODO: password verify on completion of typing.  don't confirm or deny on empty string, clear on typing
   // TODO: if confirm password is empty, don't validate.  if testpass changes and confirm password has text, auto-verify
@@ -109,10 +108,12 @@ export const CreateWallet = () => {
   // TODO: add slide tray for asset selections (like on mobile)
 
   /* Nice to have TODOs */
+  // TODO: move 12 word, 24 word buttons into recoveryphrasegrid
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing
   // TODO: clear green or red border for passphrase words on start of typing
   // TODO: split screens out to other files
   // TODO: extract password component out to own file
+  // TODO: add password complexity bar on entry
 
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {

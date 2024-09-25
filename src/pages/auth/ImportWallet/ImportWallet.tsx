@@ -110,7 +110,7 @@ export const ImportWallet = () => {
       >
         {/* Step 1: Display recovery phrase */}
         <div className="w-full h-full pt-7 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
+          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
           <p className="mt-2.5 text-base text-neutral-1">Backup your secret recovery phrase</p>
 
           {/* 12 Words vs 24 Words selection */}
@@ -145,7 +145,7 @@ export const ImportWallet = () => {
 
         {/* Step 2: Create password */}
         <div className="w-full h-full pt-7 px-8 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
+          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
           <form className="mt-9 flex-1">
             {/* New Password Input */}
             <Input
