@@ -37,7 +37,8 @@ export const CreateWallet = () => {
     const phraseLength = use24Words ? 24 : 12;
     const indexes = Array.from(Array(phraseLength).keys());
     const shuffled = indexes.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 3);
+    const sortedRandomIndices = shuffled.slice(0, 3).sort((a, b) => a - b); // Sort numerically
+    return sortedRandomIndices;
   };
 
   const [randomHiddenIndexes, setRandomHiddenIndexes] = useState(getRandomIndexes());
@@ -82,21 +83,37 @@ export const CreateWallet = () => {
     setRandomHiddenIndexes(getRandomIndexes());
   }, [use24Words]);
 
-  // TODO: ensure copy-paste functionality for import wallet (copy 12 words, 24 words, vs 1 word, vs x words from y position)
-  // TODO: show green or red border for passphrase box on full verify, clear on start of typing
-  // TODO: clear green or red border for passphrase words on start of typing
-  // TODO: split screens out to other files
-  // TODO: extract password component out to own file
+  /* Auth TODOs */
+  // TODO: fix titles and subtitles on import pages (and check create pages)
+  // TODO: password error fields, ensure no focus
+  // TODO: password verify on completion of typing.  don't confirm or deny on empty string, clear on typing
+  // TODO: if confirm password is empty, don't validate.  if testpass changes and confirm password has text, auto-verify
+  // TODO: show feedback on click of copy button to show it was copied.  check mark with timeout?
+  // TODO: do not mark error for empty text fields in phrases
+  // TODO: 12 words and 24 words should maintain different validity fields.  it's showing on 12 instead, even when 24 has no words.
+  // TODO: 24 words does not show box shadow initially
+  // TODO: hiding words not working for import screen
+  // TODO: for default on text, ensure no focus and basic mouse onHover (no change)
+  // TODO: congratulations page still showing 4th index.  remove that
   // TODO: handle error printout (in place of subtitle on verify screen?)
-  // TODO: re-verify for import wallet screen
-  // TODO: test path for no wallet exists and user attempts login
+  // TODO: test path and create error for no wallet exists and user attempts login
+
+  /* Inside wallet TODOs */
   // TODO: add asset list
   // TODO: add send transaction
   // TODO: add qr code screen for receive
   // TODO: add swap transaction
   // TODO: create add wallet screen to allow management of multiple accounts
   // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
-  // TODO: add qr code screen for transfer data (including account data)
+  // TODO: add qr code screen for transfer data (including account data).  or from google
+  // TODO: add slide tray for asset selections (like on mobile)
+
+  /* Nice to have TODOs */
+  // TODO: show green or red border for passphrase box on full verify, clear on start of typing
+  // TODO: clear green or red border for passphrase words on start of typing
+  // TODO: split screens out to other files
+  // TODO: extract password component out to own file
+
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
     try {
