@@ -3,7 +3,7 @@ import { Copy, EyeClose, EyeOpen } from '@/assets/icons';
 import { cn } from '@/helpers/utils';
 import { Button, Input } from '@/ui-kit';
 import { EnglishMnemonic } from '@cosmjs/crypto';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { mnemonic12State, mnemonic24State, mnemonicVerifiedState, use24WordsState } from '@/atoms';
 
 type RecoveryPhraseGridProps = {
@@ -19,7 +19,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 }) => {
   const [mnemonic12, setMnemonic12] = useAtom(mnemonic12State);
   const [mnemonic24, setMnemonic24] = useAtom(mnemonic24State);
-  const use24Words = useAtomValue(use24WordsState);
+  const [use24Words, setUse24Words] = useAtom(use24WordsState);
   const setMnemonicVerified = useSetAtom(mnemonicVerifiedState);
 
   // User input state tracking
@@ -220,58 +220,78 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   }, [use24Words]);
 
   return (
-    <div className="w-full">
-      <div
-        ref={phraseBoxRef}
-        className="overflow-auto min-h-[160px] max-h-[160px] border border-grey rounded-lg p-2.5 hide-scrollbar"
-        style={{ boxShadow: shadow }}
-      >
-        <ul className="grid grid-cols-3 gap-y-3.5 gap-x-2.5">
-          {localMnemonic.map((word, index) => (
-            <li key={index} className="inline-flex items-center max-w-full">
-              <span className="mr-1 text-sm/[24px] text-white w-5 text-left">{index + 1}.</span>
-
-              {isEditable || (isVerifyMode && hiddenIndexes.includes(index)) ? (
-                <Input
-                  type="text"
-                  onChange={e => onChangeInput(index, e.target.value)}
-                  onPaste={handlePasteEvent(index)}
-                  onBlur={() => handleBlur(index, localMnemonic[index] || '')}
-                  onFocus={() => handleFocus(index)}
-                  onKeyDown={e => handleKeyDown(e, index)}
-                  value={localMnemonic[index] || ''}
-                  className={cn(
-                    'border text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center',
-                    inputBorderColors[index] ||
-                      (isFocused === index ? 'border-blue' : 'border-gray-500'),
-                  )}
-                />
-              ) : (
-                <Input
-                  type="password"
-                  readOnly
-                  tabIndex={-1}
-                  className="border border-white text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center cursor-default"
-                  value={isShown ? word : '*****'}
-                />
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className={`flex ${isVerifyMode ? 'justify-center' : 'justify-between px-5'} mt-3`}>
-        <Button variant="transparent" size="small" onClick={handleShowPhrase}>
-          {isShown ? <EyeClose height={20} /> : <EyeOpen height={20} />}
-          <span className="ml-2.5 text-base">{isShown ? 'Hide' : 'Show'} seed phrase</span>
+    <>
+      {/* 12 Words vs 24 Words selection */}
+      <div className="flex justify-center mt-5">
+        <Button
+          variant={!use24Words ? 'selected' : 'unselected'}
+          onClick={() => setUse24Words(false)}
+          className="ml-4"
+        >
+          12 Words
         </Button>
-        {!isVerifyMode && (
-          <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
-            <Copy width={20} />
-            <span className="ml-2.5 text-base">Copy to clipboard</span>
-          </Button>
-        )}
+        <Button
+          variant={use24Words ? 'selected' : 'unselected'}
+          onClick={() => setUse24Words(true)}
+        >
+          24 Words
+        </Button>
       </div>
-    </div>
+      <div className="mt-3 flex-1">
+        <div className="w-full">
+          <div
+            ref={phraseBoxRef}
+            className="overflow-auto min-h-[160px] max-h-[160px] border border-grey rounded-lg p-2.5 hide-scrollbar"
+            style={{ boxShadow: shadow }}
+          >
+            <ul className="grid grid-cols-3 gap-y-3.5 gap-x-2.5">
+              {localMnemonic.map((word, index) => (
+                <li key={index} className="inline-flex items-center max-w-full">
+                  <span className="mr-1 text-sm/[24px] text-white w-5 text-left">{index + 1}.</span>
+
+                  {isEditable || (isVerifyMode && hiddenIndexes.includes(index)) ? (
+                    <Input
+                      type="text"
+                      onChange={e => onChangeInput(index, e.target.value)}
+                      onPaste={handlePasteEvent(index)}
+                      onBlur={() => handleBlur(index, localMnemonic[index] || '')}
+                      onFocus={() => handleFocus(index)}
+                      onKeyDown={e => handleKeyDown(e, index)}
+                      value={localMnemonic[index] || ''}
+                      className={cn(
+                        'border text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center',
+                        inputBorderColors[index] ||
+                          (isFocused === index ? 'border-blue' : 'border-gray-500'),
+                      )}
+                    />
+                  ) : (
+                    <Input
+                      type="password"
+                      readOnly
+                      tabIndex={-1}
+                      className="border border-white text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center cursor-default"
+                      value={isShown ? word : '*****'}
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className={`flex ${isVerifyMode ? 'justify-center' : 'justify-between px-5'} mt-3`}>
+            <Button variant="transparent" size="small" onClick={handleShowPhrase}>
+              {isShown ? <EyeClose height={20} /> : <EyeOpen height={20} />}
+              <span className="ml-2.5 text-base">{isShown ? 'Hide' : 'Show'} seed phrase</span>
+            </Button>
+            {!isVerifyMode && (
+              <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
+                <Copy width={20} />
+                <span className="ml-2.5 text-base">Copy to clipboard</span>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 };

@@ -224,27 +224,7 @@ export const CreateWallet = () => {
         <div className="w-full h-full pt-7 flex flex-col">
           <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
           <p className="mt-2.5 text-base text-neutral-1">Backup your secret recovery phrase</p>
-
-          {/* 12 Words vs 24 Words selection */}
-          <div className="flex justify-center mt-5">
-            <Button
-              variant={!use24Words ? 'selected' : 'unselected'}
-              onClick={() => setUse24Words(false)}
-              className="ml-4"
-            >
-              12 Words
-            </Button>
-            <Button
-              variant={use24Words ? 'selected' : 'unselected'}
-              onClick={() => setUse24Words(true)}
-            >
-              24 Words
-            </Button>
-          </div>
-
-          <div className="mt-3 flex-1">
-            <RecoveryPhraseGrid />
-          </div>
+          <RecoveryPhraseGrid />
           <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
             <Button variant="secondary" className="w-full" onClick={prevStep}>
               Back
