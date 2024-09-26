@@ -89,18 +89,10 @@ export const CreateWallet = () => {
     setPasswordsVerified(false);
   };
 
-  // Copy recovery phrase to clipboard
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(getStringMnemonic());
-  };
-
   // Regenerate random indexes when use24Words is toggled
   useEffect(() => {
     setRandomHiddenIndexes(getRandomIndexes());
   }, [use24Words]);
-
-  /* Auth TODOs */
-  // TODO: verify phrase onChange as well (not working on complete of last word)
 
   /* Inside wallet TODOs */
   // TODO: add asset list
@@ -114,7 +106,6 @@ export const CreateWallet = () => {
 
   /* Less Critical Auth TODOs */
   // TODO: handle error printout (in place of subtitle on verify screen?)
-  // TODO: show feedback on click of copy button to show it was copied.  check mark with timeout? toast?
   // TODO: for default on text, ensure no focus and basic mouse onHover (no change)
   // TODO: test path and create error for no wallet exists and user attempts login
 
@@ -170,9 +161,6 @@ export const CreateWallet = () => {
               <Button variant="secondary" className="w-full" onClick={prevStep}>
                 Back
               </Button>
-              <Button className="w-full" onClick={handleCopyToClipboard}>
-                Copy {use24Words ? '24' : '12'}-Word Phrase
-              </Button>
               <Button className="w-full" onClick={nextStep}>
                 Next
               </Button>
@@ -183,7 +171,7 @@ export const CreateWallet = () => {
           <div className="w-full h-full pt-7 flex flex-col">
             <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[2]}</h1>
             <p className="mt-2.5 text-neutral-1 text-base">Confirm your secret recovery phrase</p>
-            <RecoveryPhraseGrid isVerifyMode={true} hiddenIndexes={randomHiddenIndexes} />
+            <RecoveryPhraseGrid isVerifyMode={true} hiddenIndices={randomHiddenIndexes} />
             <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
               <Button variant="secondary" className="w-full" onClick={prevStep}>
                 Back

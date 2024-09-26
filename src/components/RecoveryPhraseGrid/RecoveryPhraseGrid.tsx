@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { Copy, EyeClose, EyeOpen } from '@/assets/icons';
+import { Copy, EyeClose, EyeOpen, VerifySuccess } from '@/assets/icons';
 import { cn } from '@/helpers/utils';
 import { Button, Input } from '@/ui-kit';
 import { EnglishMnemonic } from '@cosmjs/crypto';
@@ -8,13 +8,13 @@ import { mnemonic12State, mnemonic24State, mnemonicVerifiedState, use24WordsStat
 
 type RecoveryPhraseGridProps = {
   isVerifyMode?: boolean;
-  hiddenIndexes?: number[];
+  hiddenIndices?: number[];
   isEditable?: boolean;
 };
 
 export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   isVerifyMode = false,
-  hiddenIndexes = [],
+  hiddenIndices: hiddenWordIndices = [],
   isEditable = false,
 }) => {
   const [mnemonic12, setMnemonic12] = useAtom(mnemonic12State);
@@ -35,6 +35,8 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   const [allowValidation24, setAllowValidation24] = useState<{ [key: number]: boolean }>({});
   const [isFocused, setIsFocused] = useState<number | null>(null);
 
+  const [copied, setCopied] = useState(false);
+
   const getCurrentMnemonic = () => (use24Words ? mnemonic24 : mnemonic12);
   const maxWords = use24Words ? 24 : 12;
 
@@ -48,7 +50,12 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
   const validateWord = (word: string) => EnglishMnemonic.wordlist.includes(word);
 
-  const handleCopyToClipboard = () => navigator.clipboard.writeText(localMnemonic.join(' '));
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(localMnemonic.join(' '));
+    setCopied(true);
+    // Reset after 0.75 seconds
+    setTimeout(() => setCopied(false), 750);
+  };
 
   // Copy local state to global state
   const updateMnemonic = (mnemonic: string[]) => {
@@ -76,14 +83,11 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
   // Specific case: Validate all of hidden words
   const checkAllHiddenWordsVerified = () => {
-    const allHiddenWordsVerified = hiddenIndexes.every(
+    const allHiddenWordsVerified = hiddenWordIndices.every(
       index => localMnemonic[index] === getCurrentMnemonic()[index],
     );
-    setMnemonicVerified(allHiddenWordsVerified);
 
-    if (allHiddenWordsVerified) {
-      updateMnemonic(localMnemonic);
-    }
+    setMnemonicVerified(allHiddenWordsVerified);
   };
 
   // Route logic.  Check full mnemonic both hidden and editable
@@ -106,13 +110,15 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   // Update local mnemonic with global state
   useEffect(() => {
     setLocalMnemonic(
-      getCurrentMnemonic().map((word, index) => (hiddenIndexes.includes(index) ? '' : word)),
+      getCurrentMnemonic().map((word, index) => (hiddenWordIndices.includes(index) ? '' : word)),
     );
   }, [isVerifyMode, use24Words]);
 
   // Verify full mnemonic on change
   useEffect(() => {
-    updateMnemonic(localMnemonic);
+    if (!isVerifyMode) {
+      updateMnemonic(localMnemonic);
+    }
     checkFullMnemonic();
   }, [localMnemonic]);
 
@@ -162,15 +168,11 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
       return updated;
     });
 
-    if (allowValidation[index]) {
-      const isValid = validateWord(trimmedValue);
-      setInputBorderColors(prev => ({
-        ...prev,
-        [index]: isValid ? 'border-success' : 'border-error',
-      }));
-    }
+    const isValid = validateWord(trimmedValue);
+    updateSingleWordVerification(index, value, isValid);
 
     checkVerifyStatus(index, trimmedValue);
+    checkFullMnemonic();
   };
 
   const handlePaste = (userSelectIndex: number, pastedValue: string) => {
@@ -178,12 +180,12 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
     let currentWordIndex = 0;
 
     // If pasting more words than available slots, start from index 0
-    const maxNumSlots = isVerifyMode ? hiddenIndexes.length : maxWords;
+    const maxNumSlots = isVerifyMode ? hiddenWordIndices.length : maxWords;
     const fillingAllSlots = words.length >= maxNumSlots;
 
     // Target indices start as the set of hidden indices or all indices
     let targetIndices = isVerifyMode
-      ? hiddenIndexes
+      ? hiddenWordIndices
       : Array.from({ length: maxWords }, (_, i) => i);
     // If not filling all slots, cut target indices to only relevant ones
     if (!fillingAllSlots) {
@@ -283,21 +285,23 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   return (
     <>
       {/* 12 Words vs 24 Words selection */}
-      <div className="flex justify-center mt-5">
-        <Button
-          variant={!use24Words ? 'selected' : 'unselected'}
-          onClick={() => setUse24Words(false)}
-          className="ml-4"
-        >
-          12 Words
-        </Button>
-        <Button
-          variant={use24Words ? 'selected' : 'unselected'}
-          onClick={() => setUse24Words(true)}
-        >
-          24 Words
-        </Button>
-      </div>
+      {!isVerifyMode && (
+        <div className="flex justify-center mt-5">
+          <Button
+            variant={!use24Words ? 'selected' : 'unselected'}
+            onClick={() => setUse24Words(false)}
+            className="ml-4"
+          >
+            12 Words
+          </Button>
+          <Button
+            variant={use24Words ? 'selected' : 'unselected'}
+            onClick={() => setUse24Words(true)}
+          >
+            24 Words
+          </Button>
+        </div>
+      )}
       <div className="mt-3 flex-1">
         <div className="w-full">
           <div
@@ -310,7 +314,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
                 <li key={index} className="inline-flex items-center max-w-full">
                   <span className="mr-1 text-sm/[24px] text-white w-5 text-left">{index + 1}.</span>
 
-                  {isEditable || (isVerifyMode && hiddenIndexes.includes(index)) ? (
+                  {isEditable || (isVerifyMode && hiddenWordIndices.includes(index)) ? (
                     <Input
                       type="text"
                       onChange={e => onChangeInput(index, e.target.value)}
@@ -352,8 +356,14 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
             </Button>
             {!isVerifyMode && (
               <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
-                <Copy width={20} />
-                <span className="ml-2.5 text-base">Copy to clipboard</span>
+                <div className="flex items-center space-x-2">
+                  {copied ? (
+                    <VerifySuccess width={20} className="text-success animate-scale-up" />
+                  ) : (
+                    <Copy width={20} />
+                  )}
+                  <span className="ml-2.5 text-base">Copy to clipboard</span>
+                </div>
               </Button>
             )}
           </div>
