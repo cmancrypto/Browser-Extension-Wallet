@@ -74,47 +74,47 @@ export const ImportWallet = () => {
 
   return (
     <div className="mt-6 h-full">
-      <Stepper
-        active={activeScreen}
-        labels={STEPS_LABELS}
-        progressBarClass="px-9"
-        containerClass="h-full"
-      >
-        {/* Step 1: Display recovery phrase */}
-        <div className="w-full h-full pt-7 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
-          <p className="mt-2.5 text-base text-neutral-1">Backup your secret recovery phrase</p>
-          <RecoveryPhraseGrid isEditable />
-          <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
-            <Button variant="secondary" className="w-full" asChild>
-              <NavLink to={ROUTES.AUTH.NEW_WALLET.ROOT}>Back</NavLink>
-            </Button>
-            <Button className="w-full" onClick={nextStep} disabled={!mnemonicVerified}>
-              Next
-            </Button>
+      {activeScreen < STEPS_LABELS.length ? (
+        <Stepper
+          active={activeScreen}
+          labels={STEPS_LABELS}
+          progressBarClass="px-9"
+          containerClass="h-full"
+        >
+          {/* Step 1: Display recovery phrase */}
+          <div className="w-full h-full pt-7 flex flex-col">
+            <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
+            <p className="mt-2.5 text-base text-neutral-1">Backup your secret recovery phrase</p>
+            <RecoveryPhraseGrid isEditable />
+            <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
+              <Button variant="secondary" className="w-full" asChild>
+                <NavLink to={ROUTES.AUTH.NEW_WALLET.ROOT}>Back</NavLink>
+              </Button>
+              <Button className="w-full" onClick={nextStep} disabled={!mnemonicVerified}>
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Step 2: Create password */}
-        <div className="w-full h-full pt-7 px-8 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
-          <CreatePasswordForm />
+          {/* Step 2: Create password */}
+          <div className="w-full h-full pt-7 px-8 flex flex-col">
+            <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
+            <CreatePasswordForm />
 
-          <div className="flex w-full justify-between gap-x-5 pb-2">
-            <Button variant="secondary" className="w-full" onClick={prevStep}>
-              Back
-            </Button>
-            <Button className="w-full" onClick={handleCreateWallet} disabled={!fullyVerified}>
-              Next
-            </Button>
+            <div className="flex w-full justify-between gap-x-5 pb-2">
+              <Button variant="secondary" className="w-full" onClick={prevStep}>
+                Back
+              </Button>
+              <Button className="w-full" onClick={handleCreateWallet} disabled={!fullyVerified}>
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
-
-        {/* Final step: Wallet creation success */}
-        {activeScreen === 2 && (
-          <WalletSuccessScreen caption="Your wallet was imported successfully" />
-        )}
-      </Stepper>
+        </Stepper>
+      ) : (
+        // Wallet success screen outside the Stepper
+        <WalletSuccessScreen caption="Your wallet was imported successfully" />
+      )}
     </div>
   );
 };

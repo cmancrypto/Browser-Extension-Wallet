@@ -100,7 +100,7 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Auth TODOs */
-  // TODO: congratulations page still showing 4th index.  remove that
+  // TODO: verify phrase onChange as well (not working on complete of last word)
 
   /* Inside wallet TODOs */
   // TODO: add asset list
@@ -139,65 +139,65 @@ export const CreateWallet = () => {
 
   return (
     <div className="mt-6 h-full">
-      <Stepper
-        active={activeScreen}
-        labels={STEPS_LABELS}
-        progressBarClass="px-9"
-        containerClass="h-full"
-      >
-        {/* Step 1: Create password */}
-        <div className="w-full h-full pt-7 px-8 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
-          <CreatePasswordForm />
+      {activeScreen < STEPS_LABELS.length ? (
+        <Stepper
+          active={activeScreen}
+          labels={STEPS_LABELS}
+          progressBarClass="px-9"
+          containerClass="h-full"
+        >
+          {/* Step 1: Create password */}
+          <div className="w-full h-full pt-7 px-8 flex flex-col">
+            <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[0]}</h1>
+            <CreatePasswordForm />
 
-          <div className="flex w-full justify-between gap-x-5 pb-2">
-            <Button variant="secondary" className="w-full" asChild>
-              <NavLink to={ROUTES.AUTH.NEW_WALLET.ROOT}>Back</NavLink>
-            </Button>
-            <Button className="w-full" onClick={nextStep} disabled={!passwordsVerified}>
-              Next
-            </Button>
+            <div className="flex w-full justify-between gap-x-5 pb-2">
+              <Button variant="secondary" className="w-full" asChild>
+                <NavLink to={ROUTES.AUTH.NEW_WALLET.ROOT}>Back</NavLink>
+              </Button>
+              <Button className="w-full" onClick={nextStep} disabled={!passwordsVerified}>
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Step 2: Display recovery phrase */}
-        <div className="w-full h-full pt-7 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
-          <p className="mt-2.5 text-base text-neutral-1">Backup your secret recovery phrase</p>
-          <RecoveryPhraseGrid />
-          <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
-            <Button variant="secondary" className="w-full" onClick={prevStep}>
-              Back
-            </Button>
-            <Button className="w-full" onClick={handleCopyToClipboard}>
-              Copy {use24Words ? '24' : '12'}-Word Phrase
-            </Button>
-            <Button className="w-full" onClick={nextStep}>
-              Next
-            </Button>
+          {/* Step 2: Display recovery phrase */}
+          <div className="w-full h-full pt-7 flex flex-col">
+            <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[1]}</h1>
+            <p className="mt-2.5 text-base text-neutral-1">Backup your secret recovery phrase</p>
+            <RecoveryPhraseGrid />
+            <div className="flex w-full px-10 justify-between gap-x-5 pb-2 mt-4">
+              <Button variant="secondary" className="w-full" onClick={prevStep}>
+                Back
+              </Button>
+              <Button className="w-full" onClick={handleCopyToClipboard}>
+                Copy {use24Words ? '24' : '12'}-Word Phrase
+              </Button>
+              <Button className="w-full" onClick={nextStep}>
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Step 3: Verify recovery phrase */}
-        <div className="w-full h-full pt-7 flex flex-col">
-          <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[2]}</h1>
-          <p className="mt-2.5 text-neutral-1 text-base">Confirm your secret recovery phrase</p>
-          <RecoveryPhraseGrid isVerifyMode={true} hiddenIndexes={randomHiddenIndexes} />
-          <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
-            <Button variant="secondary" className="w-full" onClick={prevStep}>
-              Back
-            </Button>
-            <Button className="w-full" onClick={handleCreateWallet} disabled={!fullyVerified}>
-              Next
-            </Button>
+          {/* Step 3: Verify recovery phrase */}
+          <div className="w-full h-full pt-7 flex flex-col">
+            <h1 className="text-white text-h3 font-semibold">{STEPS_LABELS[2]}</h1>
+            <p className="mt-2.5 text-neutral-1 text-base">Confirm your secret recovery phrase</p>
+            <RecoveryPhraseGrid isVerifyMode={true} hiddenIndexes={randomHiddenIndexes} />
+            <div className="flex w-full px-10 justify-between gap-x-5 pb-2">
+              <Button variant="secondary" className="w-full" onClick={prevStep}>
+                Back
+              </Button>
+              <Button className="w-full" onClick={handleCreateWallet} disabled={!fullyVerified}>
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
-
-        {/* Final step: Wallet creation success */}
-        {activeScreen === 3 && (
-          <WalletSuccessScreen caption="Your wallet was created successfully" />
-        )}
-      </Stepper>
+        </Stepper>
+      ) : (
+        // Wallet success screen outside the Stepper
+        <WalletSuccessScreen caption="Your wallet was created successfully" />
+      )}
     </div>
   );
 };
