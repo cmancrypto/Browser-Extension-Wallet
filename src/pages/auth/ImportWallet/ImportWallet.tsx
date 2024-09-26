@@ -39,9 +39,6 @@ export const ImportWallet = () => {
   }, []);
 
   useEffect(() => {
-    console.log('mnemonicVerified:', mnemonicVerified);
-    console.log('passwordsAreVerified:', passwordsVerified);
-
     // Ensure both passwords and mnemonic are fully validated before enabling the next button
     setFullyVerified(passwordsVerified && mnemonicVerified);
   }, [passwordsVerified, mnemonicVerified]);

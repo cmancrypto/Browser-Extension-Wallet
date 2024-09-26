@@ -40,9 +40,6 @@ export const CreateWallet = () => {
   }, []);
 
   useEffect(() => {
-    console.log('mnemonicVerified:', mnemonicVerified);
-    console.log('passwordsAreVerified:', passwordsVerified);
-
     // Ensure both passwords and mnemonic are fully validated before enabling the next button
     setFullyVerified(passwordsVerified && mnemonicVerified);
   }, [passwordsVerified, mnemonicVerified]);
@@ -103,7 +100,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Auth TODOs */
-  // TODO: onChange, save text changes to local.  can test through import wallet and changing 12 word to 24 word
   // TODO: 24 words does not show box shadow initially
   // TODO: congratulations page still showing 4th index.  remove that
 
@@ -130,7 +126,6 @@ export const CreateWallet = () => {
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
     try {
-      console.log('making wallet with', getCurrentMnemonic());
       // Generate wallet from the mnemonic and create the token
       const { walletAddress } = await createWallet(getStringMnemonic(), password);
       generateToken(walletAddress);

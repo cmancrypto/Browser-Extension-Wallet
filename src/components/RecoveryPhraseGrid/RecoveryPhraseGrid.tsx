@@ -52,7 +52,6 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
   // Copy local state to global state
   const updateMnemonic = (mnemonic: string[]) => {
-    console.log('updating mnemonic with', mnemonic);
     use24Words ? setMnemonic24(mnemonic) : setMnemonic12(mnemonic);
   };
 
@@ -64,7 +63,6 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
       setInputBorderColors(
         localMnemonic.reduce((acc, _, index) => ({ ...acc, [index]: 'border-success' }), {}),
       );
-      updateMnemonic(localMnemonic);
     } catch (error) {
       setMnemonicVerified(false);
       setInputBorderColors(
@@ -114,15 +112,13 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
   // Verify full mnemonic on change
   useEffect(() => {
-    console.log('local mnemonic', localMnemonic);
+    updateMnemonic(localMnemonic);
     checkFullMnemonic();
   }, [localMnemonic]);
 
-  // Update allow validation status for specific index
-  const checkVerifyStatus = (index: number, value: string) => {
-    // Reset validation when field is empty
+  // For each singular word update, check if verification is allowed and verify word
+  const updateSingleWordVerification = (index: number, value: string, isValidWord: boolean) => {
     if (value === '') {
-      console.log('update allow validate and border on empty string');
       setAllowValidation(prev => ({
         ...prev,
         [index]: false,
@@ -131,8 +127,24 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
         ...prev,
         [index]: '',
       }));
-    } else if (!allowValidation[index] && (validateWord(value) || value.length > 3)) {
-      console.log('update allow validation to false');
+    } else {
+      setInputBorderColors(prev => ({
+        ...prev,
+        [index]: isValidWord ? 'border-success' : 'border-error',
+      }));
+      setAllowValidation(prev => ({
+        ...prev,
+        [index]: true,
+      }));
+    }
+  };
+
+  // Update allow validation status for specific index
+  const checkVerifyStatus = (index: number, value: string) => {
+    const isValidWord = validateWord(value);
+    updateSingleWordVerification(index, value, isValidWord);
+
+    if (!allowValidation[index] && (isValidWord || value.length > 3)) {
       // Allow validation if word is valid or if word length exceeds 3
       setAllowValidation(prev => ({
         ...prev,
@@ -192,14 +204,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
       updated.forEach((word, idx) => {
         if (pastedIndices.includes(idx)) {
           const isValid = validateWord(word);
-          setInputBorderColors(prev => ({
-            ...prev,
-            [idx]: isValid ? 'border-success' : 'border-error',
-          }));
-          setAllowValidation(prev => ({
-            ...prev,
-            [idx]: true,
-          }));
+          updateSingleWordVerification(idx, word, isValid);
         }
       });
 
@@ -224,15 +229,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
     setIsFocused(null);
 
     const isValidWord = validateWord(trimmedValue);
-
-    setInputBorderColors(prev => ({
-      ...prev,
-      [index]: isValidWord ? 'border-success' : 'border-error',
-    }));
-    setAllowValidation(prev => ({
-      ...prev,
-      [index]: true,
-    }));
+    updateSingleWordVerification(index, value, isValidWord);
 
     if (!isValidWord) {
       setMnemonicVerified(false);
