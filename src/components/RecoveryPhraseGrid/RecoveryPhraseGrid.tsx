@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { Copy, EyeClose, EyeOpen } from '@/assets/icons';
 import { cn } from '@/helpers/utils';
 import { Button, Input } from '@/ui-kit';
@@ -246,23 +246,36 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleScroll = () => {
       const el = phraseBoxRef.current;
       if (!el) return;
 
-      const scrollTop = el.scrollTop > 0;
+      const canScrollUp = el.scrollTop > 0;
       const canScrollDown = el.scrollTop + el.clientHeight < el.scrollHeight;
 
-      const topShadow = scrollTop ? 'inset 0 12px 10px -8px rgba(255, 255, 255, 0.8)' : '';
+      const topShadow = canScrollUp ? 'inset 0 12px 10px -8px rgba(255, 255, 255, 0.8)' : '';
       const bottomShadow = canScrollDown ? 'inset 0 -12px 10px -8px rgba(255, 255, 255, 0.8)' : '';
 
       setShadow([topShadow, bottomShadow].filter(Boolean).join(', '));
     };
 
+    const applyShadowWithDelay = () => {
+      // Delay to ensure DOM fully updates before checking heights
+      setTimeout(() => {
+        const el = phraseBoxRef.current;
+        if (!el) return;
+
+        const canScrollDown = el.scrollHeight > el.clientHeight;
+        setShadow(canScrollDown ? 'inset 0 -12px 10px -8px rgba(255, 255, 255, 0.8)' : '');
+      }, 50);
+    };
+
     const el = phraseBoxRef.current;
     el?.addEventListener('scroll', handleScroll);
-    handleScroll();
+
+    // Apply shadow after a slight delay to ensure proper layout
+    applyShadowWithDelay();
 
     return () => el?.removeEventListener('scroll', handleScroll);
   }, [use24Words]);

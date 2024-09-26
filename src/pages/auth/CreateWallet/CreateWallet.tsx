@@ -100,7 +100,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Auth TODOs */
-  // TODO: 24 words does not show box shadow initially
   // TODO: congratulations page still showing 4th index.  remove that
 
   /* Inside wallet TODOs */
