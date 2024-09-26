@@ -103,10 +103,9 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Auth TODOs */
-  // TODO: onChange, save local to global.  can test through import wallet and changing 12 word to 24 word
+  // TODO: onChange, save text changes to local.  can test through import wallet and changing 12 word to 24 word
   // TODO: 24 words does not show box shadow initially
   // TODO: congratulations page still showing 4th index.  remove that
-  // TODO: clear password, confirmPassword, and validated on leave of create or import wallet page
 
   /* Inside wallet TODOs */
   // TODO: add asset list
