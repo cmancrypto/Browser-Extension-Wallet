@@ -24,39 +24,60 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
   // User input state tracking
   const [localMnemonic, setLocalMnemonic] = useState<string[]>([]);
-  const [isShown, setIsShown] = useState<boolean>(!isVerifyMode);
+  const [isShown, setIsShown] = useState<boolean>(false);
   const [shadow, setShadow] = useState<string>('');
   const phraseBoxRef = useRef<HTMLDivElement>(null);
-  const [inputBorderColors, setInputBorderColors] = useState<{ [key: number]: string }>({});
+
+  // State for border colors and validation allowance
+  const [inputBorderColors12, setInputBorderColors12] = useState<{ [key: number]: string }>({});
+  const [inputBorderColors24, setInputBorderColors24] = useState<{ [key: number]: string }>({});
+  const [allowValidation12, setAllowValidation12] = useState<{ [key: number]: boolean }>({});
+  const [allowValidation24, setAllowValidation24] = useState<{ [key: number]: boolean }>({});
   const [isFocused, setIsFocused] = useState<number | null>(null);
 
   const getCurrentMnemonic = () => (use24Words ? mnemonic24 : mnemonic12);
   const maxWords = use24Words ? 24 : 12;
 
-  useEffect(() => {
-    setLocalMnemonic(
-      getCurrentMnemonic().map((word, index) => (hiddenIndexes.includes(index) ? '' : word)),
-    );
-  }, [isVerifyMode, use24Words]);
+  const inputBorderColors = use24Words ? inputBorderColors24 : inputBorderColors12;
+  const setInputBorderColors = use24Words ? setInputBorderColors24 : setInputBorderColors12;
 
-  useEffect(() => {
-    verifyEntries();
-  }, [localMnemonic]);
-
-  const updateMnemonic = (mnemonic: string[]) => {
-    use24Words ? setMnemonic24(mnemonic) : setMnemonic12(mnemonic);
-  };
+  const allowValidation = use24Words ? allowValidation24 : allowValidation12;
+  const setAllowValidation = use24Words ? setAllowValidation24 : setAllowValidation12;
 
   const handleShowPhrase = () => setIsShown(prev => !prev);
 
-  const handleCopyToClipboard = () => {
-    const joinedPhraseString = localMnemonic.join(' ');
-    navigator.clipboard.writeText(joinedPhraseString);
-  };
-
   const validateWord = (word: string) => EnglishMnemonic.wordlist.includes(word);
 
-  const checkHiddenWordsVerified = () => {
+  const handleCopyToClipboard = () => navigator.clipboard.writeText(localMnemonic.join(' '));
+
+  // Copy local state to global state
+  const updateMnemonic = (mnemonic: string[]) => {
+    console.log('updating mnemonic with', mnemonic);
+    use24Words ? setMnemonic24(mnemonic) : setMnemonic12(mnemonic);
+  };
+
+  // Validate all of local mnemonic
+  const validateFullMnemonic = () => {
+    try {
+      new EnglishMnemonic(localMnemonic.join(' '));
+      setMnemonicVerified(true);
+      setInputBorderColors(
+        localMnemonic.reduce((acc, _, index) => ({ ...acc, [index]: 'border-success' }), {}),
+      );
+      updateMnemonic(localMnemonic);
+    } catch (error) {
+      setMnemonicVerified(false);
+      setInputBorderColors(
+        localMnemonic.reduce((acc, word, index) => {
+          const isValid = validateWord(word);
+          return { ...acc, [index]: isValid ? 'border-success' : 'border-error' };
+        }, {}),
+      );
+    }
+  };
+
+  // Specific case: Validate all of hidden words
+  const checkAllHiddenWordsVerified = () => {
     const allHiddenWordsVerified = hiddenIndexes.every(
       index => localMnemonic[index] === getCurrentMnemonic()[index],
     );
@@ -64,6 +85,59 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
 
     if (allHiddenWordsVerified) {
       updateMnemonic(localMnemonic);
+    }
+  };
+
+  // Route logic.  Check full mnemonic both hidden and editable
+  const checkFullMnemonic = () => {
+    // In verify mode, check the hidden indexes
+    if (isVerifyMode) {
+      checkAllHiddenWordsVerified();
+    } else {
+      // Check if all words are valid and form a complete mnemonic
+      const isComplete = localMnemonic.every(word => word.trim().length > 0 && validateWord(word));
+      // If all words are valid, mark the mnemonic as verified
+      if (isComplete) {
+        validateFullMnemonic();
+      } else {
+        setMnemonicVerified(false);
+      }
+    }
+  };
+
+  // Update local mnemonic with global state
+  useEffect(() => {
+    setLocalMnemonic(
+      getCurrentMnemonic().map((word, index) => (hiddenIndexes.includes(index) ? '' : word)),
+    );
+  }, [isVerifyMode, use24Words]);
+
+  // Verify full mnemonic on change
+  useEffect(() => {
+    console.log('local mnemonic', localMnemonic);
+    checkFullMnemonic();
+  }, [localMnemonic]);
+
+  // Update allow validation status for specific index
+  const checkVerifyStatus = (index: number, value: string) => {
+    // Reset validation when field is empty
+    if (value === '') {
+      console.log('update allow validate and border on empty string');
+      setAllowValidation(prev => ({
+        ...prev,
+        [index]: false,
+      }));
+      setInputBorderColors(prev => ({
+        ...prev,
+        [index]: '',
+      }));
+    } else if (!allowValidation[index] && (validateWord(value) || value.length > 3)) {
+      console.log('update allow validation to false');
+      // Allow validation if word is valid or if word length exceeds 3
+      setAllowValidation(prev => ({
+        ...prev,
+        [index]: true,
+      }));
     }
   };
 
@@ -75,22 +149,16 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
       updated[index] = trimmedValue;
       return updated;
     });
-  };
 
-  const verifyEntries = () => {
-    // In verify mode, check the hidden indexes
-    if (isVerifyMode) {
-      checkHiddenWordsVerified();
-    } else {
-      // Check if all words are valid and form a complete mnemonic
-      const isComplete = localMnemonic.every(word => word.trim().length > 0 && validateWord(word));
-      // If all words are valid, mark the mnemonic as verified
-      if (isComplete) {
-        validateMnemonic();
-      } else {
-        setMnemonicVerified(false);
-      }
+    if (allowValidation[index]) {
+      const isValid = validateWord(trimmedValue);
+      setInputBorderColors(prev => ({
+        ...prev,
+        [index]: isValid ? 'border-success' : 'border-error',
+      }));
     }
+
+    checkVerifyStatus(index, trimmedValue);
   };
 
   const handlePaste = (userSelectIndex: number, pastedValue: string) => {
@@ -108,20 +176,14 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
     // If not filling all slots, cut target indices to only relevant ones
     if (!fillingAllSlots) {
       const pasteStartIndex = targetIndices.indexOf(userSelectIndex);
-      const lastTargetIndex = targetIndices.length - 1;
-      const numRemainingIndices = lastTargetIndex - pasteStartIndex;
-      const numIndicesTaking = Math.min(maxNumSlots, numRemainingIndices);
-
-      // Add 1 to compute slice (start before item, end after item)
-      const pasteEndIndex = pasteStartIndex + numIndicesTaking + 1;
-      targetIndices = targetIndices.slice(pasteStartIndex, pasteEndIndex);
+      const numRemainingIndices = targetIndices.length - pasteStartIndex;
+      targetIndices = targetIndices.slice(pasteStartIndex, pasteStartIndex + numRemainingIndices);
     }
 
     const pastedIndices: number[] = [];
     setLocalMnemonic(prev => {
       const updated = [...prev];
-      const highestIndexTargetted = targetIndices[targetIndices.length - 1];
-      for (let i = 0; i <= highestIndexTargetted && currentWordIndex < words.length; i++) {
+      for (let i = 0; i < targetIndices.length && currentWordIndex < words.length; i++) {
         const targetIndex = targetIndices[i];
         updated[targetIndex] = words[currentWordIndex++];
         pastedIndices.push(targetIndex);
@@ -134,13 +196,17 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
             ...prev,
             [idx]: isValid ? 'border-success' : 'border-error',
           }));
+          setAllowValidation(prev => ({
+            ...prev,
+            [idx]: true,
+          }));
         }
       });
 
       return updated;
     });
 
-    verifyEntries();
+    checkFullMnemonic();
   };
 
   const handlePasteEvent = (index: number) => (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -163,31 +229,16 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
       ...prev,
       [index]: isValidWord ? 'border-success' : 'border-error',
     }));
+    setAllowValidation(prev => ({
+      ...prev,
+      [index]: true,
+    }));
 
     if (!isValidWord) {
       setMnemonicVerified(false);
     }
 
-    verifyEntries();
-  };
-
-  const validateMnemonic = () => {
-    try {
-      new EnglishMnemonic(localMnemonic.join(' '));
-      setMnemonicVerified(true);
-      setInputBorderColors(
-        localMnemonic.reduce((acc, _, index) => ({ ...acc, [index]: 'border-success' }), {}),
-      );
-      updateMnemonic(localMnemonic);
-    } catch (error) {
-      setMnemonicVerified(false);
-      setInputBorderColors(
-        localMnemonic.reduce((acc, word, index) => {
-          const isValid = validateWord(word);
-          return { ...acc, [index]: isValid ? 'border-success' : 'border-error' };
-        }, {}),
-      );
-    }
+    checkFullMnemonic();
   };
 
   const handleFocus = (index: number) => setIsFocused(index);
@@ -254,10 +305,16 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
                       type="text"
                       onChange={e => onChangeInput(index, e.target.value)}
                       onPaste={handlePasteEvent(index)}
-                      onBlur={() => handleBlur(index, localMnemonic[index] || '')}
+                      onBlur={() => handleBlur(index, localMnemonic[index])}
                       onFocus={() => handleFocus(index)}
                       onKeyDown={e => handleKeyDown(e, index)}
-                      value={localMnemonic[index] || ''}
+                      value={
+                        isShown || isFocused === index
+                          ? localMnemonic[index]
+                          : localMnemonic[index]
+                            ? '*****'
+                            : ''
+                      }
                       className={cn(
                         'border text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center',
                         inputBorderColors[index] ||
@@ -266,7 +323,7 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
                     />
                   ) : (
                     <Input
-                      type="password"
+                      type="text"
                       readOnly
                       tabIndex={-1}
                       className="border border-white text-white text-sm rounded-3xl h-6 px-2 py-1 pb-[5px] w-full focus:outline-0 text-center cursor-default"

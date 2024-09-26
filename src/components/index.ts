@@ -1,4 +1,5 @@
 export * from './ConnectedServicesDialog';
+export * from './CreatePasswordForm';
 export * from './Loader';
 export * from './OptionsDialog';
 export * from './ReceiveDialog';
