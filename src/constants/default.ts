@@ -1,38 +1,48 @@
+// constants/defaultValues.ts
 import { Asset } from '@/types';
 
+// Network-related constants
 export const NETWORK = 'symphony';
-export const WALLET_PREFIX = 'symphony';
+export const WALLET_PREFIX = 'symphony1';
 
-export const rpcUrl = 'https://symphony-api.kleomedes.network';
-export const defaultChainName = 'symphonytestnet';
-export const walletPrefix = 'symphony1';
-export const IBCPrefix = 'ibc/';
-export const lesserExponentDefault = 0;
-export const greaterExponentDefault = 6;
-export const chainEndpoint = {
+// RPC and REST URLs for the Symphony network
+export const RPC_URL = 'https://symphony-api.kleomedes.network';
+export const DEFAULT_CHAIN_NAME = 'symphonytestnet';
+
+// IBC-related constants
+export const IBC_PREFIX = 'ibc/';
+export const LESSER_EXPONENT_DEFAULT = 0;
+export const GREATER_EXPONENT_DEFAULT = 6;
+
+// Endpoints for different network operations
+export const CHAIN_ENDPOINT = {
   symphonytestnet: {
-    rpc: [' https://symphony-rpc.kleomedes.network'],
+    rpc: ['https://symphony-rpc.kleomedes.network'],
     rest: ['https://symphony-api.kleomedes.network'],
   },
 };
 
+// Time constants
 const FIFTEEN_MINUTES = 15 * 60 * 1000; // 15 minutes in milliseconds
+
 export const INACTIVITY_TIMEOUT = FIFTEEN_MINUTES;
 export const TOKEN_EXPIRATION_TIME = FIFTEEN_MINUTES;
-export const DATA_FRESHNESS_TIMEOUT = 0.5 * 15 * 1000; // Data is considered fresh for 15 seconds
+export const DATA_FRESHNESS_TIMEOUT = 15 * 1000; // Data is considered fresh for 15 seconds
 
+// Define the shape of the local asset registry
 type AssetRegistry = {
   [key: string]: Asset;
 };
 
-export const localAssetRegistry: AssetRegistry = {
+// Asset registry for the Symphony network
+export const LOCAL_ASSET_REGISTRY: AssetRegistry = {
   uusd: {
     denom: 'uusd',
     amount: '10',
     isIbc: false,
     logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/symphonytestnet/images/husd.png',
     symbol: 'HUSD',
-    exponent: 6,
+    exponent: GREATER_EXPONENT_DEFAULT,
   },
   ukhd: {
     denom: 'ukhd',
@@ -40,7 +50,7 @@ export const localAssetRegistry: AssetRegistry = {
     isIbc: false,
     logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/symphonytestnet/images/hhkd.png',
     symbol: 'HHKD',
-    exponent: 6,
+    exponent: GREATER_EXPONENT_DEFAULT,
   },
   uvnd: {
     denom: 'uvnd',
@@ -48,7 +58,7 @@ export const localAssetRegistry: AssetRegistry = {
     isIbc: false,
     logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/symphonytestnet/images/hvnd.png',
     symbol: 'HVND',
-    exponent: 6,
+    exponent: GREATER_EXPONENT_DEFAULT,
   },
   note: {
     denom: 'note',
@@ -56,6 +66,6 @@ export const localAssetRegistry: AssetRegistry = {
     isIbc: false,
     logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/symphonytestnet/images/mld.png',
     symbol: 'MLD',
-    exponent: 6,
+    exponent: GREATER_EXPONENT_DEFAULT,
   },
 };

@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-
-import { INACTIVITY_TIMEOUT, ROUTES } from '@/constants';
-import { getStoredAccessToken } from '@/helpers';
+import { INACTIVITY_TIMEOUT, DATA_FRESHNESS_TIMEOUT, ROUTES } from '@/constants';
+import { fetchWalletAssets, getStoredAccessToken } from '@/helpers';
 import { useLogout } from '@/hooks';
+import { walletStateAtom } from '@/atoms';
+import { useAtom } from 'jotai';
 
 interface AuthGuardProps {
   children?: React.ReactNode;
 }
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
-  // TODO: look into this saved navigation callback
-  // TODO: check if wallet exists as well as if there's an access token
   const token = getStoredAccessToken();
   const { pathname } = useLocation();
   const logout = useLogout();
-
+  const [walletState, setWalletState] = useAtom(walletStateAtom);
   const [requestedLocation, setRequestedLocation] = useState<string | null>(null);
   const [lastActivityTime, setLastActivityTime] = useState(Date.now());
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
   // Handle inactivity logout
   useEffect(() => {
@@ -32,17 +32,71 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
       }
     };
 
-    const inactivityInterval = setInterval(checkInactivity, 60 * 1000); // Check every minute
+    const inactivityInterval = setInterval(checkInactivity, 60 * 1000);
 
     return () => {
       clearInterval(inactivityInterval);
-      // TODO: verify these only trigger inside extension
       window.removeEventListener('mousemove', handleActivity);
       window.removeEventListener('keypress', handleActivity);
     };
   }, [lastActivityTime]);
 
-  // If no token (not authenticated), save the requested location (if not saved)
+  // Fetch wallet address from stored token and update global state
+  useEffect(() => {
+    const accessToken = getStoredAccessToken();
+    const walletAddress = accessToken?.walletAddress;
+
+    if (walletAddress) {
+      // Set wallet address in the global state (atom)
+      setWalletState(prevState => ({
+        ...prevState,
+        address: walletAddress,
+        assets: [],
+      }));
+
+      // Fetch wallet assets and update the state
+      fetchWalletAssets({ address: walletAddress, assets: [] })
+        .then(assets => {
+          setWalletState(prevState => ({
+            ...prevState,
+            assets,
+          }));
+        })
+        .catch(error => {
+          console.error('Error fetching wallet assets:', error);
+        });
+    }
+  }, [setWalletState]);
+
+  // Periodically refetch wallet assets every DATA_FRESHNESS_TIMEOUT interval
+  useEffect(() => {
+    if (timer) {
+      clearInterval(timer);
+    }
+
+    const expirationTimer = setInterval(() => {
+      fetchWalletAssets(walletState)
+        .then(assets => {
+          setWalletState(prevState => ({
+            ...prevState,
+            assets,
+          }));
+        })
+        .catch(error => {
+          // TODO: display error to user
+          console.error('Error refetching wallet assets:', error);
+        });
+    }, DATA_FRESHNESS_TIMEOUT);
+
+    setTimer(expirationTimer);
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [walletState, setWalletState]);
+
   if (!token) {
     if (pathname !== requestedLocation) {
       setRequestedLocation(pathname);
@@ -50,7 +104,6 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     return <Navigate to={ROUTES.AUTH.ROOT} />;
   }
 
-  // Once the user is authenticated, if there was a requested location, navigate to it
   if (requestedLocation && pathname !== requestedLocation) {
     const redirectLocation = requestedLocation;
     setRequestedLocation(null);

@@ -95,7 +95,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Inside wallet TODOs */
-  // TODO: to fix infinite reload on click out then back in of "no wallet address", persist wallet address in sessionStorage (localStorage if it gets removed on click outside extension)
   // TODO: resolve IBC names for asset list
   // TODO: add qr code screen for receive (need QR code builder.  preferably one where you can add logo)
   // TODO: add send transaction

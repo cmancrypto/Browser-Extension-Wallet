@@ -1,3 +1,4 @@
+export * from './AssetScroller';
 export * from './ConnectedServicesDialog';
 export * from './CreatePasswordForm';
 export * from './Loader';

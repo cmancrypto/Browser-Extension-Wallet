@@ -4,13 +4,9 @@ import { EyeOpen, EyeClose } from '@/assets/icons';
 import { ROUTES } from '@/constants';
 import { Button, Input } from '@/ui-kit';
 import { tryAuthorizeWalletAccess } from '@/helpers';
-import { walletStateAtom } from '@/atoms';
-import { useSetAtom } from 'jotai';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-
-  const setWalletState = useSetAtom(walletStateAtom);
 
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -29,15 +25,10 @@ export const Login: React.FC = () => {
 
   const handleUnlock = async () => {
     // TOOD: include error message if no wallet exists on this device
-    const walletAddress = await tryAuthorizeWalletAccess(password);
-    console.log('wallet address:', walletAddress);
-    if (walletAddress) {
+    const isAuthorized = await tryAuthorizeWalletAccess(password);
+    console.log('is authorized:', isAuthorized);
+    if (isAuthorized) {
       // If password is correct, set wallet address and navigate to app root
-      setWalletState(prevState => ({
-        ...prevState,
-        address: walletAddress,
-      }));
-
       navigate(ROUTES.APP.ROOT);
     } else {
       // If password is incorrect, set status to error

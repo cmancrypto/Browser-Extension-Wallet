@@ -76,18 +76,18 @@ export const isTokenValid = (): boolean => {
 /**
  * Authorizes wallet access, decrypts mnemonic, retrieves wallet address, and saves access token.
  * @param password The password entered by the user.
- * @returns The wallet address if authorization was successful, or null otherwise.
+ * @returns True if authorization was successful, or false otherwise.
  */
-export const tryAuthorizeWalletAccess = async (password: string): Promise<string | null> => {
+export const tryAuthorizeWalletAccess = async (password: string): Promise<boolean> => {
   const isVerified = verifyPassword(password);
 
   if (!isVerified) {
-    return null;
+    return false;
   }
 
   const encryptedMnemonic = getStoredMnemonic();
   if (!encryptedMnemonic) {
-    return null;
+    return false;
   }
 
   try {
@@ -95,7 +95,7 @@ export const tryAuthorizeWalletAccess = async (password: string): Promise<string
     const mnemonic = decryptMnemonic(encryptedMnemonic, password);
 
     if (!mnemonic) {
-      return null;
+      return false;
     }
 
     // Create a wallet instance using the mnemonic and await for the result
@@ -104,9 +104,9 @@ export const tryAuthorizeWalletAccess = async (password: string): Promise<string
     // Generate and save the access token
     generateToken(address);
 
-    return address; // Successful authorization
+    return true; // Successful authorization
   } catch (error) {
     console.error('Authorization failed:', error);
-    return null;
+    return false;
   }
 };
