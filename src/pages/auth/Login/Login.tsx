@@ -4,28 +4,51 @@ import { EyeOpen, EyeClose } from '@/assets/icons';
 import { ROUTES } from '@/constants';
 import { Button, Input } from '@/ui-kit';
 import { tryAuthorizeWalletAccess } from '@/helpers';
+import { walletStateAtom } from '@/atoms';
+import { useSetAtom } from 'jotai';
 
 export const Login: React.FC = () => {
+  const navigate = useNavigate();
+
+  const setWalletState = useSetAtom(walletStateAtom);
+
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState<'error' | 'success' | null>(null);
-  const navigate = useNavigate();
 
   // Reset status on typing
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    setPasswordStatus(null);
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+
+    // Only reset the error state if the user had an error before
+    if (passwordStatus === 'error') {
+      setPasswordStatus(null);
+    }
   };
 
   const handleUnlock = async () => {
     // TOOD: include error message if no wallet exists on this device
-    const isAuthorized = await tryAuthorizeWalletAccess(password);
-    if (isAuthorized) {
-      // If password is correct, navigate to app root
+    const walletAddress = await tryAuthorizeWalletAccess(password);
+    console.log('wallet address:', walletAddress);
+    if (walletAddress) {
+      // If password is correct, set wallet address and navigate to app root
+      setWalletState(prevState => ({
+        ...prevState,
+        address: walletAddress,
+      }));
+
       navigate(ROUTES.APP.ROOT);
     } else {
       // If password is incorrect, set status to error
       setPasswordStatus('error');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleUnlock();
     }
   };
 
@@ -47,6 +70,7 @@ export const Login: React.FC = () => {
             type={passwordVisible ? 'text' : 'password'}
             value={password}
             onChange={handlePasswordChange}
+            onKeyDown={e => handleKeyDown(e)}
             icon={passwordVisible ? <EyeOpen width={20} /> : <EyeClose width={20} />}
             iconRole="button"
             onIconClick={() => setPasswordVisible(!passwordVisible)}

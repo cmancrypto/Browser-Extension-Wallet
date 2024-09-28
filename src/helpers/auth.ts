@@ -1,7 +1,13 @@
 import CryptoJS from 'crypto-js';
 import { decryptMnemonic } from './crypto';
 import { generateToken, getWalletAddress } from './wallet';
-import { getStoredMnemonic, getStoredPassword, storePassword } from './localStorage';
+import {
+  getStoredAccessToken,
+  getStoredMnemonic,
+  getStoredPassword,
+  storePassword,
+} from './localStorage';
+import { TOKEN_EXPIRATION_TIME } from '@/constants';
 
 /**
  * Hash the password using SHA-512 with a salt (using CryptoJS).
@@ -51,19 +57,37 @@ const verifyPassword = (inputPassword: string): boolean => {
 };
 
 /**
+ * Checks if the stored access token is still valid by comparing the current time
+ * with the token's timestamp and the predefined expiration time.
+ *
+ * @returns {boolean} True if the token is valid (i.e., not expired), otherwise false.
+ */
+export const isTokenValid = (): boolean => {
+  const tokenData = getStoredAccessToken();
+  if (!tokenData) return false;
+
+  const sessionStartTime = new Date(tokenData.timestamp).getTime();
+  const currentTime = Date.now();
+
+  // Check if the session has expired
+  return currentTime - sessionStartTime < TOKEN_EXPIRATION_TIME;
+};
+
+/**
  * Authorizes wallet access, decrypts mnemonic, retrieves wallet address, and saves access token.
  * @param password The password entered by the user.
- * @returns True if authorization was successful, false otherwise.
+ * @returns The wallet address if authorization was successful, or null otherwise.
  */
-export const tryAuthorizeWalletAccess = async (password: string): Promise<boolean> => {
+export const tryAuthorizeWalletAccess = async (password: string): Promise<string | null> => {
   const isVerified = verifyPassword(password);
+
   if (!isVerified) {
-    return false;
+    return null;
   }
 
   const encryptedMnemonic = getStoredMnemonic();
   if (!encryptedMnemonic) {
-    return false;
+    return null;
   }
 
   try {
@@ -71,7 +95,7 @@ export const tryAuthorizeWalletAccess = async (password: string): Promise<boolea
     const mnemonic = decryptMnemonic(encryptedMnemonic, password);
 
     if (!mnemonic) {
-      return false;
+      return null;
     }
 
     // Create a wallet instance using the mnemonic and await for the result
@@ -80,9 +104,9 @@ export const tryAuthorizeWalletAccess = async (password: string): Promise<boolea
     // Generate and save the access token
     generateToken(address);
 
-    return true; // Successful authorization
+    return address; // Successful authorization
   } catch (error) {
     console.error('Authorization failed:', error);
-    return false;
+    return null;
   }
 };

@@ -95,9 +95,10 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Inside wallet TODOs */
-  // TODO: add asset list
+  // TODO: to fix infinite reload on click out then back in of "no wallet address", persist wallet address in sessionStorage (localStorage if it gets removed on click outside extension)
+  // TODO: resolve IBC names for asset list
+  // TODO: add qr code screen for receive (need QR code builder.  preferably one where you can add logo)
   // TODO: add send transaction
-  // TODO: add qr code screen for receive
   // TODO: add swap transaction
   // TODO: create add wallet screen to allow management of multiple accounts
   // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
@@ -105,9 +106,15 @@ export const CreateWallet = () => {
   // TODO: add slide tray for asset selections (like on mobile)
 
   /* Less Critical Auth TODOs */
+  // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
   // TODO: handle error printout (in place of subtitle on verify screen?)
   // TODO: for default on text, ensure no focus and basic mouse onHover (no change)
   // TODO: test path and create error for no wallet exists and user attempts login
+
+  /* Less Critical Wallet TODOs */
+  // TODO: add sorting function to wallet asset list
+  // TODO: add search function to wallet asset list
+  // TODO: add hide function to wallet asset list
 
   /* Nice to have TODOs */
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing

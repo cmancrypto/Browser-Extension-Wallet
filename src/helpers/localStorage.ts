@@ -19,10 +19,16 @@ const clearLocalStorage = (): void => {
 
 /**
  * Get the access token from localStorage.
- * @returns {string | null} The access token or null if not found.
+ * @returns { { walletAddress: string, network: string, timestamp: string } | null}
+ * The access token or null if not found.
  */
-export const getStoredAccessToken = (): string | null => {
-  return getLocalStorageItem('accessToken');
+export const getStoredAccessToken = (): {
+  walletAddress: string;
+  network: string;
+  timestamp: string;
+} | null => {
+  const token = getLocalStorageItem('accessToken');
+  return token ? JSON.parse(token) : null;
 };
 
 /**
