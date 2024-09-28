@@ -68,4 +68,20 @@ export const LOCAL_ASSET_REGISTRY: AssetRegistry = {
     symbol: 'MLD',
     exponent: GREATER_EXPONENT_DEFAULT,
   },
+  ustars: {
+    denom: 'stars',
+    amount: '1',
+    isIbc: true,
+    logo: 'https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/stargaze/ustars.png',
+    symbol: 'STARS',
+    exponent: GREATER_EXPONENT_DEFAULT,
+  },
+  uosmo: {
+    denom: 'osmo',
+    amount: '1',
+    isIbc: true,
+    logo: 'https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/osmosis/uosmo.png',
+    symbol: 'OSMO',
+    exponent: GREATER_EXPONENT_DEFAULT,
+  },
 };
