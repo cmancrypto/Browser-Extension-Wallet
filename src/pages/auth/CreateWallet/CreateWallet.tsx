@@ -95,7 +95,11 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Inside wallet TODOs */
-  // TODO: add qr code screen for receive (need QR code builder.  preferably one where you can add logo)
+  // TODO: add swipe to dismiss on dialog trays
+  // TODO: add onHover change to color of copy-able text
+  // TODO: only show first 4 and last 4 of copy-able text
+  // TODO: add animation to qr code dialog, slide in from bottom.  don't take up whole page
+  // TODO: play with qr code logo (in GIMP, generating SVGs)
   // TODO: add send transaction
   // TODO: add swap transaction
   // TODO: create add wallet screen to allow management of multiple accounts
@@ -117,6 +121,9 @@ export const CreateWallet = () => {
   /* Nice to have TODOs */
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing
   // TODO: add password complexity bar on entry
+
+  /* Interchain-compatibility TODOs */
+  // TODO: add icon and chain display name to copy address for receive
 
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
