@@ -99,13 +99,13 @@ export const CreateWallet = () => {
   // TODO: add onHover change to color of copy-able text
   // TODO: only show first 4 and last 4 of copy-able text
   // TODO: add animation to qr code dialog, slide in from bottom.  don't take up whole page
+  // TODO: add slide tray for asset selections (like on mobile)
   // TODO: play with qr code logo (in GIMP, generating SVGs)
   // TODO: add send transaction
   // TODO: add swap transaction
   // TODO: create add wallet screen to allow management of multiple accounts
   // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
   // TODO: add qr code screen for transfer data (including account data).  or from google
-  // TODO: add slide tray for asset selections (like on mobile)
 
   /* Less Critical Auth TODOs */
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
