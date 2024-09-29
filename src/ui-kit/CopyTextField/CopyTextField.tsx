@@ -43,14 +43,19 @@ export const CopyTextField: React.FC<CopyTextFieldProps> = ({
     }
     default: {
       return (
-        <Button variant="transparentNeutral" size="small" onClick={handleCopyToClipboard}>
-          <div className="flex items-center py-1.5 px-2 mt-4 rounded-full border border-neutral-2 h-8">
+        <Button
+          variant="transparentNeutral"
+          size="small"
+          onClick={handleCopyToClipboard}
+          className="mt-3"
+        >
+          <div className="flex items-center space-x-2 px-2 rounded-full border border-neutral-2">
             {copied ? (
               <VerifySuccess width={iconHeight} className="text-success animate-scale-up" />
             ) : (
               <Copy width={iconHeight} />
             )}
-            <span className="text-sm ml-1.5">{displayText}</span>
+            <span className="text-sm ml-2.5">{displayText}</span>
           </div>
         </Button>
       );

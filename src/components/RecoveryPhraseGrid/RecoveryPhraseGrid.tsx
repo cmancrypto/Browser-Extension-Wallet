@@ -345,7 +345,6 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
               {isShown ? <EyeClose height={20} /> : <EyeOpen height={20} />}
               <span className="ml-2.5 text-base">{isShown ? 'Hide' : 'Show'} seed phrase</span>
             </Button>
-            {/* TODO: add onHover color */}
             {!isVerifyMode && (
               <CopyTextField
                 variant="text"

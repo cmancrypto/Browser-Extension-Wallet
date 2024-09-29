@@ -95,12 +95,12 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Inside wallet TODOs */
-  // TODO: add animation to qr code dialog, slide in from bottom.  don't take up whole page (as option on dialog component)
   // TODO: add slide tray for asset selections (like on mobile)
-  // TODO: add swipe to dismiss on dialog trays
-  // TODO: play with qr code logo (in GIMP, generating SVGs)
   // TODO: add send transaction
   // TODO: add swap transaction
+  // TODO: add sorting function to wallet asset list
+  // TODO: add search function to wallet asset list
+  // TODO: add show/hide function to wallet asset list
 
   /* Auth TODOs */
   // TODO: Include Registry for RPC and LCD endpoints.  can use Keplr or CosmosHub for now.  Ensure minimum 3 options.  Cycle when one fails
@@ -113,12 +113,10 @@ export const CreateWallet = () => {
   // TODO: test path and create error for no wallet exists and user attempts login
 
   /* Less Critical Wallet TODOs */
-  // TODO: add sorting function to wallet asset list
-  // TODO: add search function to wallet asset list
-  // TODO: add hide function to wallet asset list
   // TODO: create add wallet screen to allow management of multiple accounts
   // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
   // TODO: add qr code screen for transfer data (including account data).  or from google
+  // TODO: add swipe to dismiss on dialog trays
 
   /* Nice to have TODOs */
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing

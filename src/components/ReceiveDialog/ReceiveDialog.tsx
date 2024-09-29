@@ -1,12 +1,12 @@
 import React from 'react';
-import { Dialog, DialogTrigger } from '@radix-ui/react-dialog';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
-import { Button, CopyTextField, DialogContent } from '@/ui-kit';
-import logo from '@/assets/images/logo.svg';
+import { CopyTextField } from '@/ui-kit';
+import logo from '@/assets/images/logo_with_title_rounded.svg';
 import { truncateString } from '@/helpers';
 import { WALLET_PREFIX } from '@/constants';
+import SlideTray from '@/ui-kit/SlideTray/SlideTray';
 
 export const ReceiveDialog: React.FC = () => {
   const walletState = useAtomValue(walletStateAtom);
@@ -15,48 +15,48 @@ export const ReceiveDialog: React.FC = () => {
   const walletDisplayAddress = truncateString(WALLET_PREFIX, walletAddress);
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="secondary" className="w-full">
-          Receive
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="slide-in-from-bottom">
-        <div className="flex flex-col items-center pt-10 pb-16">
-          <h3 className="text-h5 font-bold">Copy Address</h3>
+    <SlideTray triggerText="Receive" title="Copy Address" closeButtonVariant="bottom-center">
+      <div className="flex flex-col items-center">
+        {/* QR Code container with custom borders */}
+        <div className="relative flex justify-center items-center bg-background-black rounded-lg w-[260px] h-[260px]">
+          {/* Top-left corner */}
+          <div className="absolute top-[-0px] left-[-0px] w-[75px] h-[75px] border-t-4 border-l-4 border-blue rounded-tl-[8px]" />
+          {/* Top-right corner */}
+          <div className="absolute top-[-0px] right-[-0px] w-[75px] h-[75px] border-t-4 border-r-4 border-blue rounded-tr-[8px]" />
+          {/* Bottom-left corner */}
+          <div className="absolute bottom-[-0px] left-[-0px] w-[75px] h-[75px] border-b-4 border-l-4 border-blue rounded-bl-[8px]" />
+          {/* Bottom-right corner */}
+          <div className="absolute bottom-[-0px] right-[-0px] w-[75px] h-[75px] border-b-4 border-r-4 border-blue rounded-br-[8px]" />
 
-          {/* QR Code container */}
-          <div className="relative flex justify-center items-center bg-background-black mt-5 rounded-2xl border-4 border-blue w-[260px] h-[260px]">
-            <QRCodeSVG
-              value={walletAddress}
-              size={240}
-              bgColor="#FFFFFF"
-              fgColor="#000000"
-              level="Q"
-              imageSettings={{
-                src: logo,
-                height: 75,
-                width: 75,
-                excavate: true,
-              }}
-            />
+          {/* Blue border around the image */}
+          <div className="absolute inset-0 flex justify-center items-center">
+            <div className="w-[71px] h-[71px] border-2 border-blue rounded-md" />
           </div>
 
-          {/* TODO: remove? */}
-          <p className="text-sm text-neutral-1 mt-4">Scan address to receive payment</p>
-
-          {/* Wallet Address */}
-          <CopyTextField
-            variant="transparent"
-            displayText={walletDisplayAddress}
-            copyText={walletAddress}
-            iconHeight={14}
-          ></CopyTextField>
-
-          {/* Close Button */}
-          <Button className="mt-6 w-[56%] py-3 rounded-full text-lg">Close</Button>
+          {/* QR Code */}
+          <QRCodeSVG
+            value={walletAddress}
+            size={250}
+            bgColor="#FFFFFF"
+            fgColor="#000000"
+            level="Q"
+            imageSettings={{
+              src: logo,
+              height: 70,
+              width: 70,
+              excavate: true,
+            }}
+          />
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Wallet Address */}
+        <CopyTextField
+          variant="transparent"
+          displayText={walletDisplayAddress}
+          copyText={walletAddress}
+          iconHeight={16}
+        />
+      </div>
+    </SlideTray>
   );
 };
