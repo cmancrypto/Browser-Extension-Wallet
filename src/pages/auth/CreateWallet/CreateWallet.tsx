@@ -94,16 +94,18 @@ export const CreateWallet = () => {
     setRandomHiddenIndexes(getRandomIndexes());
   }, [use24Words]);
 
-  /* Inside wallet TODOs */
-  // TODO: add slide tray for asset selections (like on mobile)
+  /* Current TODOs */
+  // TODO: Include Registry for RPC and LCD endpoints.  can use Keplr or CosmosHub for now.  Ensure minimum 3 options.  Cycle when one fails
   // TODO: add send transaction
   // TODO: add swap transaction
+
+  /* Inside wallet TODOs */
+  // TODO: add slide tray for asset selections (like on mobile)
   // TODO: add sorting function to wallet asset list
   // TODO: add search function to wallet asset list
   // TODO: add show/hide function to wallet asset list
 
   /* Auth TODOs */
-  // TODO: Include Registry for RPC and LCD endpoints.  can use Keplr or CosmosHub for now.  Ensure minimum 3 options.  Cycle when one fails
   // TODO: Add Manual RPC changes in-app
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
 
