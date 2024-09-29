@@ -24,6 +24,7 @@ const buttonVariants = cva<ButtonConfig>(
           'disabled:bg-neutral-3 disabled:text-neutral-1',
         ],
         transparent: ['bg-transparent text-blue min-h-12', 'hover:text-blue-dark'],
+        transparentNeutral: ['bg-transparent text-neutral-1 min-h-12', 'hover:text-grey-dark'],
         secondary: [
           'text-blue border bg-transparent',
           'hover:bg-blue-hover-secondary hover:text-blue-dark hover:border-blue-darker',

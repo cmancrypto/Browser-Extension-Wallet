@@ -15,7 +15,10 @@ export default {
       transparent: 'transparent',
       inherit: 'inherit',
       white: '#F2F2FA',
-      grey: '#D5D5E0',
+      grey: {
+        DEFAULT: '#D5D5E0',
+        dark: '#6F7078',
+      },
       'neutral-1': '#A2A2AA',
       'neutral-2': 'rgba(255, 255, 255, 0.06)',
       'neutral-3': 'rgba(82, 82, 90, 1)',
@@ -68,11 +71,16 @@ export default {
       },
       animation: {
         'scale-up': 'scaleUp 0.3s ease-in-out',
+        'slide-in-from-bottom': 'slideInFromBottom 0.3s ease-in-out',
       },
       keyframes: {
         scaleUp: {
           '0%': { transform: 'scale(0)' },
           '100%': { transform: 'scale(1)' },
+        },
+        slideInFromBottom: {
+          '0%': { transform: 'translateY(100%)', opacity: 0 },
+          '100%': { transform: 'translateY(0)', opacity: 1 },
         },
       },
     },

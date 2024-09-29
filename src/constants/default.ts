@@ -28,6 +28,7 @@ const FIFTEEN_MINUTES = 15 * 60 * 1000; // 15 minutes in milliseconds
 export const INACTIVITY_TIMEOUT = FIFTEEN_MINUTES;
 export const TOKEN_EXPIRATION_TIME = FIFTEEN_MINUTES;
 export const DATA_FRESHNESS_TIMEOUT = 15 * 1000; // Data is considered fresh for 15 seconds
+export const ICON_CHANGEOVER_TIMEOUT = 750; // 0.75 seconds to hold confirmation icon
 
 // Define the shape of the local asset registry
 type AssetRegistry = {

@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { Copy, EyeClose, EyeOpen, VerifySuccess } from '@/assets/icons';
+import { EyeClose, EyeOpen } from '@/assets/icons';
 import { cn } from '@/helpers/utils';
 import { Button, Input } from '@/ui-kit';
 import { EnglishMnemonic } from '@cosmjs/crypto';
 import { useAtom, useSetAtom } from 'jotai';
 import { mnemonic12State, mnemonic24State, mnemonicVerifiedState, use24WordsState } from '@/atoms';
+import { CopyTextField } from '../CopyTextField';
 
 type RecoveryPhraseGridProps = {
   isVerifyMode?: boolean;
@@ -35,8 +36,6 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   const [allowValidation24, setAllowValidation24] = useState<{ [key: number]: boolean }>({});
   const [isFocused, setIsFocused] = useState<number | null>(null);
 
-  const [copied, setCopied] = useState(false);
-
   const getCurrentMnemonic = () => (use24Words ? mnemonic24 : mnemonic12);
   const maxWords = use24Words ? 24 : 12;
 
@@ -49,13 +48,6 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
   const handleShowPhrase = () => setIsShown(prev => !prev);
 
   const validateWord = (word: string) => EnglishMnemonic.wordlist.includes(word);
-
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(localMnemonic.join(' '));
-    setCopied(true);
-    // Reset after 0.75 seconds
-    setTimeout(() => setCopied(false), 750);
-  };
 
   // Copy local state to global state
   const updateMnemonic = (mnemonic: string[]) => {
@@ -354,17 +346,14 @@ export const RecoveryPhraseGrid: React.FC<RecoveryPhraseGridProps> = ({
               {isShown ? <EyeClose height={20} /> : <EyeOpen height={20} />}
               <span className="ml-2.5 text-base">{isShown ? 'Hide' : 'Show'} seed phrase</span>
             </Button>
+            {/* TODO: add onHover color */}
             {!isVerifyMode && (
-              <Button variant="transparent" size="small" onClick={handleCopyToClipboard}>
-                <div className="flex items-center space-x-2">
-                  {copied ? (
-                    <VerifySuccess width={20} className="text-success animate-scale-up" />
-                  ) : (
-                    <Copy width={20} />
-                  )}
-                  <span className="ml-2.5 text-base">Copy to clipboard</span>
-                </div>
-              </Button>
+              <CopyTextField
+                variant="text"
+                displayText={'Copy to clipboard'}
+                copyText={localMnemonic.join(' ')}
+                iconHeight={20}
+              ></CopyTextField>
             )}
           </div>
         </div>
