@@ -1,6 +1,5 @@
 export * from './AssetScroller';
 export * from './ConnectedServicesDialog';
-export * from './CopyTextField';
 export * from './CreatePasswordForm';
 export * from './Loader';
 export * from './OptionsDialog';

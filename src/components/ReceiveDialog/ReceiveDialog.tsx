@@ -3,9 +3,8 @@ import { Dialog, DialogTrigger } from '@radix-ui/react-dialog';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
-import { Button, DialogContent } from '@/ui-kit';
+import { Button, CopyTextField, DialogContent } from '@/ui-kit';
 import logo from '@/assets/images/logo.svg';
-import { CopyTextField } from '../CopyTextField';
 import { truncateString } from '@/helpers';
 import { WALLET_PREFIX } from '@/constants';
 

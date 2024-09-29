@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { EyeClose, EyeOpen } from '@/assets/icons';
 import { cn } from '@/helpers/utils';
-import { Button, Input } from '@/ui-kit';
+import { Button, CopyTextField, Input } from '@/ui-kit';
 import { EnglishMnemonic } from '@cosmjs/crypto';
 import { useAtom, useSetAtom } from 'jotai';
 import { mnemonic12State, mnemonic24State, mnemonicVerifiedState, use24WordsState } from '@/atoms';
-import { CopyTextField } from '../CopyTextField';
 
 type RecoveryPhraseGridProps = {
   isVerifyMode?: boolean;
