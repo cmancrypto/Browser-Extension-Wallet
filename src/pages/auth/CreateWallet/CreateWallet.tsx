@@ -95,7 +95,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: add boxshadow to scroller
   // TODO: add send transaction
   // TODO: add swap transaction
 
