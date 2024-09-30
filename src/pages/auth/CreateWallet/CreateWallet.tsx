@@ -97,13 +97,17 @@ export const CreateWallet = () => {
   /* Current TODOs */
   // TODO: add send transaction
   // TODO: add swap transaction
-
-  /* Inside wallet TODOs */
   // TODO: add icon retrieval from registry
   // TODO: add slide tray for asset selections (like on mobile)
+
+  /* Inside wallet TODOs */
   // TODO: add sorting function to wallet asset list
   // TODO: add search function to wallet asset list
   // TODO: add show/hide function to wallet asset list
+
+  /* Inside wallet TODOs */
+  // TODO: change options buttons
+  // TODO: update transactions history button (need endpoint for this.  disable until ready)
 
   /* Auth TODOs */
   // TODO: Add Manual RPC changes in-app
