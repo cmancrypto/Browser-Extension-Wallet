@@ -1,4 +1,10 @@
-import { IBC_PREFIX, RPC_URL, LOCAL_ASSET_REGISTRY, GREATER_EXPONENT_DEFAULT } from '@/constants';
+import {
+  IBC_PREFIX,
+  LOCAL_ASSET_REGISTRY,
+  GREATER_EXPONENT_DEFAULT,
+  CHAIN_ENDPOINTS,
+} from '@/constants';
+import { queryNode } from './queryNodes';
 import { Asset } from '@/types';
 
 // Define the shape of WalletState
@@ -7,22 +13,31 @@ interface WalletState {
   assets: Asset[];
 }
 
+// Adjust the amount by shifting the decimal point
+const adjustAmountByExponent = (amount: string, exponent: number): string => {
+  const divisor = Math.pow(10, exponent);
+  return (parseFloat(amount) / divisor).toFixed(exponent);
+};
+
+// Resolves IBC denom to base denom with additional properties
 const resolveIbcDenom = async (
   ibcDenom: string,
 ): Promise<{ denom: string; symbol: string; logo?: string; exponent: number }> => {
   try {
-    const denomHash = ibcDenom.slice(4); // Remove the "ibc/" prefix to get the hash
-    const response = await fetch(`${RPC_URL}/ibc/apps/transfer/v1/denom_traces/${denomHash}`);
-    const data = await response.json();
-    const baseDenom = data.denom_trace?.base_denom;
+    const denomHash = ibcDenom.slice(4); // Remove the "ibc/" prefix
+    const getIBCInfoEndpoint = CHAIN_ENDPOINTS.getIBCInfo;
+
+    // Use queryNode to try multiple nodes
+    const response = await queryNode(`${getIBCInfoEndpoint}${denomHash}`);
+    const baseDenom = response.denom_trace?.base_denom;
 
     if (!baseDenom) {
+      // TODO: show error to user
       throw new Error(`Failed to resolve IBC denom: ${ibcDenom}`);
     }
 
     // Check local registry for base denom information
     const registryAsset = LOCAL_ASSET_REGISTRY[baseDenom] || null;
-
     let symbol: string;
     let logo: string | undefined;
     let exponent: number;
@@ -44,24 +59,22 @@ const resolveIbcDenom = async (
   }
 };
 
+// Fetch balances using queryNode instead of static node
 const getBalances = async (walletAddress: string): Promise<Asset[]> => {
-  const response = await fetch(`${RPC_URL}/cosmos/bank/v1beta1/balances/${walletAddress}`);
-  const data = await response.json();
+  const getBalanceEndpoint = CHAIN_ENDPOINTS.getBalance;
 
-  if (!response.ok || !data.balances) {
+  // Use queryNode to try querying balances across nodes
+  const response = await queryNode(`${getBalanceEndpoint}${walletAddress}`);
+
+  if (!response.balances) {
+    // TODO: show error to user
     throw new Error(`Failed to fetch balances for address: ${walletAddress}`);
   }
 
-  return data.balances;
+  return response.balances;
 };
 
-// Helper function to adjust the amount by shifting the decimal point
-const adjustAmountByExponent = (amount: string, exponent: number): string => {
-  const divisor = Math.pow(10, exponent);
-  return (parseFloat(amount) / divisor).toFixed(exponent);
-};
-
-// Function to fetch wallet assets without hooks, without updating the state
+// Fetch wallet assets
 export async function fetchWalletAssets(walletState: WalletState): Promise<Asset[]> {
   const { address: walletAddress } = walletState;
 
@@ -71,7 +84,7 @@ export async function fetchWalletAssets(walletState: WalletState): Promise<Asset
   }
 
   try {
-    // Fetch balances from the LCD endpoint
+    // Fetch balances from the nodes
     const coins: Asset[] = await getBalances(walletAddress);
 
     // Map through the balances and resolve their properties
@@ -96,7 +109,7 @@ export async function fetchWalletAssets(walletState: WalletState): Promise<Asset
         const adjustedAmount = adjustAmountByExponent(coin.amount, exponent);
 
         if (coin.denom.startsWith(IBC_PREFIX)) {
-          // Destructure the resolved denom properties
+          // Resolve IBC denom details
           const {
             denom: resolvedDenom,
             symbol: resolvedSymbol,
@@ -107,7 +120,7 @@ export async function fetchWalletAssets(walletState: WalletState): Promise<Asset
           // Adjust the amount based on the resolved exponent
           const resolvedAmount = adjustAmountByExponent(coin.amount, resolvedExponent);
 
-          // Assign the resolved properties and adjusted amount
+          // Return the adjusted and resolved IBC asset data
           return {
             ...coin,
             denom: resolvedDenom,

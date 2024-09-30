@@ -1,11 +1,8 @@
 import { ScrollArea } from '@/ui-kit';
-// import { useWalletAssets } from '@/hooks';
-// import { useEffect, useState } from 'react';
 import { Asset } from '@/types';
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
-// import { DATA_FRESHNESS_TIMEOUT } from '@/constants';
 
 export const AssetScroller = () => {
   const walletState = useAtomValue(walletStateAtom);

@@ -95,11 +95,12 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: Include Registry for RPC and LCD endpoints.  can use Keplr or CosmosHub for now.  Ensure minimum 3 options.  Cycle when one fails
+  // TODO: add boxshadow to scroller
   // TODO: add send transaction
   // TODO: add swap transaction
 
   /* Inside wallet TODOs */
+  // TODO: add icon retrieval from registry
   // TODO: add slide tray for asset selections (like on mobile)
   // TODO: add sorting function to wallet asset list
   // TODO: add search function to wallet asset list

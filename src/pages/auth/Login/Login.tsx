@@ -3,7 +3,7 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { EyeOpen, EyeClose } from '@/assets/icons';
 import { ROUTES } from '@/constants';
 import { Button, Input } from '@/ui-kit';
-import { tryAuthorizeWalletAccess } from '@/helpers';
+import { resetNodeErrorCounts, tryAuthorizeWalletAccess } from '@/helpers';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -26,8 +26,8 @@ export const Login: React.FC = () => {
   const handleUnlock = async () => {
     // TOOD: include error message if no wallet exists on this device
     const isAuthorized = await tryAuthorizeWalletAccess(password);
-    console.log('is authorized:', isAuthorized);
     if (isAuthorized) {
+      resetNodeErrorCounts();
       // If password is correct, set wallet address and navigate to app root
       navigate(ROUTES.APP.ROOT);
     } else {
