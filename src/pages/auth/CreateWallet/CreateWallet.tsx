@@ -95,13 +95,13 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: add list of assets to send page
-  // TODO: add mock max amount to amount section
-  // TODO: add max button to amount section
-  // TODO: add QR code input (drag and drop/image selection)
-  // TODO: add icon retrieval from registry
   // TODO: add send transaction
   // TODO: add swap transaction
+  // TODO: abstract IBC needs
+  // TODO: add mock max amount placeholder to amount section
+  // TODO: add max button to amount section
+  // TODO: add icon retrieval from registry
+  // TODO: abstract wallet prefix and mnemonic decryption
   // TODO: add slide tray for asset selections (like on mobile)
 
   /* Inside wallet TODOs */
@@ -123,6 +123,7 @@ export const CreateWallet = () => {
   // TODO: test path and create error for no wallet exists and user attempts login
 
   /* Less Critical Wallet TODOs */
+  // TODO: add QR code input to address on send screen (drag and drop/image selection)
   // TODO: create add wallet screen to allow management of multiple accounts
   // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
   // TODO: add qr code screen for transfer data (including account data).  or from google
@@ -131,9 +132,12 @@ export const CreateWallet = () => {
   /* Nice to have TODOs */
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing
   // TODO: add password complexity bar on entry
+  // TODO: add toggle option for single-click transactions and another for force accepting/declining transactions
+  // TODO: add toggle option for ultra-secure mode, using password auth for on every transaction like with hardware wallets.  in that mode, no session storage is used.
 
   /* Interchain-compatibility TODOs */
   // TODO: add icon and chain display name to copy address for receive
+  // TODO: add manual IBC (for rare cases.  hide behind dev tool enabling?)
 
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
