@@ -95,9 +95,13 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: add list of assets to send page
+  // TODO: add mock max amount to amount section
+  // TODO: add max button to amount section
+  // TODO: add QR code input (drag and drop/image selection)
+  // TODO: add icon retrieval from registry
   // TODO: add send transaction
   // TODO: add swap transaction
-  // TODO: add icon retrieval from registry
   // TODO: add slide tray for asset selections (like on mobile)
 
   /* Inside wallet TODOs */
