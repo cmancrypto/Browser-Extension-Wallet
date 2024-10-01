@@ -9,7 +9,7 @@ export const AssetScroller = () => {
 
   return (
     <ScrollArea
-      className="h-[200px] w-full mt-3"
+      className="flex-grow w-full overflow-y-auto mt-3"
       type="always"
       scrollbarProps={{
         className: 'max-h-[93%]',
@@ -31,6 +31,8 @@ export const AssetScroller = () => {
           <div className="text-white text-h6">$1504.94</div>
         </div>
       ))}
+      {/* Add small spacer */}
+      <div className="h-4" />
     </ScrollArea>
   );
 };

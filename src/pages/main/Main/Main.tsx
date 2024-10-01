@@ -9,7 +9,8 @@ export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Top section with balance and buttons */}
       <div className="px-4 mt-4">
         <div className="p-4 border rounded-xl border-neutral-4 flex flex-col items-center">
           <div className="text-center mb-7">
@@ -24,12 +25,14 @@ export const Main = () => {
           </div>
         </div>
       </div>
-      <div className="text-left pt-4">
+
+      {/* Assets section - Flex-grow ensures the scroller takes up remaining space */}
+      <div className="flex-grow pt-4 pb-4 flex flex-col overflow-hidden">
         <h3 className="text-h4 text-white font-bold px-4">Assets</h3>
         {walletState.address ? (
           <AssetScroller />
         ) : (
-          <p className="text-base text-neutral-1">No available assets</p>
+          <p className="text-base text-neutral-1 px-4">No available assets</p>
         )}
       </div>
     </div>
