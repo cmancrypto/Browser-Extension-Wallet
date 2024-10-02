@@ -21,7 +21,12 @@ export const Send = () => {
   const walletAssets = walletState?.assets || [];
   // TODO: set selected asset to Asset object.
   const [recipientAddress, setRecipientAddress] = useState('');
-  const [selectedAsset, setSelectedAsset] = useState('');
+  const [selectedAssetToSend, setSelectedAssetToSend] = useState('');
+  const [
+    ,
+    //selectedAssetToReceive
+    setSelectedAssetToReceive,
+  ] = useState('');
   const [amount, setAmount] = useState('1000');
 
   const handleSend = async () => {
@@ -29,15 +34,15 @@ export const Send = () => {
     const wallet = await getSessionWallet();
     console.log('Session wallet:', wallet);
 
-    const asset = walletAssets.find(a => a.denom === selectedAsset);
+    const assetToSend = walletAssets.find(a => a.denom === selectedAssetToSend);
 
-    if (!asset) {
-      console.error('Selected asset not found in wallet assets.');
+    if (!assetToSend) {
+      console.error('Selected asset to send not found in wallet assets.');
       return;
     }
 
     const adjustedAmount = (
-      parseFloat(amount) * Math.pow(10, asset.exponent || GREATER_EXPONENT_DEFAULT)
+      parseFloat(amount) * Math.pow(10, assetToSend.exponent || GREATER_EXPONENT_DEFAULT)
     ).toFixed(0); // No decimals, as this is sending the minor unit, not the greater.
 
     console.log('Adjusted amount:', adjustedAmount);
@@ -48,7 +53,7 @@ export const Send = () => {
         value: {
           fromAddress: walletState.address,
           toAddress: recipientAddress,
-          amount: [{ denom: selectedAsset, amount: adjustedAmount }],
+          amount: [{ denom: selectedAssetToSend, amount: adjustedAmount }],
         },
       };
 
@@ -110,12 +115,13 @@ export const Send = () => {
           onChange={e => setRecipientAddress(e.target.value)}
           className="text-white mb-4"
         />
-        {/* Account and Asset selection */}
+
+        {/* Send Asset selection */}
         <div className="flex items-center justify-between mb-4">
-          <label className="text-sm text-neutral-1">Receive As</label>
-          <Select defaultValue="asset1" onValueChange={value => setSelectedAsset(value)}>
+          <label className="text-sm text-neutral-1">Send As</label>
+          <Select defaultValue="" onValueChange={value => setSelectedAssetToSend(value)}>
             <SelectTrigger className="max-w-56 py-2.5">
-              <SelectValue placeholder="Asset" />
+              <SelectValue placeholder="Asset to Send" />
             </SelectTrigger>
             <SelectContent>
               {walletAssets.map((asset: Asset, index, array) => (
@@ -136,6 +142,34 @@ export const Send = () => {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Receive Asset selection */}
+        <div className="flex items-center justify-between mb-4">
+          <label className="text-sm text-neutral-1">Receive As</label>
+          <Select defaultValue="" onValueChange={value => setSelectedAssetToReceive(value)}>
+            <SelectTrigger className="max-w-56 py-2.5">
+              <SelectValue placeholder="Asset to Receive" />
+            </SelectTrigger>
+            <SelectContent>
+              {walletAssets.map((asset: Asset, index, array) => (
+                <Fragment key={asset.denom}>
+                  <SelectItem value={asset.denom}>
+                    <div className="flex items-center text-left">
+                      <div className="rounded-full w-7 h-7 bg-neutral-2 p-2 flex items-center justify-center">
+                        <LogoIcon />
+                      </div>
+                      <div className="flex flex-col ml-3">
+                        <p className="text-base text-white">{asset.symbol}</p>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  {index + 1 !== array.length && <SelectSeparator />}
+                </Fragment>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Amount input */}
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm text-neutral-1">Amount</label>
@@ -149,11 +183,13 @@ export const Send = () => {
             )}
           />
         </div>
+
         {/* Fee */}
         <div className="flex justify-between items-center text-blue text-sm font-bold">
           <p>Fee</p>
           <p>0.0004 MLD</p>
         </div>
+
         {/* Send Button */}
         <div className="mt-8">
           <Button className="w-full" onClick={handleSend}>
