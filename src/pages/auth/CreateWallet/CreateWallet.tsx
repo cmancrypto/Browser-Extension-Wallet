@@ -95,7 +95,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: fix issue of wallet falling out of state
   // TODO: add swap transaction
   // TODO: abstract IBC needs
   // TODO: provide updates to user as send information updates (viewable in console currently)
