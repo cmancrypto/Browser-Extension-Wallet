@@ -98,6 +98,7 @@ export const CreateWallet = () => {
   // TODO: fix issue of wallet falling out of state
   // TODO: add swap transaction
   // TODO: abstract IBC needs
+  // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC or to invalid address
   // TODO: send fields vary in size and shift on data entry.  fix this.
   // TODO: add mock max amount placeholder to amount section
