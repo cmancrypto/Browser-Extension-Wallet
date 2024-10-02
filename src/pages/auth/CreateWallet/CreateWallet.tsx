@@ -116,13 +116,13 @@ export const CreateWallet = () => {
   // TODO: update transactions history button (need endpoint for this.  disable until ready)
 
   /* Auth TODOs */
-  // TODO: Add Manual RPC changes in-app
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
 
   /* Less Critical Auth TODOs */
   // TODO: handle error printout (in place of subtitle on verify screen?)
   // TODO: for default on text, ensure no focus and basic mouse onHover (no change)
   // TODO: test path and create error for no wallet exists and user attempts login
+  // TODO: Add Manual RPC changes in-app
 
   /* Less Critical Wallet TODOs */
   // TODO: add QR code input to address on send screen (drag and drop/image selection)
