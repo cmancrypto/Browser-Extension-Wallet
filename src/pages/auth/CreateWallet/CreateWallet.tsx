@@ -111,6 +111,7 @@ export const CreateWallet = () => {
   // TODO: add sorting function to wallet asset list
   // TODO: add search function to wallet asset list
   // TODO: add show/hide function to wallet asset list
+  // TODO: add staking support (add a button/view to the amount section or a button to the top bar)
 
   /* Inside wallet TODOs */
   // TODO: change options buttons
