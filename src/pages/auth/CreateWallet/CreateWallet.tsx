@@ -95,15 +95,13 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: avoid retrieval of token on every instance of user activity
-  // TODO: abstract IBC needs
+  // TODO: add mock max amount placeholder to amount section
+  // TODO: after send, navigate to congratulations page
   // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC or to invalid address
   // TODO: send fields vary in size and shift on data entry.  fix this.
-  // TODO: add mock max amount placeholder to amount section
-  // TODO: add max button to amount section
   // TODO: add icon retrieval from registry
-  // TODO: abstract wallet prefix and mnemonic decryption
+  // TODO: add max button to amount section
   // TODO: add slide tray for asset selections (like on mobile)
 
   /* Inside wallet TODOs */
@@ -111,12 +109,15 @@ export const CreateWallet = () => {
   // TODO: add search function to wallet asset list
   // TODO: add show/hide function to wallet asset list
   // TODO: add staking support (add a button/view to the amount section or a button to the top bar)
+  // TODO: abstract IBC needs
 
   /* Inside wallet TODOs */
   // TODO: change options buttons
   // TODO: update transactions history button (need endpoint for this.  disable until ready)
 
   /* Auth TODOs */
+  // TODO: abstract wallet prefix and mnemonic decryption
+  // TODO: look into changing return of wallet object into return of offline signer object.  can one be used for all activities?  is one more secure than the other?
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
 
   /* Less Critical Auth TODOs */
