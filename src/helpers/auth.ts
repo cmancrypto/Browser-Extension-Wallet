@@ -1,13 +1,15 @@
 import CryptoJS from 'crypto-js';
 import { decryptMnemonic } from './crypto';
-import { generateToken, getWalletAddress } from './wallet';
+import { getWallet } from './wallet';
 import {
   getStoredAccessToken,
   getStoredMnemonic,
   getStoredPassword,
+  storeAccessToken,
   storePassword,
 } from './localStorage';
-import { TOKEN_EXPIRATION_TIME } from '@/constants';
+import { TOKEN_EXPIRATION_TIME, WALLET_PREFIX } from '@/constants';
+import { Secp256k1HdWallet } from '@cosmjs/amino';
 
 /**
  * Hash the password using SHA-512 with a salt (using CryptoJS).
@@ -73,6 +75,49 @@ export const isTokenValid = (): boolean => {
   return currentTime - sessionStartTime < TOKEN_EXPIRATION_TIME;
 };
 
+// TODO: save full wallet information or just address depending on auth vs UX level selected.  only need 1 function to handle both cases
+/**
+ * Generates a token from the wallet address.
+ * @param address The wallet address to generate a token for.
+ * @returns {string} The generated token.
+ */
+export const savePersistentAuthToken = (address: string): string => {
+  const token = JSON.stringify({
+    walletAddress: address,
+    network: WALLET_PREFIX,
+    timestamp: new Date().toISOString(),
+  });
+
+  // Store the generated token in localStorage
+  storeAccessToken(token);
+
+  return token;
+};
+
+/**
+ * Generates a session token using the wallet address.
+ * This session token is valid for a fixed period defined by `TOKEN_EXPIRATION_TIME`.
+ * @param address The wallet address for the session token.
+ * @returns {string} The generated session token.
+ */
+export const saveSessionAuthToken = async (wallet: Secp256k1HdWallet): Promise<string> => {
+  const [{ address }] = await wallet.getAccounts();
+
+  // Save session token in sessionStorage with expiration time
+  const tokenData = {
+    mnemonic: wallet.mnemonic,
+    walletAddress: address,
+    network: WALLET_PREFIX,
+    expiresIn: TOKEN_EXPIRATION_TIME,
+  };
+
+  const sessionToken = JSON.stringify(tokenData);
+  // TODO: move this line to sessionStorage.ts
+  sessionStorage.setItem('sessionToken', sessionToken);
+
+  return sessionToken;
+};
+
 /**
  * Authorizes wallet access, decrypts mnemonic, retrieves wallet address, and saves access token.
  * @param password The password entered by the user.
@@ -98,13 +143,16 @@ export const tryAuthorizeWalletAccess = async (password: string): Promise<boolea
       return false;
     }
 
-    // Create a wallet instance using the mnemonic and await for the result
-    const address = await getWalletAddress(mnemonic);
+    // Create a wallet instance using the mnemonic and get the address
+    const wallet = await getWallet(mnemonic);
+    const [{ address }] = await wallet.getAccounts();
 
-    // Generate and save the access token
-    generateToken(address);
+    // TODO: use localstorage or session storage based on if "remember me" is used
+    // Generate and save both the access token and session token
+    savePersistentAuthToken(address);
+    saveSessionAuthToken(wallet);
 
-    return true; // Successful authorization
+    return true;
   } catch (error) {
     console.error('Authorization failed:', error);
     return false;

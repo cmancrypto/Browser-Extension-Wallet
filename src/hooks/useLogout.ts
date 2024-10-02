@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { removeStoredAccessToken, resetNodeErrorCounts } from '@/helpers';
+import { lockWalletSession, removeStoredAccessToken, resetNodeErrorCounts } from '@/helpers';
 import { ROUTES } from '@/constants';
 
 export const useLogout = () => {
@@ -9,6 +9,7 @@ export const useLogout = () => {
     // Clear necessary data
     resetNodeErrorCounts();
     removeStoredAccessToken();
+    lockWalletSession();
 
     // Use React Router's navigate instead of window.location.href
     navigate(ROUTES.AUTH.ROOT);

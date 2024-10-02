@@ -1,21 +1,89 @@
 import { Select, SelectValue } from '@radix-ui/react-select';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { SigningStargateClient, calculateFee } from '@cosmjs/stargate';
 
 import { ArrowLeft, LogoIcon, QRCode } from '@/assets/icons';
-import { ROUTES } from '@/constants';
+import { GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
 import { cn } from '@/helpers/utils';
 import { Button, Input, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/ui-kit';
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { Asset } from '@/types';
+import { getSessionWallet } from '@/helpers';
 
-const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
-const avatarUrl = chrome?.runtime?.getURL('avatar.png');
+// TODO: add account selection after saving accounts
+// const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
+// const avatarUrl = chrome?.runtime?.getURL('avatar.png');
 
 export const Send = () => {
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
+  // TODO: set selected asset to Asset object.
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [selectedAsset, setSelectedAsset] = useState('');
+  const [amount, setAmount] = useState('1000');
+
+  const handleSend = async () => {
+    console.log('Handling send...');
+    const wallet = await getSessionWallet();
+    console.log('Session wallet:', wallet);
+
+    const asset = walletAssets.find(a => a.denom === selectedAsset);
+
+    if (!asset) {
+      console.error('Selected asset not found in wallet assets.');
+      return;
+    }
+
+    const adjustedAmount = (
+      parseFloat(amount) * Math.pow(10, asset.exponent || GREATER_EXPONENT_DEFAULT)
+    ).toFixed(0); // No decimals, as this is sending the minor unit, not the greater.
+
+    console.log('Adjusted amount:', adjustedAmount);
+
+    try {
+      const sendMsg = {
+        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+        value: {
+          fromAddress: walletState.address,
+          toAddress: recipientAddress,
+          amount: [{ denom: selectedAsset, amount: adjustedAmount }],
+        },
+      };
+
+      console.log('Send message:', sendMsg);
+
+      if (!wallet) {
+        console.error('Wallet is locked or unavailable');
+        return;
+      }
+
+      console.log('Connecting to Stargate client...');
+      const client = await SigningStargateClient.connectWithSigner(
+        'https://symphony-rpc.kleomedes.network',
+        wallet,
+      );
+      console.log('Stargate client connected.');
+
+      // TODO: change gas and fee calculations
+      // TODO: show max and min for gas fees, show actual amount taken for transaction fee.  from simulated send?
+      const fee = calculateFee(100000, '0.0025note');
+      console.log('Calculated fee:', fee);
+
+      console.log('Signing and broadcasting transaction...');
+      const result = await client.signAndBroadcast(walletState.address, [sendMsg], fee);
+
+      if (result.code === 0) {
+        console.log('Transaction broadcasted successfully', result);
+      } else {
+        // TODO: show error to user
+        console.error('Transaction failed:', result.code);
+      }
+    } catch (error) {
+      console.error('Error broadcasting transaction', error);
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col bg-black text-white">
@@ -38,38 +106,14 @@ export const Send = () => {
           variant="primary"
           placeholder="Wallet Address or ICNS"
           icon={<QRCode width={20} />}
+          value={recipientAddress}
+          onChange={e => setRecipientAddress(e.target.value)}
           className="text-white mb-4"
         />
-
         {/* Account and Asset selection */}
         <div className="flex items-center justify-between mb-4">
-          <label className="text-sm text-neutral-1">Account 1</label>
-          <Select defaultValue="account1">
-            <SelectTrigger className="max-w-56 py-2.5">
-              <SelectValue placeholder="Account" />
-            </SelectTrigger>
-            <SelectContent>
-              {SELECT_ACCOUNT.map((account, index, array) => (
-                <Fragment key={account.id}>
-                  <SelectItem value={account.id}>
-                    <div className="flex items-center text-left">
-                      <img className="w-7 h-7 rounded-full" src={avatarUrl} alt="avatar" />
-                      <div className="ml-1.5">
-                        <p className="text-sm">{account.name}</p>
-                        <p className="text-xs text-neutral-1">Balance: {account.balance}</p>
-                      </div>
-                    </div>
-                  </SelectItem>
-                  {index + 1 !== array.length && <SelectSeparator />}
-                </Fragment>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
           <label className="text-sm text-neutral-1">Receive As</label>
-          <Select defaultValue="asset1">
+          <Select defaultValue="asset1" onValueChange={value => setSelectedAsset(value)}>
             <SelectTrigger className="max-w-56 py-2.5">
               <SelectValue placeholder="Asset" />
             </SelectTrigger>
@@ -92,12 +136,12 @@ export const Send = () => {
             </SelectContent>
           </Select>
         </div>
-
         {/* Amount input */}
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm text-neutral-1">Amount</label>
           <Input
-            value="1000 MLD"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
             className={cn(
               'p-2.5 bg-neutral-2 text-white border border-neutral-2 rounded-md max-w-56 w-full h-10',
               'hover:border-neutral-1',
@@ -105,14 +149,16 @@ export const Send = () => {
             )}
           />
         </div>
-
         {/* Fee */}
         <div className="flex justify-between items-center text-blue text-sm font-bold">
           <p>Fee</p>
           <p>0.0004 MLD</p>
         </div>
+        {/* Send Button */}
         <div className="mt-8">
-          <Button className="w-full">Send</Button>
+          <Button className="w-full" onClick={handleSend}>
+            Send
+          </Button>
         </div>
       </div>
     </div>

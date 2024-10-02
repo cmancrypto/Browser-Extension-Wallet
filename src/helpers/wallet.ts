@@ -38,16 +38,15 @@ export const createWallet = async (
 };
 
 /**
- * Retrieves the wallet address by decrypting the mnemonic with the provided password.
- * @param password The password used to decrypt the mnemonic.
- * @returns The wallet address or null if decryption fails.
+ * Retrieves the wallet by decrypting the mnemonic with the provided password.
+ * @param mnemonic The decrypted mnemonic to generate the wallet.
+ * @returns The Secp256k1HdWallet instance
  */
-export const getWalletAddress = async (mnemonic: string): Promise<string> => {
-  // Create the wallet and retrieve the address
+export const getWallet = async (mnemonic: string): Promise<Secp256k1HdWallet> => {
+  // Create the wallet using the decrypted mnemonic
   const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, { prefix: WALLET_PREFIX });
-  const [{ address }] = await wallet.getAccounts();
 
-  return address;
+  return wallet;
 };
 
 /**

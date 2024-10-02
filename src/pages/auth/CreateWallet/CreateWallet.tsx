@@ -95,7 +95,8 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: add send transaction
+  // TODO: fix issue of wallet falling out of state
+  // TODO: send fields vary in size and shift on data entry.  fix this.
   // TODO: add swap transaction
   // TODO: abstract IBC needs
   // TODO: add mock max amount placeholder to amount section
