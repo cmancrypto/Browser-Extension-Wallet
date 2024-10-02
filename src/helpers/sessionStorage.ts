@@ -106,6 +106,7 @@ export const lockWalletSession = () => {
  * Get the current session wallet. If the wallet is locked (null), it returns null.
  */
 export const getSessionWallet = async (): Promise<Secp256k1HdWallet | null> => {
+  // TODO: session token gets cleared on loss of focus.
   console.log('Attempting to retrieve session wallet from memory');
 
   const authToken = sessionStorage.getItem('sessionToken');

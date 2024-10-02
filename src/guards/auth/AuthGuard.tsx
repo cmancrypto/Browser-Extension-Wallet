@@ -1,131 +1,92 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-import { INACTIVITY_TIMEOUT, DATA_FRESHNESS_TIMEOUT, ROUTES } from '@/constants';
 import { fetchWalletAssets, getStoredAccessToken } from '@/helpers';
-import { useLogout } from '@/hooks';
+import { useInactivityCheck, useUpdateWalletTimer } from '@/hooks';
 import { walletStateAtom } from '@/atoms';
 import { useAtom } from 'jotai';
+import { ROUTES } from '@/constants';
 
 interface AuthGuardProps {
   children?: React.ReactNode;
 }
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
-  const token = getStoredAccessToken();
-  console.log('Token retrieved:', token);
-
+  console.log('auth guard');
   const { pathname } = useLocation();
-  const logout = useLogout();
   const [walletState, setWalletState] = useAtom(walletStateAtom);
   const [requestedLocation, setRequestedLocation] = useState<string | null>(null);
-  const [lastActivityTime, setLastActivityTime] = useState(Date.now());
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const walletInfoNotInState = walletState.address === '';
+  const [isLoading, setIsLoading] = useState(true); // Control loading state to prevent unnecessary rendering
 
   console.log('Current wallet state:', walletState);
 
-  // Handle inactivity logout
-  useEffect(() => {
-    const handleActivity = () => {
-      console.log('User activity detected, updating last activity time.');
-      setLastActivityTime(Date.now());
-    };
+  useInactivityCheck(); // Handle user inactivity
+  useUpdateWalletTimer(); // Handle token timer updates
 
-    window.addEventListener('mousemove', handleActivity);
-    window.addEventListener('keypress', handleActivity);
+  const setTokenToState = () => {
+    if (walletInfoNotInState) {
+      console.log('Fetching wallet address from token...');
+      const accessToken = getStoredAccessToken();
+      const walletAddress = accessToken?.walletAddress;
 
-    const checkInactivity = () => {
-      const timeSinceLastActivity = Date.now() - lastActivityTime;
-      console.log('Checking for inactivity. Time since last activity:', timeSinceLastActivity);
-      if (timeSinceLastActivity > INACTIVITY_TIMEOUT) {
-        console.log('User inactive for too long, logging out.');
-        logout();
-      }
-    };
+      console.log('Access token:', accessToken);
+      console.log('Wallet address from token:', walletAddress);
 
-    const inactivityInterval = setInterval(checkInactivity, 60 * 1000);
+      if (walletAddress && walletState.address === '') {
+        // Set wallet address in the global state (atom)
+        console.log('Setting wallet address and assets in state:', walletAddress);
+        setIsLoading(true); // Set loading while fetching
 
-    return () => {
-      clearInterval(inactivityInterval);
-      window.removeEventListener('mousemove', handleActivity);
-      window.removeEventListener('keypress', handleActivity);
-    };
-  }, [lastActivityTime]);
-
-  // Fetch wallet address from stored token and update global state
-  useEffect(() => {
-    console.log('Fetching wallet address from token...');
-    const accessToken = getStoredAccessToken();
-    const walletAddress = accessToken?.walletAddress;
-    console.log('Access token:', accessToken);
-    console.log('Wallet address from token:', walletAddress);
-
-    if (walletAddress && walletState.address === '') {
-      // Set wallet address in the global state (atom)
-      console.log('Setting wallet address and assets in state:', walletAddress);
-      // Fetch wallet assets and update the state
-      fetchWalletAssets({ address: walletAddress, assets: [] })
-        .then(assets => {
-          console.log('Fetched wallet assets:', assets);
-          setWalletState({
-            address: walletAddress,
-            assets,
+        // Fetch wallet assets and update the state
+        fetchWalletAssets({ address: walletAddress, assets: [] })
+          .then(assets => {
+            console.log('Fetched wallet assets:', assets);
+            setWalletState({
+              address: walletAddress,
+              assets,
+            });
+            setIsLoading(false); // Done loading
+          })
+          .catch(error => {
+            console.error('Error fetching wallet assets:', error);
+            setWalletState(prevState => ({
+              ...prevState,
+              address: walletAddress,
+              assets: [],
+            }));
+            setIsLoading(false); // Done loading even in case of error
           });
-        })
-        .catch(error => {
-          console.error('Error fetching wallet assets:', error);
-          setWalletState(prevState => ({
-            ...prevState,
-            address: walletAddress,
-            assets: [],
-          }));
-        });
-    } else {
-      console.log('No wallet address found, skipping asset fetch.');
-    }
-  }, [walletState]);
-
-  // Periodically refetch wallet assets every DATA_FRESHNESS_TIMEOUT interval
-  useEffect(() => {
-    if (timer) {
-      console.log('Clearing previous timer.');
-      clearInterval(timer);
-    }
-
-    console.log('Setting new timer to refetch wallet assets every', DATA_FRESHNESS_TIMEOUT, 'ms');
-    const expirationTimer = setInterval(() => {
-      // NOTE: this is mentioned before walletState falls out.  multiple timers?
-      console.log('Fetching wallet assets on interval for', walletState);
-      fetchWalletAssets(walletState)
-        .then(assets => {
-          console.log('Assets fetched on interval:', assets);
-          setWalletState(prevState => ({
-            ...prevState,
-            assets,
-          }));
-        })
-        .catch(error => {
-          console.error('Error refetching wallet assets:', error);
-        });
-    }, DATA_FRESHNESS_TIMEOUT);
-
-    setTimer(expirationTimer);
-
-    return () => {
-      if (timer) {
-        console.log('Clearing timer on component unmount.');
-        clearInterval(timer);
+      } else {
+        setIsLoading(false); // If no wallet address is found, stop loading
       }
-    };
-  }, [walletState, setWalletState]);
+    }
+  };
 
-  if (!token) {
+  useEffect(() => {
+    if (walletInfoNotInState) {
+      setTokenToState();
+    } else {
+      setIsLoading(false); // If wallet already exists, no need to fetch again
+    }
+  }, [walletState.address]); // Run only when wallet address is updated
+
+  // Prevent redirect or rendering while loading
+  if (isLoading) {
+    // TODO: change with scroll wheel or similar
+    return <div>Loading...</div>; // Placeholder or spinner can be added here
+  }
+
+  // If no wallet address is found, redirect to login
+  if (walletInfoNotInState) {
     console.log('No token found, redirecting to login.');
     if (pathname !== requestedLocation) {
+      console.log('pathname:', pathname);
       setRequestedLocation(pathname);
     }
     return <Navigate to={ROUTES.AUTH.ROOT} />;
   }
 
+  // If requestedLocation is set, redirect to it
   if (requestedLocation && pathname !== requestedLocation) {
     const redirectLocation = requestedLocation;
     console.log('Redirecting to requested location:', redirectLocation);
@@ -133,5 +94,6 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     return <Navigate to={redirectLocation} />;
   }
 
+  console.log('returning child components');
   return <>{children}</>;
 };

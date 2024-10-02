@@ -95,6 +95,7 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: avoid retrieval of token on every instance of user activity
   // TODO: add swap transaction
   // TODO: abstract IBC needs
   // TODO: provide updates to user as send information updates (viewable in console currently)

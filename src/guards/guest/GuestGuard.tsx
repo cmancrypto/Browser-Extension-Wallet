@@ -9,6 +9,7 @@ interface GuestGuardProps {
 }
 
 export const GuestGuard = ({ children }: GuestGuardProps) => {
+  console.log('guest guard');
   // TODO: save multiple access tokens for multiple accounts (log in via correct password).  burner account enabled
   const token = getStoredAccessToken();
 

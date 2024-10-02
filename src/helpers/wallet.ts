@@ -3,6 +3,7 @@ import { encryptMnemonic } from './crypto';
 import { storePasswordHash } from './auth';
 import { NETWORK, WALLET_PREFIX } from '@/constants';
 import { storeAccessToken, storeMnemonic } from './localStorage';
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 
 /**
  * Create a wallet using Secp256k1HdWallet and store encrypted mnemonic and password hash.
@@ -48,6 +49,16 @@ export const getWallet = async (mnemonic: string): Promise<Secp256k1HdWallet> =>
 
   return wallet;
 };
+
+export async function createOfflineSignerFromMnemonic(
+  mnemonic: string,
+): Promise<DirectSecp256k1HdWallet> {
+  // You can specify the derivation path here if necessary
+  const hdWallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+    prefix: WALLET_PREFIX,
+  });
+  return hdWallet;
+}
 
 /**
  * Generate a token containing non-sensitive wallet information.

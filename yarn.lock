@@ -234,7 +234,7 @@
     "@noble/hashes" "^1.0.0"
     protobufjs "^6.8.8"
 
-"@cosmjs/amino@^0.32.4":
+"@cosmjs/amino@^0.32.3", "@cosmjs/amino@^0.32.4":
   version "0.32.4"
   resolved "https://registry.npmjs.org/@cosmjs/amino/-/amino-0.32.4.tgz"
   integrity sha512-zKYOt6hPy8obIFtLie/xtygCkH9ZROiQ12UHfKsOkWaZfPQUvVbtgmu6R4Kn1tFLI/SRkw7eqhaogmW/3NYu/Q==
@@ -244,7 +244,7 @@
     "@cosmjs/math" "^0.32.4"
     "@cosmjs/utils" "^0.32.4"
 
-"@cosmjs/crypto@^0.32.4":
+"@cosmjs/crypto@^0.32.3", "@cosmjs/crypto@^0.32.4":
   version "0.32.4"
   resolved "https://registry.npmjs.org/@cosmjs/crypto/-/crypto-0.32.4.tgz"
   integrity sha512-zicjGU051LF1V9v7bp8p7ovq+VyC91xlaHdsFOTo2oVry3KQikp8L/81RkXmUIT8FxMwdx1T7DmFwVQikcSDIw==
@@ -257,7 +257,7 @@
     elliptic "^6.5.4"
     libsodium-wrappers-sumo "^0.7.11"
 
-"@cosmjs/encoding@^0.32.4":
+"@cosmjs/encoding@^0.32.3", "@cosmjs/encoding@^0.32.4":
   version "0.32.4"
   resolved "https://registry.npmjs.org/@cosmjs/encoding/-/encoding-0.32.4.tgz"
   integrity sha512-tjvaEy6ZGxJchiizzTn7HVRiyTg1i4CObRRaTRPknm5EalE13SV+TCHq38gIDfyUeden4fCuaBVEdBR5+ti7Hw==
@@ -303,7 +303,7 @@
     ws "^7"
     xstream "^11.14.0"
 
-"@cosmjs/stargate@^0.32.4":
+"@cosmjs/stargate@^0.32.3", "@cosmjs/stargate@^0.32.4":
   version "0.32.4"
   resolved "https://registry.npmjs.org/@cosmjs/stargate/-/stargate-0.32.4.tgz"
   integrity sha512-usj08LxBSsPRq9sbpCeVdyLx2guEcOHfJS9mHGCLCXpdAPEIEQEtWLDpEUc0LEhWOx6+k/ChXTc5NpFkdrtGUQ==
@@ -346,6 +346,13 @@
   version "0.32.4"
   resolved "https://registry.npmjs.org/@cosmjs/utils/-/utils-0.32.4.tgz"
   integrity sha512-D1Yc+Zy8oL/hkUkFUL/bwxvuDBzRGpc4cF7/SkdhxX4iHpSLgdOuTt1mhCh9+kl6NQREy9t7SYZ6xeW5gFe60w==
+
+"@cosmology/lcd@^0.13.4":
+  version "0.13.5"
+  resolved "https://registry.yarnpkg.com/@cosmology/lcd/-/lcd-0.13.5.tgz#1bc4d43d525ecd68d09211d2ce17332a149a1a00"
+  integrity sha512-CI8KFsJcgp0RINF8wHpv3Y9yR4Fb9ZnGucyoUICjtX2XT4NVBK+fvZuRFj5TP34km8TpEOb+WV2T7IN/pZsD7Q==
+  dependencies:
+    axios "1.7.4"
 
 "@esbuild/aix-ppc64@0.20.2":
   version "0.20.2"
@@ -609,6 +616,19 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
+
+"@orchestra-labs/symphonyjs@^1.0.28":
+  version "1.0.28"
+  resolved "https://registry.yarnpkg.com/@orchestra-labs/symphonyjs/-/symphonyjs-1.0.28.tgz#2e36bfdfa582619c08c25d6a81912864b141d421"
+  integrity sha512-QxKOMYXzJM9pOjSdah9cBpUgDXQlMNw6U1Wygql/tOqbwfJMccQmvY4lpA2N5pNnSU256x88gAGli7z9MvWqoQ==
+  dependencies:
+    "@cosmjs/amino" "^0.32.3"
+    "@cosmjs/crypto" "^0.32.3"
+    "@cosmjs/encoding" "^0.32.3"
+    "@cosmjs/proto-signing" "^0.32.4"
+    "@cosmjs/stargate" "^0.32.3"
+    "@cosmjs/tendermint-rpc" "^0.32.4"
+    "@cosmology/lcd" "^0.13.4"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -1484,6 +1504,15 @@ axe-core@=4.7.0:
   version "4.7.0"
   resolved "https://registry.npmjs.org/axe-core/-/axe-core-4.7.0.tgz"
   integrity sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==
+
+axios@1.7.4:
+  version "1.7.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.4.tgz#4c8ded1b43683c8dd362973c393f3ede24052aa2"
+  integrity sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 axios@^1.6.0:
   version "1.7.7"
