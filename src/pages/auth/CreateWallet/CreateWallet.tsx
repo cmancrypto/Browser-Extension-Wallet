@@ -95,6 +95,13 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: add staking support (add a button/view to the amount section or a button to the top bar)
+  // TODO: add staking screen, show addresses currently delegated to
+  // TODO: add staking tray to staking button, show set of available validators
+  // TODO: add unstake all button.  test from non-"ecosystem growth" account
+  // TODO: add slide tray for individual validator information (with stake and unstake)
+  // TODO: add slide tray for individual asset information (with send and receive)
+  // TODO: clean up helper functions and hooks
   // TODO: add mock max amount placeholder to amount section
   // TODO: after send, navigate to congratulations page
   // TODO: provide updates to user as send information updates (viewable in console currently)
@@ -109,7 +116,9 @@ export const CreateWallet = () => {
   // TODO: add sorting function to wallet asset list
   // TODO: add search function to wallet asset list
   // TODO: add show/hide function to wallet asset list
-  // TODO: add staking support (add a button/view to the amount section or a button to the top bar)
+  // TODO: add sorting function to validator list
+  // TODO: add search function to validator list
+  // TODO: add show/hide function to validator list
   // TODO: abstract IBC needs
 
   /* Inside wallet TODOs */
