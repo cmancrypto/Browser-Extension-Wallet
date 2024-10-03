@@ -103,6 +103,7 @@ export const CreateWallet = () => {
   // TODO: add icon retrieval from registry
   // TODO: add max button to amount section
   // TODO: add slide tray for asset selections (like on mobile)
+  // TODO: fix timed logout.  not currently functional
 
   /* Inside wallet TODOs */
   // TODO: add sorting function to wallet asset list
