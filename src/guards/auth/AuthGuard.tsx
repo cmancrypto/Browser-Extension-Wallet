@@ -16,12 +16,12 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
   const [walletState, setWalletState] = useAtom(walletStateAtom);
   const [requestedLocation, setRequestedLocation] = useState<string | null>(null);
   const walletInfoNotInState = walletState.address === '';
-  const [isLoading, setIsLoading] = useState(true); // Control loading state to prevent unnecessary rendering
+  const [isLoading, setIsLoading] = useState(true);
 
   console.log('Current wallet state:', walletState);
 
-  useInactivityCheck(); // Handle user inactivity
-  useUpdateWalletTimer(); // Handle token timer updates
+  useInactivityCheck();
+  useUpdateWalletTimer();
 
   const setTokenToState = () => {
     if (walletInfoNotInState) {
@@ -35,7 +35,7 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
       if (walletAddress && walletState.address === '') {
         // Set wallet address in the global state (atom)
         console.log('Setting wallet address and assets in state:', walletAddress);
-        setIsLoading(true); // Set loading while fetching
+        setIsLoading(true);
 
         // Fetch wallet assets and update the state
         fetchWalletAssets({ address: walletAddress, assets: [] })
@@ -45,7 +45,7 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
               address: walletAddress,
               assets,
             });
-            setIsLoading(false); // Done loading
+            setIsLoading(false);
           })
           .catch(error => {
             console.error('Error fetching wallet assets:', error);
@@ -54,10 +54,10 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
               address: walletAddress,
               assets: [],
             }));
-            setIsLoading(false); // Done loading even in case of error
+            setIsLoading(false);
           });
       } else {
-        setIsLoading(false); // If no wallet address is found, stop loading
+        setIsLoading(false);
       }
     }
   };
@@ -66,14 +66,14 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     if (walletInfoNotInState) {
       setTokenToState();
     } else {
-      setIsLoading(false); // If wallet already exists, no need to fetch again
+      setIsLoading(false);
     }
-  }, [walletState.address]); // Run only when wallet address is updated
+  }, [walletState.address]);
 
   // Prevent redirect or rendering while loading
   if (isLoading) {
-    // TODO: change with scroll wheel or similar
-    return <div>Loading...</div>; // Placeholder or spinner can be added here
+    // TODO: change with centered scroll wheel or similar
+    return <div>Loading...</div>;
   }
 
   // If no wallet address is found, redirect to login

@@ -95,6 +95,7 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: fix update from token on return to focus (or find out what that's called when an extension becomes active again)
   // TODO: add staking support (add a button/view to the amount section or a button to the top bar)
   // TODO: add staking screen, show addresses currently delegated to
   // TODO: add staking tray to staking button, show set of available validators

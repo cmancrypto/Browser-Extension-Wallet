@@ -24,8 +24,8 @@ export const AssetScroller = () => {
             <LogoIcon />
           </div>
           <div className="flex flex-col ml-3">
-            <h6 className="text-base text-white">{asset.symbol}</h6>
-            <p className="text-xs text-neutral-1">{`${asset.amount} ${asset.symbol}`}</p>
+            <h6 className="text-base text-white text-left">{asset.symbol}</h6>
+            <p className="text-xs text-neutral-1 text-left">{`${asset.amount} ${asset.symbol}`}</p>
           </div>
           <div className="flex-1" />
           <div className="text-white text-h6">$1504.94</div>

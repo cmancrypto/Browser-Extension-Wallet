@@ -1,34 +1,51 @@
-import { NavLink } from 'react-router-dom';
-import { AssetScroller, ReceiveDialog } from '@/components';
-import { ROUTES } from '@/constants';
-import { Button } from '@/ui-kit';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper-bundle.css';
+import { AssetScroller, BalanceCard } from '@/components';
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
+import { useState } from 'react';
 
 export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
+  const totalSlides = 2;
+  const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Top section with balance and buttons */}
-      <div className="px-4 mt-4">
-        <div className="p-4 border rounded-xl border-neutral-4 flex flex-col items-center">
-          <div className="text-center mb-7">
-            <p className="text-base text-neutral-1">Available balance</p>
-            <h1 className="text-h2 text-white font-bold">$1504.94</h1>
-          </div>
-          <div className="grid grid-cols-2 w-full gap-x-4 px-2">
-            <ReceiveDialog />
-            <Button className="w-full" asChild>
-              <NavLink to={ROUTES.APP.SEND}>Send</NavLink>
-            </Button>
-          </div>
-        </div>
+      {/* Swiper Component for Balance Cards */}
+      <div className="relative h-48 flex-none overflow-hidden">
+        <Swiper
+          spaceBetween={50}
+          slidesPerView={1}
+          loop={false}
+          onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
+        >
+          <SwiperSlide>
+            <div className="w-full px-4 mt-4 flex-shrink-0">
+              <BalanceCard
+                title="Available balance"
+                balance="1504.94"
+                currentStep={activeIndex}
+                totalSteps={totalSlides}
+              />
+            </div>
+          </SwiperSlide>
+          <SwiperSlide>
+            <div className="w-full px-4 mt-4 flex-shrink-0">
+              <BalanceCard
+                title="Staked balance"
+                balance="9999.99"
+                currentStep={activeIndex}
+                totalSteps={totalSlides}
+              />
+            </div>
+          </SwiperSlide>
+        </Swiper>
       </div>
 
-      {/* Assets section - Flex-grow ensures the scroller takes up remaining space */}
+      {/* Assets section */}
       <div className="flex-grow pt-4 pb-4 flex flex-col overflow-hidden">
-        <h3 className="text-h4 text-white font-bold px-4">Assets</h3>
+        <h3 className="text-h4 text-white font-bold px-4 text-left">Assets</h3>
         {walletState.address ? (
           <AssetScroller />
         ) : (
