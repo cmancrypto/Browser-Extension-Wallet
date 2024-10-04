@@ -95,11 +95,12 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: modify send/receive buttons for staked assets screen
+  // TODO: move most of walletState atom into main.  this prevents re-building auth every time wallet updates
+  // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: fix update from token on return to focus (or find out what that's called when an extension becomes active again)
-  // TODO: add staking support (add a button/view to the amount section or a button to the top bar)
-  // TODO: add staking screen, show addresses currently delegated to
   // TODO: add staking tray to staking button, show set of available validators
-  // TODO: add unstake all button.  test from non-"ecosystem growth" account
+  // TODO: add unstake all button and restake all button.  test from non-"ecosystem growth" account
   // TODO: add slide tray for individual validator information (with stake and unstake)
   // TODO: add slide tray for individual asset information (with send and receive)
   // TODO: clean up helper functions and hooks

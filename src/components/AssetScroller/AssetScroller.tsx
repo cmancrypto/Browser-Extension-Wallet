@@ -1,11 +1,14 @@
 import { ScrollArea } from '@/ui-kit';
-import { Asset } from '@/types';
+import { Asset, DelegationResponse, ValidatorInfo } from '@/types';
 import { useAtomValue } from 'jotai';
-import { walletStateAtom } from '@/atoms';
+import { walletStateAtom, delegationAtom, validatorInfoAtom } from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
+import { ScrollTile } from '../ScrollTile';
 
-export const AssetScroller = () => {
+export const AssetScroller = ({ activeIndex }: { activeIndex: number }) => {
   const walletState = useAtomValue(walletStateAtom);
+  const delegations = useAtomValue(delegationAtom);
+  const validators = useAtomValue(validatorInfoAtom);
 
   return (
     <ScrollArea
@@ -15,23 +18,45 @@ export const AssetScroller = () => {
         className: 'max-h-[93%]',
       }}
     >
-      {walletState?.assets?.map((asset: Asset) => (
-        <div
-          key={asset.symbol}
-          className="mx-4 py-2 min-h-[52px] flex items-center not-last:border-b not-last:border-neutral-4"
-        >
-          <div className="rounded-full h-9 w-9 bg-neutral-2 p-2 flex items-center justify-center">
-            <LogoIcon />
-          </div>
-          <div className="flex flex-col ml-3">
-            <h6 className="text-base text-white text-left">{asset.symbol}</h6>
-            <p className="text-xs text-neutral-1 text-left">{`${asset.amount} ${asset.symbol}`}</p>
-          </div>
-          <div className="flex-1" />
-          <div className="text-white text-h6">$1504.94</div>
-        </div>
-      ))}
-      {/* Add small spacer */}
+      {activeIndex === 0 &&
+        walletState?.assets?.map((asset: Asset) => (
+          <ScrollTile
+            key={asset.denom}
+            title={asset.symbol || ''}
+            subtitle={'Symphony'}
+            value={asset.amount}
+            icon={<LogoIcon />}
+          />
+        ))}
+
+      {activeIndex === 1 &&
+        delegations?.map((delegationResponse: DelegationResponse) => {
+          const validatorAddress = delegationResponse?.delegation?.validator_address;
+          const validator = validators.find(
+            (validator: ValidatorInfo) => validator.operator_address === validatorAddress,
+          );
+
+          if (!validator) {
+            return (
+              <ScrollTile
+                key={validatorAddress || 'unknown-validator'}
+                title={'Unknown Validator'}
+                subtitle={delegationResponse.balance.denom}
+                value={delegationResponse.balance.amount}
+              />
+            );
+          }
+
+          return (
+            <ScrollTile
+              key={validatorAddress}
+              title={validator?.description?.moniker || 'Unknown Validator'}
+              subtitle={delegationResponse.balance.denom}
+              value={delegationResponse.balance.amount}
+            />
+          );
+        })}
+
       <div className="h-4" />
     </ScrollArea>
   );

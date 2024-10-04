@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './crypto';
+export * from './fetchStakedAssets';
 export * from './fetchWalletAssets';
 export * from './localStorage';
 export * from './queryNodes';

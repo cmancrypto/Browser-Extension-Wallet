@@ -1,14 +1,54 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { AssetScroller, BalanceCard } from '@/components';
-import { useAtomValue } from 'jotai';
-import { walletStateAtom } from '@/atoms';
-import { useState } from 'react';
+import { walletStateAtom, delegationAtom, validatorInfoAtom, paginationAtom } from '@/atoms';
+import { useState, useEffect } from 'react';
+import { fetchDelegations, fetchValidatorInfo } from '@/helpers/fetchStakedAssets';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
+  const [delegationState, setDelegationState] = useAtom(delegationAtom);
+  const setPaginationState = useSetAtom(paginationAtom);
+  const setValidatorInfo = useSetAtom(validatorInfoAtom);
+
   const totalSlides = 2;
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Fetch delegations when activeIndex is 1 and wallet address exists
+  useEffect(() => {
+    if (activeIndex === 1 && walletState.address) {
+      fetchDelegations(walletState.address)
+        .then(({ delegations, pagination }) => {
+          console.log('Fetched delegations:', delegations);
+          setDelegationState(delegations);
+          setPaginationState(pagination);
+        })
+        .catch(error => console.error('Error fetching delegations:', error));
+    }
+  }, [activeIndex, walletState.address]);
+
+  // Fetch validator information when delegations have been set
+  useEffect(() => {
+    console.log('delegation state updated to:', delegationState);
+    if (delegationState.length > 0) {
+      const validatorPromises = delegationState.map(delegation => {
+        // Print the delegation.delegation object to the console
+        console.log('main 36, Delegation object:', delegation);
+        console.log('main 37, validator address:', delegation.delegation.validator_address);
+
+        // Continue with the fetchValidatorInfo call
+        return fetchValidatorInfo(delegation.delegation.validator_address);
+      });
+
+      Promise.all(validatorPromises)
+        .then(validators => {
+          console.log('Fetched validators:', validators);
+          setValidatorInfo(validators);
+        })
+        .catch(error => console.error('Error fetching validator information:', error));
+    }
+  }, [delegationState]);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -45,9 +85,11 @@ export const Main = () => {
 
       {/* Assets section */}
       <div className="flex-grow pt-4 pb-4 flex flex-col overflow-hidden">
-        <h3 className="text-h4 text-white font-bold px-4 text-left">Assets</h3>
+        <h3 className="text-h4 text-white font-bold px-4 text-left">
+          {activeIndex === 0 ? 'Available Assets' : 'Staked Assets'}
+        </h3>
         {walletState.address ? (
-          <AssetScroller />
+          <AssetScroller activeIndex={activeIndex} />
         ) : (
           <p className="text-base text-neutral-1 px-4">No available assets</p>
         )}

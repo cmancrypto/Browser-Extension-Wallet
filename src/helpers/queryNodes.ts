@@ -26,41 +26,49 @@ const incrementErrorCount = (nodeProvider: string): void => {
 };
 
 // Function to query the node with retries and delay
-export const queryNode = async (endpoint: string, queryBody: string = ''): Promise<any> => {
+export const queryNode = async (
+  endpoint: string,
+  queryBody: string = '',
+  useRPC: boolean = false,
+  queryType: 'POST' | 'GET' = 'GET',
+): Promise<any> => {
   const providers = selectNodeProviders();
+  console.log('Selected node providers:', providers); // Log selected node providers
+
   let numberAttempts = 0;
 
   while (numberAttempts < MAX_NODES_PER_QUERY) {
     for (const provider of providers) {
       try {
-        const response = await fetch(`${provider.rest}${endpoint}`, {
-          method: 'POST',
+        const queryMethod = useRPC ? provider.rpc : provider.rest;
+        console.log(`Querying node ${queryMethod} with endpoint: ${endpoint}`); // Log each request
+
+        const response = await fetch(`${queryMethod}${endpoint}`, {
+          method: queryType,
           body: queryBody || null,
           headers: { 'Content-Type': 'application/json' },
         });
 
+        console.log('Response from node:', response); // Log the raw response
+
         if (!response.ok) {
-          // TODO: show error to user
           throw new Error('Node query failed');
         }
 
-        // Return successful result
         return await response.json();
       } catch (error) {
         incrementErrorCount(provider.rpc);
+        console.error('Error querying node:', error); // Log any errors
       }
-      // Increment the attempt count
       numberAttempts++;
 
       if (numberAttempts >= MAX_NODES_PER_QUERY) {
         break;
       }
 
-      // Wait for 1 second before trying the next provider
       await delay(DELAY_BETWEEN_NODE_ATTEMPTS);
     }
   }
 
-  // Throw an error if all attempts fail after trying all nodes
   throw new Error(`All node query attempts failed after ${MAX_NODES_PER_QUERY} attempts.`);
 };
