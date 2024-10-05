@@ -5,7 +5,7 @@ import { X } from '@/assets/icons'; // Your close icon
 import { Button } from '../Button';
 
 interface SlideTrayProps {
-  triggerText: string;
+  triggerComponent: React.ReactNode;
   title?: string;
   children: React.ReactNode;
   className?: string;
@@ -13,8 +13,8 @@ interface SlideTrayProps {
   height?: string;
 }
 
-const SlideTray: React.FC<SlideTrayProps> = ({
-  triggerText,
+export const SlideTray: React.FC<SlideTrayProps> = ({
+  triggerComponent,
   title,
   children,
   className,
@@ -23,11 +23,7 @@ const SlideTray: React.FC<SlideTrayProps> = ({
 }) => {
   return (
     <DialogPrimitive.Root>
-      <DialogPrimitive.Trigger asChild>
-        <Button variant="secondary" className="w-full">
-          {triggerText}
-        </Button>
-      </DialogPrimitive.Trigger>
+      <DialogPrimitive.Trigger asChild>{triggerComponent}</DialogPrimitive.Trigger>
 
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
@@ -66,5 +62,3 @@ const SlideTray: React.FC<SlideTrayProps> = ({
     </DialogPrimitive.Root>
   );
 };
-
-export default SlideTray;

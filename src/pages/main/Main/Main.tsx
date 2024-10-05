@@ -1,10 +1,11 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { AssetScroller, BalanceCard } from '@/components';
-import { walletStateAtom, delegationAtom, validatorInfoAtom, paginationAtom } from '@/atoms';
+import { walletStateAtom, delegationAtom, paginationAtom, validatorInfoAtom } from '@/atoms';
 import { useState, useEffect } from 'react';
-import { fetchDelegations, fetchValidatorInfo } from '@/helpers/fetchStakedAssets';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { fetchDelegations, fetchValidatorInfo } from '@/helpers/fetchStakedAssets';
+import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
 
 export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
@@ -20,7 +21,6 @@ export const Main = () => {
     if (activeIndex === 1 && walletState.address) {
       fetchDelegations(walletState.address)
         .then(({ delegations, pagination }) => {
-          console.log('Fetched delegations:', delegations);
           setDelegationState(delegations);
           setPaginationState(pagination);
         })
@@ -30,25 +30,31 @@ export const Main = () => {
 
   // Fetch validator information when delegations have been set
   useEffect(() => {
-    console.log('delegation state updated to:', delegationState);
     if (delegationState.length > 0) {
-      const validatorPromises = delegationState.map(delegation => {
-        // Print the delegation.delegation object to the console
-        console.log('main 36, Delegation object:', delegation);
-        console.log('main 37, validator address:', delegation.delegation.validator_address);
-
-        // Continue with the fetchValidatorInfo call
-        return fetchValidatorInfo(delegation.delegation.validator_address);
-      });
+      const validatorPromises = delegationState.map(delegation =>
+        fetchValidatorInfo(delegation.delegation.validator_address),
+      );
 
       Promise.all(validatorPromises)
-        .then(validators => {
-          console.log('Fetched validators:', validators);
-          setValidatorInfo(validators);
-        })
+        .then(validators => setValidatorInfo(validators))
         .catch(error => console.error('Error fetching validator information:', error));
     }
   }, [delegationState]);
+
+  // Calculate total staked MLD balance (assuming 'note' is the denom for MLD)
+  const exponent = LOCAL_ASSET_REGISTRY.note.exponent || GREATER_EXPONENT_DEFAULT;
+  // TODO: remove hardcoding, change per chain
+  const totalStakedMLD = delegationState
+    .filter(delegation => delegation.balance.denom === 'note')
+    .reduce((sum, delegation) => {
+      // Convert the raw amount to MLD based on the exponent
+      const convertedAmount = parseFloat(delegation.balance.amount) / Math.pow(10, exponent);
+      return sum + convertedAmount;
+    }, 0);
+
+  // TODO: move to utils to format for display
+  // Remove trailing zeros by parsing it as a float and converting it back to string
+  const totalDisplayMLD = parseFloat(totalStakedMLD.toFixed(exponent)).toString();
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -64,7 +70,7 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Available balance"
-                balance="1504.94"
+                balance="$1504.94"
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
               />
@@ -74,7 +80,7 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Staked balance"
-                balance="9999.99"
+                balance={`${totalDisplayMLD} MLD`}
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
               />

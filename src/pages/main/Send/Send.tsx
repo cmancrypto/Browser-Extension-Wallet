@@ -13,7 +13,6 @@ import { walletStateAtom } from '@/atoms';
 import { Asset } from '@/types';
 import { createOfflineSignerFromMnemonic, getSessionWallet } from '@/helpers';
 
-// Osmosis message composer
 const { swapSend } = osmosis.market.v1beta1.MessageComposer.withTypeUrl;
 
 // TODO: add account selection after saving accounts
@@ -70,6 +69,7 @@ export const Send = () => {
 
         console.log('Send message:', sendMsg);
 
+        // TODO: use query file
         console.log('Connecting to Stargate client...');
         const client = await SigningStargateClient.connectWithSigner(
           'https://symphony-rpc.kleomedes.network',
@@ -93,6 +93,7 @@ export const Send = () => {
           console.error('Transaction failed:', result.code);
         }
       } else {
+        // TODO: use query file
         // Perform a swap transaction
         const client = await getSigningOsmosisClient({
           rpcEndpoint: 'https://symphony-rpc.kleomedes.network',
