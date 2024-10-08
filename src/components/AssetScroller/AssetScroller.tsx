@@ -5,10 +5,28 @@ import { walletStateAtom, delegationAtom, validatorInfoAtom } from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
 
-export const AssetScroller = ({ activeIndex }: { activeIndex: number }) => {
+export const AssetScroller = ({
+  activeIndex,
+  rewards,
+}: {
+  activeIndex: number;
+  rewards: any[];
+}) => {
   const walletState = useAtomValue(walletStateAtom);
   const delegations = useAtomValue(delegationAtom);
   const validators = useAtomValue(validatorInfoAtom);
+
+  // Find rewards for a specific validator
+  const getValidatorRewards = (validatorAddress: string) => {
+    const validatorReward = rewards.find(reward => reward.validator_address === validatorAddress);
+    if (validatorReward && validatorReward.reward.length > 0) {
+      const totalReward = validatorReward.reward.reduce((sum: number, rewardItem: any) => {
+        return sum + parseFloat(rewardItem.amount);
+      }, 0);
+      return `${totalReward.toFixed(6)} ${validatorReward.reward[0].denom.toUpperCase()}`;
+    }
+    return '0';
+  };
 
   return (
     <ScrollArea
@@ -36,12 +54,14 @@ export const AssetScroller = ({ activeIndex }: { activeIndex: number }) => {
             (validator: ValidatorInfo) => validator.operator_address === validatorAddress,
           );
 
+          const rewardAmount = getValidatorRewards(validatorAddress);
+
           if (!validator) {
             return (
               <ScrollTile
                 key={validatorAddress || 'unknown-validator'}
                 title={'Unknown Validator'}
-                subtitle={delegationResponse.balance.denom}
+                subtitle={`Staked: ${delegationResponse.balance.amount} | Rewards: ${rewardAmount}`}
                 value={delegationResponse.balance.amount}
               />
             );
@@ -51,7 +71,7 @@ export const AssetScroller = ({ activeIndex }: { activeIndex: number }) => {
             <ScrollTile
               key={validatorAddress}
               title={validator?.description?.moniker || 'Unknown Validator'}
-              subtitle={delegationResponse.balance.denom}
+              subtitle={`Staked: ${delegationResponse.balance.amount} | Rewards: ${rewardAmount}`}
               value={delegationResponse.balance.amount}
             />
           );

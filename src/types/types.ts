@@ -12,6 +12,7 @@ export interface WalletAssets {
   assets: Asset[];
 }
 
+// TODO: add nullable validator info to delegation response?
 export interface DelegationResponse {
   delegation: {
     delegator_address: string;
@@ -29,6 +30,7 @@ export interface Pagination {
   total: string;
 }
 
+// TODO: add nullable rewards to validator info?
 export interface ValidatorInfo {
   operator_address: string;
   description: {
@@ -44,4 +46,9 @@ export interface ValidatorInfo {
       max_change_rate: string;
     };
   };
+}
+
+export interface ValidatorReward {
+  validator: string;
+  rewards: any[];
 }

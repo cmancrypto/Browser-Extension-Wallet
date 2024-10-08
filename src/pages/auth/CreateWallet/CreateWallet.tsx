@@ -95,6 +95,7 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: add staking tray to staking button, show set of available validators
   // TODO: add slide tray for individual validator information (with stake and unstake)
