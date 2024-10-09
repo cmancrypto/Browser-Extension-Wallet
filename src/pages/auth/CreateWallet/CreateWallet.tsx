@@ -95,21 +95,30 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
+  // TODO: add stake, unstake, collect rewards options to validator information tray
+
+  // TODO: add method to access "all" validators in tray
+  // TODO: format slide tray for individual validator information (with stake and unstake)
+
+  // TODO: add unstake all button and restake all button.  "all" button toggle?  test from non-"ecosystem growth" account
+
+  // TODO: add send, receive options to currency tray
+  // TODO: format slide tray for individual asset information (with send and receive)
+
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
-  // TODO: add staking tray to staking button, show set of available validators
-  // TODO: format slide tray for individual validator information (with stake and unstake)
-  // TODO: format slide tray for individual asset information (with send and receive)
+
   // TODO: add mock max amount placeholder to amount section
   // TODO: after send, navigate to congratulations page
+
   // TODO: provide updates to user as send information updates (viewable in console currently)
-  // TODO: add fields to let user know when sending over IBC or to invalid address
+  // TODO: add fields to let user know when sending over IBC
+
   // TODO: send fields vary in size and shift on data entry.  fix this.
   // TODO: add icon retrieval from registry
   // TODO: move most of walletState atom into main.  this prevents re-building auth every time wallet updates
   // TODO: force loss of focus on click outside extension
   // TODO: fix update from token on return to focus (or find out what that's called when an extension becomes active again)
-  // TODO: add unstake all button and restake all button.  test from non-"ecosystem growth" account
   // TODO: clean up helper functions and hooks
   // TODO: add max button to amount section
   // TODO: add slide tray for asset selections (like on mobile)
