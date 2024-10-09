@@ -1,6 +1,6 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
-import { AssetScroller, BalanceCard } from '@/components';
+import { BalanceCard, TileScroller } from '@/components';
 import { walletStateAtom, delegationAtom, paginationAtom, validatorInfoAtom } from '@/atoms';
 import { useState, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -117,7 +117,7 @@ export const Main = () => {
           {activeIndex === 0 ? 'Available' : 'Staked'}
         </h3>
         {walletState.address ? (
-          <AssetScroller activeIndex={activeIndex} rewards={rewards} />
+          <TileScroller activeIndex={activeIndex} rewards={rewards} />
         ) : (
           <p className="text-base text-neutral-1 px-4">No available assets</p>
         )}

@@ -10,9 +10,9 @@ interface BalanceCardProps {
   totalSteps: number;
 }
 
-// Stub functions for "Unbond All" and "Claim All"
-const unbondAll = () => {
-  console.log('Unbond All function triggered');
+// Stub functions for "Unstake All" and "Claim All"
+const unstakeAll = () => {
+  console.log('Unstake All function triggered');
 };
 
 const claimAll = () => {
@@ -38,8 +38,8 @@ export const BalanceCard = ({ title, balance, currentStep, totalSteps }: Balance
 
         {currentStep === 1 && (
           <>
-            <Button className="w-full" onClick={unbondAll}>
-              Unbond All
+            <Button className="w-full" onClick={unstakeAll}>
+              Unstake All
             </Button>
             <Button className="w-full" onClick={claimAll}>
               Claim All

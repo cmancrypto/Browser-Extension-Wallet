@@ -1,4 +1,4 @@
-export * from './AssetScroller';
+export * from './TileScroller';
 export * from './BalanceCard';
 export * from './ConnectedServicesDialog';
 export * from './CreatePasswordForm';

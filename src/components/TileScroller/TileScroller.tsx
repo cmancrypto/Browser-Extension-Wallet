@@ -5,25 +5,30 @@ import { walletStateAtom, delegationAtom, validatorInfoAtom } from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
 
-export const AssetScroller = ({
-  activeIndex,
-  rewards,
-}: {
-  activeIndex: number;
-  rewards: any[];
-}) => {
+export const TileScroller = ({ activeIndex, rewards }: { activeIndex: number; rewards: any[] }) => {
   const walletState = useAtomValue(walletStateAtom);
   const delegations = useAtomValue(delegationAtom);
   const validators = useAtomValue(validatorInfoAtom);
 
   // Find rewards for a specific validator
   const getValidatorRewards = (validatorAddress: string) => {
-    const validatorReward = rewards.find(reward => reward.validator_address === validatorAddress);
-    if (validatorReward && validatorReward.reward.length > 0) {
-      const totalReward = validatorReward.reward.reduce((sum: number, rewardItem: any) => {
+    console.log('address is', validatorAddress);
+    console.log('address', validatorAddress);
+    const validatorReward = rewards.find(reward => reward.validator === validatorAddress);
+    console.log('rewards', rewards);
+    console.log('validator reward', validatorReward);
+    if (
+      validatorReward &&
+      Array.isArray(validatorReward.rewards) &&
+      validatorReward.rewards.length > 0
+    ) {
+      const totalReward = validatorReward.rewards.reduce((sum: number, rewardItem: any) => {
         return sum + parseFloat(rewardItem.amount);
       }, 0);
-      return `${totalReward.toFixed(6)} ${validatorReward.reward[0].denom.toUpperCase()}`;
+
+      // TODO: format to greater unit rather than lesser unit
+      const denom = validatorReward.rewards[0]?.denom?.toUpperCase() || 'UNKNOWN';
+      return `${totalReward.toFixed(6)} ${denom}`;
     }
     return '0';
   };
@@ -44,6 +49,8 @@ export const AssetScroller = ({
             subtitle={'Symphony'}
             value={asset.amount}
             icon={<LogoIcon />}
+            type="asset"
+            info={asset}
           />
         ))}
 
@@ -55,17 +62,7 @@ export const AssetScroller = ({
           );
 
           const rewardAmount = getValidatorRewards(validatorAddress);
-
-          if (!validator) {
-            return (
-              <ScrollTile
-                key={validatorAddress || 'unknown-validator'}
-                title={'Unknown Validator'}
-                subtitle={`Staked: ${delegationResponse.balance.amount} | Rewards: ${rewardAmount}`}
-                value={delegationResponse.balance.amount}
-              />
-            );
-          }
+          console.log('reward amount', rewardAmount);
 
           return (
             <ScrollTile
@@ -73,10 +70,11 @@ export const AssetScroller = ({
               title={validator?.description?.moniker || 'Unknown Validator'}
               subtitle={`Staked: ${delegationResponse.balance.amount} | Rewards: ${rewardAmount}`}
               value={delegationResponse.balance.amount}
+              type="validator"
+              info={validator || null}
             />
           );
         })}
-
       <div className="h-4" />
     </ScrollArea>
   );

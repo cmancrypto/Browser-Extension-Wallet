@@ -98,8 +98,8 @@ export const CreateWallet = () => {
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: add staking tray to staking button, show set of available validators
-  // TODO: add slide tray for individual validator information (with stake and unstake)
-  // TODO: add slide tray for individual asset information (with send and receive)
+  // TODO: format slide tray for individual validator information (with stake and unstake)
+  // TODO: format slide tray for individual asset information (with send and receive)
   // TODO: add mock max amount placeholder to amount section
   // TODO: after send, navigate to congratulations page
   // TODO: provide updates to user as send information updates (viewable in console currently)
@@ -151,6 +151,7 @@ export const CreateWallet = () => {
   // TODO: add password complexity bar on entry
   // TODO: add toggle option for single-click transactions and another for force accepting/declining transactions
   // TODO: add toggle option for ultra-secure mode, using password auth for on every transaction like with hardware wallets.  in that mode, no session storage is used.
+  // TODO: add click and drag to scroll for passphrase box and tilescroller
 
   /* Interchain-compatibility TODOs */
   // TODO: add icon and chain display name to copy address for receive
