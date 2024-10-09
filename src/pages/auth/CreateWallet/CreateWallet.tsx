@@ -97,7 +97,7 @@ export const CreateWallet = () => {
   /* Current TODOs */
   // TODO: add stake, unstake, collect rewards options to validator information tray
 
-  // TODO: add method to access "all" validators in tray
+  // TODO: add method to access "all" validators in tray.  toggle slider at top right?
   // TODO: format slide tray for individual validator information (with stake and unstake)
 
   // TODO: add unstake all button and restake all button.  "all" button toggle?  test from non-"ecosystem growth" account
