@@ -8,4 +8,5 @@ export * from './QRCodeContainer';
 export * from './ReceiveDialog';
 export * from './RecoveryPhraseGrid';
 export * from './ScrollTile';
+export * from './ValidatorSelectDialog';
 export * from './WalletSuccessScreen';

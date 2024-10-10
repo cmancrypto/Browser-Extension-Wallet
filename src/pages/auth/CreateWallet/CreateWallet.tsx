@@ -96,19 +96,13 @@ export const CreateWallet = () => {
 
   /* Current TODOs */
   // TODO: buttons bring up either a tray or new window for mass selection/select all,
-
-  // TODO: bring list views out to other screen.  component?
+  // TODO: - Tray from above shows three buttons: claim all, restake all, unstake
   // TODO: ways to select a subset of validators vs all validators (for ones you're staking on)
   // TODO: Two buttons: claim and unstake.  bring to confirmation tray, claim to wallet, claim to restake OR confirm unstake
-  // TODO: Balance card add total rewards
-  // TODO: Balance card one buttons: Show full data (open tray)
-  // TODO: - Tray from above shows three buttons: claim all, restake all, unstake
-  // TODO: - Stake and unstake buttons send to variation of Send screen.  Show validator information, amount, confirm button (and max button)
-  // TODO: Button to change view
   // TODO: Select all and clear selection buttons
 
-  // TODO: add method to access "all" validators in tray.  toggle slider at top right?  go from available screen?
-  // TODO: selection of validator with "all" search is for staking
+  // TODO: bring list views out to other screen.  component?
+  // TODO: - Stake and unstake buttons send to variation of Send screen.  Show validator information, amount, confirm button (and max button)
 
   // TODO: add send, receive options to currency tray
   // TODO: format slide tray for individual asset information (with send and receive)

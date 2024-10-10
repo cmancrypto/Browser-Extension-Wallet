@@ -15,7 +15,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, CHAIN_NODES } from '@/constants';
 import axios from 'axios';
 import { convertToGreaterUnit, fetchDelegations, fetchValidatorInfo } from '@/helpers';
-import { SearchSort } from '@/assets/icons';
+import { Sort } from '@/assets/icons';
 import { Button } from '@/ui-kit';
 
 export const Main = () => {
@@ -167,7 +167,7 @@ export const Main = () => {
             </div>
             <div className="flex-1 flex justify-end">
               {/* TODO: add functionality */}
-              <SearchSort width={20} className="text-white" />
+              <Sort width={20} className="text-white" />
             </div>
           </h3>
         )}

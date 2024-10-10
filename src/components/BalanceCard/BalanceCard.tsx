@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ReceiveDialog } from '@/components';
+import { ReceiveDialog, ValidatorSelectDialog } from '@/components';
 import { ROUTES } from '@/constants';
 import { Button } from '@/ui-kit';
 
@@ -10,15 +10,6 @@ interface BalanceCardProps {
   currentStep: number;
   totalSteps: number;
 }
-
-// Stub functions for "Unstake All" and "Claim All"
-const unstakeAll = () => {
-  console.log('Unstake All function triggered');
-};
-
-const claimAll = () => {
-  console.log('Claim All function triggered');
-};
 
 export const BalanceCard = ({
   title,
@@ -47,12 +38,8 @@ export const BalanceCard = ({
         )}
         {currentStep === 1 && (
           <>
-            <Button className={'w-full'} onClick={claimAll}>
-              Claim
-            </Button>
-            <Button className={'w-full'} onClick={unstakeAll}>
-              Unstake
-            </Button>
+            <ValidatorSelectDialog buttonText="Claim" />
+            <ValidatorSelectDialog buttonText="Unstake" buttonVariant="secondary" />
           </>
         )}
       </div>
