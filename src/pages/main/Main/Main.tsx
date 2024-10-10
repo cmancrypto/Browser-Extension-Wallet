@@ -171,6 +171,18 @@ export const Main = () => {
             </div>
           </h3>
         )}
+
+        <div className="flex justify-between px-4 text-neutral-1 text-xs font-bold">
+          {activeIndex === 1 ? (
+            <>
+              <span>Delegations</span>
+              <span>Rewards</span>
+            </>
+          ) : (
+            <span>&nbsp;</span>
+          )}
+        </div>
+
         {walletState.address ? (
           <TileScroller activeIndex={activeIndex} />
         ) : (
