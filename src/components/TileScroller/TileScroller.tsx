@@ -14,6 +14,7 @@ import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
 import { convertToGreaterUnit, fetchAllValidators } from '@/helpers';
 import { useEffect, useState } from 'react';
 
+// TODO: move data collection out of this layer to simplify validator dialogs
 export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
   const showCurrentValidators = useAtomValue(showCurrentValidatorsAtom);
   const walletState = useAtomValue(walletStateAtom);

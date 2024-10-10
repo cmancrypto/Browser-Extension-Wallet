@@ -38,7 +38,7 @@ export const BalanceCard = ({
         )}
         {currentStep === 1 && (
           <>
-            <ValidatorSelectDialog buttonText="Claim" />
+            <ValidatorSelectDialog buttonText="Claim" isClaimDialog />
             <ValidatorSelectDialog buttonText="Unstake" buttonVariant="secondary" />
           </>
         )}

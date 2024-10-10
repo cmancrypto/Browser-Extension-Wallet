@@ -2,6 +2,9 @@ import { LogoIcon } from '@/assets/icons';
 import { ValidatorInfo, Asset } from '@/types';
 import { SlideTray, Button } from '@/ui-kit';
 
+// TODO: move slide tray out of this component to simplify
+// TODO: make dialog component for tile to simplify
+// TODO: dialog needs selectable variant.  new component?
 interface ScrollTileProps {
   title: string;
   subtitle: string;
