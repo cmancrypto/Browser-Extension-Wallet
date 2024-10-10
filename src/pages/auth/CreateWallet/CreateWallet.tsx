@@ -95,12 +95,21 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: add stake, unstake, collect rewards options to validator information tray
+  // TODO: a toggle and filter on the title line, claim and unstake for the button options.
+  // TODO: buttons bring up either a tray or new window for mass selection/select all,
 
-  // TODO: add method to access "all" validators in tray.  toggle slider at top right?
-  // TODO: format slide tray for individual validator information (with stake and unstake)
+  // TODO: bring list views out to other screen.  component?
+  // TODO: ways to select a subset of validators vs all validators (for ones you're staking on)
+  // TODO: Two buttons: claim and unstake.  bring to confirmation tray, claim to wallet, claim to restake OR confirm unstake
+  // TODO: Balance card add total rewards
+  // TODO: Balance card one buttons: Show full data (open tray)
+  // TODO: - Tray from above shows three buttons: claim all, restake all, unstake
+  // TODO: - Stake and unstake buttons send to variation of Send screen.  Show validator information, amount, confirm button (and max button)
+  // TODO: Button to change view
+  // TODO: Select all and clear selection buttons
 
-  // TODO: add unstake all button and restake all button.  "all" button toggle?  test from non-"ecosystem growth" account
+  // TODO: add method to access "all" validators in tray.  toggle slider at top right?  go from available screen?
+  // TODO: selection of validator with "all" search is for staking
 
   // TODO: add send, receive options to currency tray
   // TODO: format slide tray for individual asset information (with send and receive)
@@ -114,6 +123,7 @@ export const CreateWallet = () => {
   // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC
 
+  // TODO: create new dialogs for asset and validator to match receive and simplify component layouts
   // TODO: send fields vary in size and shift on data entry.  fix this.
   // TODO: add icon retrieval from registry
   // TODO: move most of walletState atom into main.  this prevents re-building auth every time wallet updates
@@ -125,6 +135,7 @@ export const CreateWallet = () => {
   // TODO: fix timed logout.  not currently functional
 
   /* Inside wallet TODOs */
+  // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
   // TODO: add sorting function to wallet asset list
   // TODO: add search function to wallet asset list
   // TODO: add show/hide function to wallet asset list
@@ -156,6 +167,7 @@ export const CreateWallet = () => {
   // TODO: add swipe to dismiss on dialog trays
 
   /* Nice to have TODOs */
+  // TODO: add swipe to refresh on main page lists
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing
   // TODO: add password complexity bar on entry
   // TODO: add toggle option for single-click transactions and another for force accepting/declining transactions

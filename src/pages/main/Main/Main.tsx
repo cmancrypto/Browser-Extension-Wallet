@@ -1,13 +1,18 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { BalanceCard, TileScroller } from '@/components';
-import { walletStateAtom, delegationAtom, paginationAtom, validatorInfoAtom } from '@/atoms';
+import {
+  walletStateAtom,
+  delegationAtom,
+  paginationAtom,
+  validatorInfoAtom,
+  rewardsAtom,
+} from '@/atoms';
 import { useState, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { fetchDelegations, fetchValidatorInfo } from '@/helpers/fetchStakedAssets';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, CHAIN_NODES } from '@/constants';
 import axios from 'axios';
-import { ValidatorReward } from '@/types';
+import { convertToGreaterUnit, fetchDelegations, fetchValidatorInfo } from '@/helpers';
 
 export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
@@ -16,8 +21,7 @@ export const Main = () => {
   const setValidatorInfo = useSetAtom(validatorInfoAtom);
   const totalSlides = 2;
   const [activeIndex, setActiveIndex] = useState(0);
-  // TODO: set rewards to atom for use on asset scroller
-  const [rewards, setRewards] = useState<ValidatorReward[]>([]);
+  const [rewards, setRewards] = useAtom(rewardsAtom);
 
   // Fetch delegation and validator info
   const fetchDelegationsAndValidators = async () => {
@@ -66,6 +70,12 @@ export const Main = () => {
     }
   }, [activeIndex, walletState.address]);
 
+  // Calculate total available MLD balance
+  const totalAvailableMLD = walletState.assets
+    .filter(asset => asset.denom === 'note')
+    .reduce((sum, delegation) => sum + parseFloat(delegation.amount), 0)
+    .toFixed(GREATER_EXPONENT_DEFAULT);
+
   // Calculate total staked MLD balance
   const totalStakedMLD = delegationState
     .filter(delegation => delegation.balance.denom === 'note')
@@ -75,8 +85,20 @@ export const Main = () => {
         parseFloat(delegation.balance.amount) /
           Math.pow(10, LOCAL_ASSET_REGISTRY.note.exponent || GREATER_EXPONENT_DEFAULT),
       0,
-    )
-    .toFixed(GREATER_EXPONENT_DEFAULT);
+    );
+  const convertedTotalStaked = convertToGreaterUnit(
+    totalStakedMLD,
+    GREATER_EXPONENT_DEFAULT,
+  ).toFixed(GREATER_EXPONENT_DEFAULT);
+
+  const totalStakedRewards = rewards.reduce((sum, reward) => {
+    const totalReward = reward.rewards.reduce((rSum, r) => rSum + parseFloat(r.amount), 0);
+    return sum + totalReward;
+  }, 0);
+  const convertedTotalRewards = convertToGreaterUnit(
+    totalStakedRewards,
+    GREATER_EXPONENT_DEFAULT,
+  ).toFixed(GREATER_EXPONENT_DEFAULT);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -92,7 +114,7 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Available balance"
-                balance="$1504.94"
+                balance={`${totalAvailableMLD} MLD`}
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
               />
@@ -102,7 +124,8 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Staked balance"
-                balance={`${totalStakedMLD} MLD`}
+                balance={`${convertedTotalStaked} MLD`}
+                reward={`${convertedTotalRewards} MLD`}
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
               />
@@ -114,10 +137,20 @@ export const Main = () => {
       {/* Assets section */}
       <div className="flex-grow pt-4 pb-4 flex flex-col overflow-hidden">
         <h3 className="text-h4 text-white font-bold px-4 text-left">
-          {activeIndex === 0 ? 'Available' : 'Staked'}
+          {activeIndex === 0 ? 'Holdings' : 'Validators'}
+          <div className="flex justify-between text-neutral-1 text-xs font-bold">
+            {activeIndex === 1 ? (
+              <>
+                <span>Delegations</span>
+                <span>Rewards</span>
+              </>
+            ) : (
+              <span>&nbsp;</span>
+            )}
+          </div>
         </h3>
         {walletState.address ? (
-          <TileScroller activeIndex={activeIndex} rewards={rewards} />
+          <TileScroller activeIndex={activeIndex} />
         ) : (
           <p className="text-base text-neutral-1 px-4">No available assets</p>
         )}

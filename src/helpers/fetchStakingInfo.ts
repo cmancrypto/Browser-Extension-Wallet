@@ -44,3 +44,27 @@ export const fetchValidatorInfo = async (validatorAddress: string): Promise<Vali
     throw error;
   }
 };
+
+export const fetchAllValidators = async (): Promise<{
+  validators: ValidatorInfo[];
+  pagination: any;
+}> => {
+  try {
+    console.log('Fetching all validators');
+    const endpoint = `/cosmos/staking/v1beta1/validators`;
+    const response = await queryNode(endpoint);
+
+    console.log('All validators response:', response);
+
+    return {
+      validators: response.validators.map((validator: any) => {
+        console.log('Validator recorded as:', validator);
+        return validator;
+      }),
+      pagination: response.pagination,
+    };
+  } catch (error) {
+    console.error('Error fetching all validators:', error);
+    throw error;
+  }
+};

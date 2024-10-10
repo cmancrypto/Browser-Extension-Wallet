@@ -1,22 +1,21 @@
 import { ScrollArea } from '@/ui-kit';
-import { Asset, DelegationResponse, ValidatorInfo } from '@/types';
+import { ValidatorInfo } from '@/types';
 import { useAtomValue } from 'jotai';
-import { walletStateAtom, delegationAtom, validatorInfoAtom } from '@/atoms';
+import { walletStateAtom, delegationAtom, validatorInfoAtom, rewardsAtom } from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
+import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
+import { convertToGreaterUnit } from '@/helpers';
 
-export const TileScroller = ({ activeIndex, rewards }: { activeIndex: number; rewards: any[] }) => {
+export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
   const walletState = useAtomValue(walletStateAtom);
   const delegations = useAtomValue(delegationAtom);
   const validators = useAtomValue(validatorInfoAtom);
+  const rewards = useAtomValue(rewardsAtom);
 
   // Find rewards for a specific validator
   const getValidatorRewards = (validatorAddress: string) => {
-    console.log('address is', validatorAddress);
-    console.log('address', validatorAddress);
     const validatorReward = rewards.find(reward => reward.validator === validatorAddress);
-    console.log('rewards', rewards);
-    console.log('validator reward', validatorReward);
     if (
       validatorReward &&
       Array.isArray(validatorReward.rewards) &&
@@ -26,55 +25,57 @@ export const TileScroller = ({ activeIndex, rewards }: { activeIndex: number; re
         return sum + parseFloat(rewardItem.amount);
       }, 0);
 
-      // TODO: format to greater unit rather than lesser unit
-      const denom = validatorReward.rewards[0]?.denom?.toUpperCase() || 'UNKNOWN';
-      return `${totalReward.toFixed(6)} ${denom}`;
+      // TODO: check for registry symbol where symbol equals denom
+      // const denom = validatorReward.rewards[0]?.denom || 'UNKNOWN';
+      const formattedReward = `${convertToGreaterUnit(totalReward, GREATER_EXPONENT_DEFAULT).toFixed(GREATER_EXPONENT_DEFAULT)} ${LOCAL_ASSET_REGISTRY.note.symbol}`;
+      return formattedReward;
     }
     return '0';
   };
 
   return (
     <ScrollArea
-      className="flex-grow w-full overflow-y-auto mt-3"
+      className="flex-grow w-full overflow-y-auto"
       type="always"
       scrollbarProps={{
         className: 'max-h-[93%]',
       }}
     >
-      {activeIndex === 0 &&
-        walletState?.assets?.map((asset: Asset) => (
+      {activeIndex === 0 && walletState?.assets?.length > 0 ? (
+        walletState.assets.map(asset => (
           <ScrollTile
             key={asset.denom}
             title={asset.symbol || ''}
+            // TODO: use chain name as provided by registry match to denom
             subtitle={'Symphony'}
-            value={asset.amount}
+            value={`${asset.amount} ${asset.symbol}`}
             icon={<LogoIcon />}
             type="asset"
             info={asset}
           />
-        ))}
-
-      {activeIndex === 1 &&
-        delegations?.map((delegationResponse: DelegationResponse) => {
-          const validatorAddress = delegationResponse?.delegation?.validator_address;
+        ))
+      ) : activeIndex === 1 && delegations?.length > 0 ? (
+        delegations.map(delegationResponse => {
+          const validatorAddress = delegationResponse.delegation.validator_address;
           const validator = validators.find(
-            (validator: ValidatorInfo) => validator.operator_address === validatorAddress,
+            (v: ValidatorInfo) => v.operator_address === validatorAddress,
           );
-
           const rewardAmount = getValidatorRewards(validatorAddress);
-          console.log('reward amount', rewardAmount);
 
           return (
             <ScrollTile
               key={validatorAddress}
               title={validator?.description?.moniker || 'Unknown Validator'}
-              subtitle={`Staked: ${delegationResponse.balance.amount} | Rewards: ${rewardAmount}`}
-              value={delegationResponse.balance.amount}
+              subtitle={`${convertToGreaterUnit(parseFloat(delegationResponse.balance.amount), GREATER_EXPONENT_DEFAULT)} ${LOCAL_ASSET_REGISTRY.note.symbol}`}
+              value={rewardAmount}
               type="validator"
               info={validator || null}
             />
           );
-        })}
+        })
+      ) : (
+        <p className="text-base text-neutral-1 px-4">None found</p>
+      )}
       <div className="h-4" />
     </ScrollArea>
   );

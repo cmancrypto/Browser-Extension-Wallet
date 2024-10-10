@@ -1,6 +1,6 @@
 import { LogoIcon } from '@/assets/icons';
 import { ValidatorInfo, Asset } from '@/types';
-import { SlideTray } from '@/ui-kit';
+import { SlideTray, Button } from '@/ui-kit';
 
 interface ScrollTileProps {
   title: string;
@@ -11,7 +11,23 @@ interface ScrollTileProps {
   info: ValidatorInfo | Asset | null;
 }
 
-export const ScrollTile = ({ title, subtitle, value, icon, type }: ScrollTileProps) => {
+const stake = () => {
+  console.log('Stake function triggered');
+};
+
+const unstake = () => {
+  console.log('Unstake function triggered');
+};
+
+const send = () => {
+  console.log('Send function triggered');
+};
+
+const receive = () => {
+  console.log('Receive function triggered');
+};
+
+export const ScrollTile = ({ title, subtitle, value, icon, type, info }: ScrollTileProps) => {
   return (
     <SlideTray
       triggerComponent={
@@ -30,27 +46,43 @@ export const ScrollTile = ({ title, subtitle, value, icon, type }: ScrollTilePro
       title={type === 'validator' ? 'Validator Information' : 'Asset Information'}
     >
       <div>
-        {type === 'validator' && (
+        {type === 'validator' && info && (
           <div>
             <p>
               <strong>Moniker:</strong> {title}
             </p>
             <p>
-              <strong>Operator Address:</strong> {subtitle}
+              <strong>Staked Amount:</strong> {subtitle}
             </p>
-            <p>
-              <strong>Commission:</strong> {value}
-            </p>
+            <Button className="w-full mb-2" onClick={unstake}>
+              Collect Rewards
+            </Button>
+            <div className="grid grid-cols-2 w-full gap-x-4 px-2">
+              <Button className="w-full mb-2" onClick={stake}>
+                Stake
+              </Button>
+              <Button className="w-full" onClick={unstake}>
+                Unstake
+              </Button>
+            </div>
           </div>
         )}
-        {type === 'asset' && (
+        {type === 'asset' && info && (
           <div>
             <p>
               <strong>Symbol:</strong> {title}
             </p>
             <p>
-              <strong>Amount:</strong> {subtitle}
+              <strong>Amount:</strong> {value}
             </p>
+            <div className="grid grid-cols-2 w-full gap-x-4 px-2">
+              <Button className="w-full mb-2" onClick={receive}>
+                Receive
+              </Button>
+              <Button className="w-full" onClick={send}>
+                Send
+              </Button>
+            </div>
           </div>
         )}
       </div>
