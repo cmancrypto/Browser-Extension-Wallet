@@ -1,3 +1,4 @@
+// main.tsx
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { BalanceCard, TileScroller } from '@/components';
@@ -7,12 +8,14 @@ import {
   paginationAtom,
   validatorInfoAtom,
   rewardsAtom,
+  validatorDisplaySelectionAtom,
 } from '@/atoms';
 import { useState, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, CHAIN_NODES } from '@/constants';
 import axios from 'axios';
 import { convertToGreaterUnit, fetchDelegations, fetchValidatorInfo } from '@/helpers';
+import { SearchSort } from '@/assets/icons';
 
 export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
@@ -22,6 +25,7 @@ export const Main = () => {
   const totalSlides = 2;
   const [activeIndex, setActiveIndex] = useState(0);
   const [rewards, setRewards] = useAtom(rewardsAtom);
+  const [validatorToggle, setValidatorToggle] = useAtom(validatorDisplaySelectionAtom);
 
   // Fetch delegation and validator info
   const fetchDelegationsAndValidators = async () => {
@@ -69,6 +73,11 @@ export const Main = () => {
       fetchDelegationsAndValidators();
     }
   }, [activeIndex, walletState.address]);
+
+  // Toggle between "All" and "Current" validators
+  const handleToggleChange = () => {
+    setValidatorToggle(validatorToggle === 'current' ? 'all' : 'current');
+  };
 
   // Calculate total available MLD balance
   const totalAvailableMLD = walletState.assets
@@ -136,19 +145,26 @@ export const Main = () => {
 
       {/* Assets section */}
       <div className="flex-grow pt-4 pb-4 flex flex-col overflow-hidden">
-        <h3 className="text-h4 text-white font-bold px-4 text-left">
-          {activeIndex === 0 ? 'Holdings' : 'Validators'}
-          <div className="flex justify-between text-neutral-1 text-xs font-bold">
-            {activeIndex === 1 ? (
-              <>
-                <span>Delegations</span>
-                <span>Rewards</span>
-              </>
-            ) : (
-              <span>&nbsp;</span>
-            )}
-          </div>
-        </h3>
+        {activeIndex === 0 ? (
+          <h3 className="text-h4 text-white font-bold px-4 text-left">Holdings</h3>
+        ) : (
+          <h3 className="text-h4 text-white font-bold px-4 text-left flex items-center">
+            <span className="flex-1">Validators</span>
+            <div className="flex-1 flex justify-center items-center space-x-2">
+              <span className="text-sm">{validatorToggle === 'current' ? 'Current' : 'All'}</span>
+              <button
+                onClick={handleToggleChange}
+                className="bg-neutral-3 px-2 py-1 rounded-md text-xs"
+              >
+                {validatorToggle === 'current' ? 'All' : 'Current'}
+              </button>
+            </div>
+            <div className="flex-1 flex justify-end">
+              {/* TODO: use better icon, add functionality */}
+              <SearchSort width={20} className="text-white" />
+            </div>
+          </h3>
+        )}
         {walletState.address ? (
           <TileScroller activeIndex={activeIndex} />
         ) : (

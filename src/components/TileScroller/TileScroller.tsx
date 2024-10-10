@@ -1,17 +1,40 @@
 import { ScrollArea } from '@/ui-kit';
 import { ValidatorInfo } from '@/types';
 import { useAtomValue } from 'jotai';
-import { walletStateAtom, delegationAtom, validatorInfoAtom, rewardsAtom } from '@/atoms';
+import {
+  walletStateAtom,
+  delegationAtom,
+  validatorInfoAtom,
+  rewardsAtom,
+  validatorDisplaySelectionAtom,
+} from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
-import { convertToGreaterUnit } from '@/helpers';
+import { convertToGreaterUnit, fetchAllValidators } from '@/helpers';
+import { useEffect, useState } from 'react';
 
 export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
+  const validatorToggle = useAtomValue(validatorDisplaySelectionAtom);
   const walletState = useAtomValue(walletStateAtom);
   const delegations = useAtomValue(delegationAtom);
-  const validators = useAtomValue(validatorInfoAtom);
+  const currentValidators = useAtomValue(validatorInfoAtom);
   const rewards = useAtomValue(rewardsAtom);
+  const [allValidators, setAllValidators] = useState<ValidatorInfo[]>([]);
+
+  // TODO: call for all validators and all staked validators, then just show full set or subset
+  // TODO: ensure this shows all 100 validators on "all" selection
+  // TODO: show some indicator of uptime (such as coloring symphony icon depending) (on all screen)
+  // TODO: show some indicator of APY (on all screen)
+  // Fetch all validators if needed
+  useEffect(() => {
+    if (validatorToggle === 'all' && allValidators.length === 0) {
+      fetchAllValidators().then(({ validators }) => setAllValidators(validators));
+    }
+  }, [validatorToggle]);
+
+  // Determine which list of validators to show
+  const validatorsToShow = validatorToggle === 'all' ? allValidators : currentValidators;
 
   // Find rewards for a specific validator
   const getValidatorRewards = (validatorAddress: string) => {
@@ -54,10 +77,11 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
             info={asset}
           />
         ))
-      ) : activeIndex === 1 && delegations?.length > 0 ? (
+      ) : activeIndex === 1 && validatorToggle === 'current' && delegations.length > 0 ? (
+        // Show delegations for current validators
         delegations.map(delegationResponse => {
           const validatorAddress = delegationResponse.delegation.validator_address;
-          const validator = validators.find(
+          const validator = currentValidators.find(
             (v: ValidatorInfo) => v.operator_address === validatorAddress,
           );
           const rewardAmount = getValidatorRewards(validatorAddress);
@@ -70,6 +94,23 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
               value={rewardAmount}
               type="validator"
               info={validator || null}
+            />
+          );
+        })
+      ) : activeIndex === 1 && validatorToggle === 'all' && validatorsToShow.length > 0 ? (
+        // Show all validators if the toggle is set to 'all'
+        validatorsToShow.map(validator => {
+          const validatorAddress = validator.operator_address;
+          const rewardAmount = getValidatorRewards(validatorAddress);
+
+          return (
+            <ScrollTile
+              key={validatorAddress}
+              title={validator?.description?.moniker || 'Unknown Validator'}
+              subtitle={`N/A`}
+              value={rewardAmount}
+              type="validator"
+              info={validator}
             />
           );
         })

@@ -95,7 +95,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: a toggle and filter on the title line, claim and unstake for the button options.
   // TODO: buttons bring up either a tray or new window for mass selection/select all,
 
   // TODO: bring list views out to other screen.  component?
