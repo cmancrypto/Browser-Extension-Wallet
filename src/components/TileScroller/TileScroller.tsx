@@ -6,7 +6,7 @@ import {
   delegationAtom,
   validatorInfoAtom,
   rewardsAtom,
-  validatorDisplaySelectionAtom,
+  showCurrentValidatorsAtom,
 } from '@/atoms';
 import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
@@ -15,7 +15,7 @@ import { convertToGreaterUnit, fetchAllValidators } from '@/helpers';
 import { useEffect, useState } from 'react';
 
 export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
-  const validatorToggle = useAtomValue(validatorDisplaySelectionAtom);
+  const showCurrentValidators = useAtomValue(showCurrentValidatorsAtom);
   const walletState = useAtomValue(walletStateAtom);
   const delegations = useAtomValue(delegationAtom);
   const currentValidators = useAtomValue(validatorInfoAtom);
@@ -28,13 +28,13 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
   // TODO: show some indicator of APY (on all screen)
   // Fetch all validators if needed
   useEffect(() => {
-    if (validatorToggle === 'all' && allValidators.length === 0) {
+    if (!showCurrentValidators && allValidators.length === 0) {
       fetchAllValidators().then(({ validators }) => setAllValidators(validators));
     }
-  }, [validatorToggle]);
+  }, [showCurrentValidators]);
 
   // Determine which list of validators to show
-  const validatorsToShow = validatorToggle === 'all' ? allValidators : currentValidators;
+  const validatorsToShow = showCurrentValidators ? currentValidators : allValidators;
 
   // Find rewards for a specific validator
   const getValidatorRewards = (validatorAddress: string) => {
@@ -77,7 +77,7 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
             info={asset}
           />
         ))
-      ) : activeIndex === 1 && validatorToggle === 'current' && delegations.length > 0 ? (
+      ) : activeIndex === 1 && showCurrentValidators && delegations.length > 0 ? (
         // Show delegations for current validators
         delegations.map(delegationResponse => {
           const validatorAddress = delegationResponse.delegation.validator_address;
@@ -97,7 +97,7 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
             />
           );
         })
-      ) : activeIndex === 1 && validatorToggle === 'all' && validatorsToShow.length > 0 ? (
+      ) : activeIndex === 1 && !showCurrentValidators && validatorsToShow.length > 0 ? (
         // Show all validators if the toggle is set to 'all'
         validatorsToShow.map(validator => {
           const validatorAddress = validator.operator_address;

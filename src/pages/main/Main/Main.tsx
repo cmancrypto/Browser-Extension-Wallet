@@ -8,7 +8,7 @@ import {
   paginationAtom,
   validatorInfoAtom,
   rewardsAtom,
-  validatorDisplaySelectionAtom,
+  showCurrentValidatorsAtom,
 } from '@/atoms';
 import { useState, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -16,6 +16,7 @@ import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, CHAIN_NODES } from '@/c
 import axios from 'axios';
 import { convertToGreaterUnit, fetchDelegations, fetchValidatorInfo } from '@/helpers';
 import { SearchSort } from '@/assets/icons';
+import { Button } from '@/ui-kit';
 
 export const Main = () => {
   const walletState = useAtomValue(walletStateAtom);
@@ -25,7 +26,7 @@ export const Main = () => {
   const totalSlides = 2;
   const [activeIndex, setActiveIndex] = useState(0);
   const [rewards, setRewards] = useAtom(rewardsAtom);
-  const [validatorToggle, setValidatorToggle] = useAtom(validatorDisplaySelectionAtom);
+  const [showCurrentValidators, setValidatorToggle] = useAtom(showCurrentValidatorsAtom);
 
   // Fetch delegation and validator info
   const fetchDelegationsAndValidators = async () => {
@@ -75,8 +76,8 @@ export const Main = () => {
   }, [activeIndex, walletState.address]);
 
   // Toggle between "All" and "Current" validators
-  const handleToggleChange = () => {
-    setValidatorToggle(validatorToggle === 'current' ? 'all' : 'current');
+  const handleToggleChange = (shouldShowCurrent: boolean) => {
+    setValidatorToggle(shouldShowCurrent);
   };
 
   // Calculate total available MLD balance
@@ -95,10 +96,6 @@ export const Main = () => {
           Math.pow(10, LOCAL_ASSET_REGISTRY.note.exponent || GREATER_EXPONENT_DEFAULT),
       0,
     );
-  const convertedTotalStaked = convertToGreaterUnit(
-    totalStakedMLD,
-    GREATER_EXPONENT_DEFAULT,
-  ).toFixed(GREATER_EXPONENT_DEFAULT);
 
   const totalStakedRewards = rewards.reduce((sum, reward) => {
     const totalReward = reward.rewards.reduce((rSum, r) => rSum + parseFloat(r.amount), 0);
@@ -133,7 +130,7 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Staked balance"
-                balance={`${convertedTotalStaked} MLD`}
+                balance={`${totalStakedMLD} MLD`}
                 reward={`${convertedTotalRewards} MLD`}
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
@@ -151,16 +148,25 @@ export const Main = () => {
           <h3 className="text-h4 text-white font-bold px-4 text-left flex items-center">
             <span className="flex-1">Validators</span>
             <div className="flex-1 flex justify-center items-center space-x-2">
-              <span className="text-sm">{validatorToggle === 'current' ? 'Current' : 'All'}</span>
-              <button
-                onClick={handleToggleChange}
-                className="bg-neutral-3 px-2 py-1 rounded-md text-xs"
+              <Button
+                variant={showCurrentValidators ? 'selected' : 'unselected'}
+                size="small"
+                onClick={() => handleToggleChange(true)}
+                className="px-2 rounded-md text-xs"
               >
-                {validatorToggle === 'current' ? 'All' : 'Current'}
-              </button>
+                Current
+              </Button>
+              <Button
+                variant={!showCurrentValidators ? 'selected' : 'unselected'}
+                size="small"
+                onClick={() => handleToggleChange(false)}
+                className="px-2 rounded-md text-xs"
+              >
+                All
+              </Button>
             </div>
             <div className="flex-1 flex justify-end">
-              {/* TODO: use better icon, add functionality */}
+              {/* TODO: add functionality */}
               <SearchSort width={20} className="text-white" />
             </div>
           </h3>
