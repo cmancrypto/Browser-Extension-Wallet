@@ -73,6 +73,7 @@ export const ValidatorScrollTile = ({
   }
 
   let textColor = 'text-success';
+  // TODO: move to utils
   if (statusColor === 'warn') {
     textColor = 'text-warning';
   } else if (statusColor === 'error') {
