@@ -113,6 +113,7 @@ export const ValidatorScrollTile = ({
         </>
       )}
 
+      {/* TODO: on button press, animate collapse to 1 line / re-expansion? */}
       {/* Validator Information */}
       <div className="mb-4 min-h-[7.5rem] max-h-[7.5rem] overflow-hidden shadow-md bg-black p-2">
         <p>
@@ -141,9 +142,7 @@ export const ValidatorScrollTile = ({
         </p>
       </div>
 
-      {/* TODO: for stake and unstake, animate away information box above */}
       {/* Action Selection */}
-      {/* TODO: use 3 cols for validators delegated to, 0 otherwise (only stake option) */}
       {delegatedAmount && (
         <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
           <Button className="w-full" onClick={() => setSelectedAction('claim')}>
