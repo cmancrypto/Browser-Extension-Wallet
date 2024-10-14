@@ -46,7 +46,9 @@ export const ValidatorScrollTile = ({
   delegatedAmount,
   reward,
 }: ValidatorScrollTileProps) => {
-  const [selectedAction, setSelectedAction] = useState<'stake' | 'unstake' | 'claim' | null>(null);
+  const [selectedAction, setSelectedAction] = useState<'stake' | 'unstake' | 'claim' | null>(
+    !delegatedAmount ? 'stake' : null,
+  );
   const [amount, setAmount] = useState('');
 
   const title = validator.description.moniker || 'Unknown Validator';
@@ -142,17 +144,19 @@ export const ValidatorScrollTile = ({
       {/* TODO: for stake and unstake, animate away information box above */}
       {/* Action Selection */}
       {/* TODO: use 3 cols for validators delegated to, 0 otherwise (only stake option) */}
-      <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
-        <Button className="w-full" onClick={() => setSelectedAction('claim')}>
-          Claim
-        </Button>
-        <Button className="w-full" onClick={() => setSelectedAction('stake')}>
-          Stake
-        </Button>
-        <Button className="w-full" onClick={() => setSelectedAction('unstake')}>
-          Unstake
-        </Button>
-      </div>
+      {delegatedAmount && (
+        <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
+          <Button className="w-full" onClick={() => setSelectedAction('claim')}>
+            Claim
+          </Button>
+          <Button className="w-full" onClick={() => setSelectedAction('stake')}>
+            Stake
+          </Button>
+          <Button className="w-full" onClick={() => setSelectedAction('unstake')}>
+            Unstake
+          </Button>
+        </div>
+      )}
 
       <div className="flex flex-col items-center justify-center h-[4rem]">
         {/* Stake and Unstake Actions */}
