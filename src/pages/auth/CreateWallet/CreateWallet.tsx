@@ -96,22 +96,17 @@ export const CreateWallet = () => {
 
   /* Current TODOs */
   // TODO: bring list views out to other screen.  component?
-  // TODO: - Stake and unstake buttons send to variation of Send screen.  Or just pop up a text box?.  Show validator information, amount, confirm button (and max button)
-
-  // TODO: add send, receive options to currency tray
   // TODO: format slide tray for individual asset information (with send and receive)
 
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
-
-  // TODO: add mock max amount placeholder to amount section
+  // TODO: send fields vary in size and shift on data entry.  fix this.
+  // TODO: add mock max amount placeholder to amount sections (send and validator)
   // TODO: after send, navigate to congratulations page
 
   // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC
 
-  // TODO: create new dialogs for asset and validator to match receive and simplify component layouts
-  // TODO: send fields vary in size and shift on data entry.  fix this.
   // TODO: add icon retrieval from registry
   // TODO: move most of walletState atom into main.  this prevents re-building auth every time wallet updates
   // TODO: force loss of focus on click outside extension
@@ -132,6 +127,14 @@ export const CreateWallet = () => {
   // TODO: abstract IBC needs
 
   /* Inside wallet TODOs */
+  // TODO: remove or enable connected services button
+  // TODO: remove or enable transaction history
+  // TODO: show donut chart with assets rather than singular value
+  // TODO: remove or enable expand view
+  // TODO: remove "support" in favor of links to site and socials
+  // TODO: add link to github repo for registry
+  // TODO: change "options" to settings?
+  // TODO: security tab enables/disables need to confirm transactions/re-entry of password on transactions (3 levels of security)
   // TODO: change options buttons
   // TODO: update transactions history button (need endpoint for this.  disable until ready)
 

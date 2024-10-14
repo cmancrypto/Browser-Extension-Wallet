@@ -47,6 +47,7 @@ export const ValidatorScrollTile = ({
   reward,
 }: ValidatorScrollTileProps) => {
   const [selectedAction, setSelectedAction] = useState<'stake' | 'unstake' | 'claim' | null>(
+    // TODO: fix this not coming in on "all" page
     !delegatedAmount ? 'stake' : null,
   );
   const [amount, setAmount] = useState('');
@@ -107,7 +108,7 @@ export const ValidatorScrollTile = ({
           <div className="text-center mb-2">
             <div className="truncate text-base font-medium text-neutral-1">Reward: {reward}</div>
             <span className="text-grey-dark text-xs text-base">
-              Unstaking requires {unbondingDays} days
+              Unstaking period <span className="text-warning">{unbondingDays} days</span>
             </span>
           </div>
         </>
