@@ -83,6 +83,15 @@ export default {
           '100%': { transform: 'translateY(0)', opacity: 1 },
         },
       },
+      height: {
+        76: '18.75rem',
+      },
+      maxHeight: {
+        76: '18.75rem',
+      },
+      minHeight: {
+        76: '18.75rem',
+      },
     },
   },
   plugins: [

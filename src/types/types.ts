@@ -33,9 +33,12 @@ export interface Pagination {
 // TODO: add nullable rewards to validator info?
 export interface ValidatorInfo {
   operator_address: string;
+  jailed: boolean;
+  status: string; // Bonded, Unbonding, Unbonded
+  tokens: string;
+  delegator_shares: string;
   description: {
     moniker: string;
-    identity: string;
     website: string;
     details: string;
   };

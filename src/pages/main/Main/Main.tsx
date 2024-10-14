@@ -120,7 +120,7 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Available balance"
-                balance={`${totalAvailableMLD} MLD`}
+                primaryText={`${totalAvailableMLD} MLD`}
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
               />
@@ -130,8 +130,8 @@ export const Main = () => {
             <div className="w-full px-4 mt-4 flex-shrink-0">
               <BalanceCard
                 title="Staked balance"
-                balance={`${totalStakedMLD} MLD`}
-                reward={`${convertedTotalRewards} MLD`}
+                primaryText={`${convertedTotalRewards} MLD`}
+                secondaryText={`${totalStakedMLD} MLD`}
                 currentStep={activeIndex}
                 totalSteps={totalSlides}
               />

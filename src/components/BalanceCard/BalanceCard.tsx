@@ -5,26 +5,26 @@ import { Button } from '@/ui-kit';
 
 interface BalanceCardProps {
   title: string;
-  balance: string;
-  reward?: string;
+  primaryText: string;
+  secondaryText?: string;
   currentStep: number;
   totalSteps: number;
 }
 
 export const BalanceCard = ({
   title,
-  balance,
-  reward,
+  primaryText,
+  secondaryText,
   currentStep,
   totalSteps,
 }: BalanceCardProps) => {
   return (
     <div className="p-4 h-44 border rounded-xl border-neutral-4 flex flex-col items-center relative">
-      <div className={'text-center mb-4'}>
+      <div className="text-center mb-4">
         <p className="text-base text-neutral-1">{title}</p>
-        <h1 className="text-h2 text-white font-bold">{balance}</h1>
+        <h1 className="text-h2 text-white font-bold">{primaryText}</h1>
         <p className="text-sm text-neutral-1">
-          {reward ? `Rewards: ${reward}` : <span>&nbsp;</span>}
+          {secondaryText ? `Balance: ${secondaryText}` : <span>&nbsp;</span>}
         </p>
       </div>
       <div className="grid grid-cols-2 w-full gap-x-4 px-2">

@@ -1,7 +1,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as React from 'react';
 import { cn } from '@/helpers/utils';
-import { X } from '@/assets/icons'; // Your close icon
+import { X } from '@/assets/icons';
 import { Button } from '../Button';
 
 interface SlideTrayProps {
@@ -11,6 +11,8 @@ interface SlideTrayProps {
   className?: string;
   closeButtonVariant?: 'top-right' | 'bottom-center';
   height?: string;
+  showBottomBorder?: boolean;
+  status?: 'error' | 'warn' | 'good';
 }
 
 export const SlideTray: React.FC<SlideTrayProps> = ({
@@ -18,9 +20,18 @@ export const SlideTray: React.FC<SlideTrayProps> = ({
   title,
   children,
   className,
-  closeButtonVariant = 'top-right',
+  closeButtonVariant = 'bottom-center',
   height = '75%',
+  showBottomBorder = false,
+  status = 'good',
 }) => {
+  let titleColor = 'text-white';
+  if (status === 'warn') {
+    titleColor = 'text-warning';
+  } else if (status === 'error') {
+    titleColor = 'text-error';
+  }
+
   return (
     <DialogPrimitive.Root>
       <DialogPrimitive.Trigger asChild>{triggerComponent}</DialogPrimitive.Trigger>
@@ -41,8 +52,15 @@ export const SlideTray: React.FC<SlideTrayProps> = ({
           style={{ height }}
         >
           <div className="relative">
-            {title && <h2 className="text-h5 font-bold text-center mb-2">{title}</h2>}
-            <div className="mt-4">{children}</div>
+            {title && (
+              <>
+                <h2 className={`text-h5 font-bold ${titleColor} text-center mb-2`}>{title}</h2>
+                <div className="border-b border-neutral-4 mb-4" />
+              </>
+            )}
+
+            <div className="mt-4 h-76 max-h-76 min-h-76 overflow-y-auto">{children}</div>
+
             {closeButtonVariant === 'top-right' && (
               <DialogPrimitive.Close className="absolute right-4 top-4 focus:outline-none">
                 <X width={18} height={18} />
@@ -50,11 +68,16 @@ export const SlideTray: React.FC<SlideTrayProps> = ({
               </DialogPrimitive.Close>
             )}
             {closeButtonVariant === 'bottom-center' && (
-              <div className="flex justify-center mt-4">
-                <DialogPrimitive.Close asChild>
-                  <Button className="w-[56%] py-3 rounded-full text-lg">Close</Button>
-                </DialogPrimitive.Close>
-              </div>
+              <>
+                <div
+                  className={`border-b ${showBottomBorder ? 'border-neutral-4' : 'border-transparent'} mt-1 mb-2`}
+                />
+                <div className="absolute left-0 right-0 flex justify-center mt-1">
+                  <DialogPrimitive.Close asChild>
+                    <Button className="w-[56%] py-3 rounded-full text-lg">Close</Button>
+                  </DialogPrimitive.Close>
+                </div>
+              </>
             )}
           </div>
         </DialogPrimitive.Content>

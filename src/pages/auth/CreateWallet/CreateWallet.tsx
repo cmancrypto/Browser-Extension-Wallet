@@ -95,14 +95,8 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: buttons bring up either a tray or new window for mass selection/select all,
-  // TODO: - Tray from above shows three buttons: claim all, restake all, unstake
-  // TODO: ways to select a subset of validators vs all validators (for ones you're staking on)
-  // TODO: Two buttons: claim and unstake.  bring to confirmation tray, claim to wallet, claim to restake OR confirm unstake
-  // TODO: Select all and clear selection buttons
-
   // TODO: bring list views out to other screen.  component?
-  // TODO: - Stake and unstake buttons send to variation of Send screen.  Show validator information, amount, confirm button (and max button)
+  // TODO: - Stake and unstake buttons send to variation of Send screen.  Or just pop up a text box?.  Show validator information, amount, confirm button (and max button)
 
   // TODO: add send, receive options to currency tray
   // TODO: format slide tray for individual asset information (with send and receive)
@@ -166,6 +160,7 @@ export const CreateWallet = () => {
   // TODO: add toggle option for single-click transactions and another for force accepting/declining transactions
   // TODO: add toggle option for ultra-secure mode, using password auth for on every transaction like with hardware wallets.  in that mode, no session storage is used.
   // TODO: add click and drag to scroll for passphrase box and tilescroller
+  // TODO: keep track of current page for case of re-open before timeout
 
   /* Interchain-compatibility TODOs */
   // TODO: add icon and chain display name to copy address for receive

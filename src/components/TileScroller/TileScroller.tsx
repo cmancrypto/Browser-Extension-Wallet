@@ -8,11 +8,11 @@ import {
   rewardsAtom,
   showCurrentValidatorsAtom,
 } from '@/atoms';
-import { LogoIcon } from '@/assets/icons';
-import { ScrollTile } from '../ScrollTile';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
 import { convertToGreaterUnit, fetchAllValidators } from '@/helpers';
 import { useEffect, useState } from 'react';
+import { ValidatorScrollTile } from '../ValidatorScrollTile';
+import { AssetScrollTile } from '../AssetScrollTile';
 
 // TODO: move data collection out of this layer to simplify validator dialogs
 export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
@@ -66,18 +66,7 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
       }}
     >
       {activeIndex === 0 && walletState?.assets?.length > 0 ? (
-        walletState.assets.map(asset => (
-          <ScrollTile
-            key={asset.denom}
-            title={asset.symbol || ''}
-            // TODO: use chain name as provided by registry match to denom
-            subtitle={'Symphony'}
-            value={`${asset.amount} ${asset.symbol}`}
-            icon={<LogoIcon />}
-            type="asset"
-            info={asset}
-          />
-        ))
+        walletState.assets.map(asset => <AssetScrollTile asset={asset} />)
       ) : activeIndex === 1 && showCurrentValidators && delegations.length > 0 ? (
         // Show delegations for current validators
         delegations.map(delegationResponse => {
@@ -86,15 +75,14 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
             (v: ValidatorInfo) => v.operator_address === validatorAddress,
           );
           const rewardAmount = getValidatorRewards(validatorAddress);
+          const delegatedAmount = `${convertToGreaterUnit(parseFloat(delegationResponse.balance.amount), GREATER_EXPONENT_DEFAULT)} ${LOCAL_ASSET_REGISTRY.note.symbol}`;
 
-          return (
-            <ScrollTile
+          return !validator ? null : (
+            <ValidatorScrollTile
               key={validatorAddress}
-              title={validator?.description?.moniker || 'Unknown Validator'}
-              subtitle={`${convertToGreaterUnit(parseFloat(delegationResponse.balance.amount), GREATER_EXPONENT_DEFAULT)} ${LOCAL_ASSET_REGISTRY.note.symbol}`}
-              value={rewardAmount}
-              type="validator"
-              info={validator || null}
+              validator={validator}
+              reward={rewardAmount}
+              delegatedAmount={delegatedAmount}
             />
           );
         })
@@ -105,13 +93,10 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
           const rewardAmount = getValidatorRewards(validatorAddress);
 
           return (
-            <ScrollTile
+            <ValidatorScrollTile
               key={validatorAddress}
-              title={validator?.description?.moniker || 'Unknown Validator'}
-              subtitle={`N/A`}
-              value={rewardAmount}
-              type="validator"
-              info={validator}
+              validator={validator}
+              reward={rewardAmount}
             />
           );
         })

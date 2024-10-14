@@ -20,14 +20,12 @@ export const ValidatorSelectDialog: React.FC<ValidatorSelectDialogProps> = ({
           {buttonText}
         </Button>
       }
-      // TODO: underline under title to separate it
       title={isClaimDialog ? 'Claim' : 'Unstake'}
-      closeButtonVariant="bottom-center"
     >
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex flex-col items-center space-y-2">
         {/* Conditionally render buttons based on the dialog type */}
         {isClaimDialog ? (
-          <div className="flex space-x-4">
+          <div className="grid grid-cols-2 w-full gap-x-4 px-2">
             <Button className="w-full">To Wallet</Button>
             <Button className="w-full">To Restake</Button>
           </div>
@@ -51,9 +49,9 @@ export const ValidatorSelectDialog: React.FC<ValidatorSelectDialogProps> = ({
             </div>
           </div>
 
-          {/* TODO: max height works for now, but change slidetray to bind variation with max height for contents */}
+          {/* TODO: reduce to 13 REM if bottom border goes back in, consider border-neutral-4 */}
           {/* QR Code Display */}
-          <div className="flex-grow w-full max-h-[200px] overflow-y-auto border border-gray-300 rounded-md">
+          <div className="flex-grow w-full max-h-[13.5rem] overflow-y-auto border border-gray-300 rounded-md">
             {/* TODO: within tilescroller, ensure overflow over halfway results in ellipses.  they can click in for more information if needed */}
             <TileScroller activeIndex={1} />
           </div>

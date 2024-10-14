@@ -20,7 +20,7 @@ export const ReceiveDialog: React.FC = () => {
         </Button>
       }
       title="Copy Address"
-      closeButtonVariant="bottom-center"
+      showBottomBorder
     >
       <div className="flex flex-col items-center">
         <QRCodeContainer qrCodeValue={walletAddress} />
