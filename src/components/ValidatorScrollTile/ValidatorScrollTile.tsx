@@ -56,7 +56,7 @@ export const ValidatorScrollTile = ({
   const value = reward || '0 MLD';
   const commission = `${parseFloat(validator.commission.commission_rates.rate) * 100}%`;
 
-  const unbondingDays = 12; // TODO: Pull dynamically from the validator
+  const unbondingDays = 12; // TODO: After differentiating by chain, pull dynamically from the validator
 
   let statusLabel = '';
   let statusColor: 'good' | 'warn' | 'error' = 'good';
