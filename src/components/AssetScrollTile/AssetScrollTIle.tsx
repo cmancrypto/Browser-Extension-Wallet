@@ -4,12 +4,16 @@ import { ScrollTile } from '../ScrollTile';
 import { ReceiveDialog } from '../ReceiveDialog';
 import { NavLink } from 'react-router-dom';
 import { ROUTES } from '@/constants';
+import { useSetAtom } from 'jotai';
+import { swiperIndexState } from '@/atoms/';
 
 interface AssetScrollTileProps {
   asset: Asset;
 }
 
 export const AssetScrollTile = ({ asset }: AssetScrollTileProps) => {
+  const setActiveIndex = useSetAtom(swiperIndexState);
+
   const title = asset.symbol || 'Unknown Asset';
   const value = `${asset.amount} ${asset.symbol}`;
   const logo = asset.logo;
@@ -65,10 +69,14 @@ export const AssetScrollTile = ({ asset }: AssetScrollTileProps) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col items-center justify-center grid grid-cols-2 w-full gap-x-4 px-2">
-        <ReceiveDialog />
+      {/* TODO: only 2 columns if not a stakeable currency */}
+      <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
         <Button className={'w-full'} asChild>
           <NavLink to={ROUTES.APP.SEND}>Send</NavLink>
+        </Button>
+        <ReceiveDialog />
+        <Button className={'w-full'} onClick={() => setActiveIndex(1)}>
+          Stake
         </Button>
       </div>
     </SlideTray>

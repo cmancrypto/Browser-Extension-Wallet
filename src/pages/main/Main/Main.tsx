@@ -1,5 +1,4 @@
-// main.tsx
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { BalanceCard, TileScroller } from '@/components';
 import {
@@ -9,8 +8,9 @@ import {
   validatorInfoAtom,
   rewardsAtom,
   showCurrentValidatorsAtom,
+  swiperIndexState,
 } from '@/atoms';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, CHAIN_NODES } from '@/constants';
 import axios from 'axios';
@@ -24,9 +24,10 @@ export const Main = () => {
   const setPaginationState = useSetAtom(paginationAtom);
   const setValidatorInfo = useSetAtom(validatorInfoAtom);
   const totalSlides = 2;
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useAtom(swiperIndexState);
   const [rewards, setRewards] = useAtom(rewardsAtom);
   const [showCurrentValidators, setValidatorToggle] = useAtom(showCurrentValidatorsAtom);
+  const swiperRef = useRef<SwiperClass | null>(null);
 
   // Fetch delegation and validator info
   const fetchDelegationsAndValidators = async () => {
@@ -73,6 +74,11 @@ export const Main = () => {
     if (activeIndex === 1) {
       fetchDelegationsAndValidators();
     }
+
+    // Sync the swiper visual state
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(activeIndex);
+    }
   }, [activeIndex, walletState.address]);
 
   // Toggle between "All" and "Current" validators
@@ -115,6 +121,9 @@ export const Main = () => {
           slidesPerView={1}
           loop={false}
           onSlideChange={swiper => setActiveIndex(swiper.activeIndex)}
+          onSwiper={swiper => {
+            swiperRef.current = swiper;
+          }}
         >
           <SwiperSlide>
             <div className="w-full px-4 mt-4 flex-shrink-0">
