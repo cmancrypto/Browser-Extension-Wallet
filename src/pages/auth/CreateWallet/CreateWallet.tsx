@@ -96,8 +96,6 @@ export const CreateWallet = () => {
 
   /* Current TODOs */
   // TODO: bring list views out to other screen.  component?
-  // TODO: format slide tray for individual asset information (with send and receive)
-
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: send fields vary in size and shift on data entry.  fix this.
@@ -126,7 +124,7 @@ export const CreateWallet = () => {
   // TODO: add show/hide function to validator list
   // TODO: abstract IBC needs
 
-  /* Inside wallet TODOs */
+  /* Wallet UI TODOs */
   // TODO: remove or enable connected services button
   // TODO: remove or enable transaction history
   // TODO: show donut chart with assets rather than singular value
@@ -144,6 +142,7 @@ export const CreateWallet = () => {
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
 
   /* Less Critical Auth TODOs */
+  // TODO: cut trailing 0s on numeric asset displays
   // TODO: handle error printout (in place of subtitle on verify screen?)
   // TODO: for default on text, ensure no focus and basic mouse onHover (no change)
   // TODO: test path and create error for no wallet exists and user attempts login

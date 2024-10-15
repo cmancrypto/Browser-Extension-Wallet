@@ -1,6 +1,6 @@
 import { LogoIcon } from '@/assets/icons';
+import { selectTextColorByStatus } from '@/helpers';
 
-// TODO: make dialog component for tile to simplify
 // TODO: dialog needs selectable variant.  new component?
 interface ScrollTileProps {
   title: string;
@@ -11,13 +11,7 @@ interface ScrollTileProps {
 }
 
 export const ScrollTile = ({ title, subtitle, value, icon, status = 'good' }: ScrollTileProps) => {
-  // TODO: move to utils
-  let textColor = 'text-white';
-  if (status === 'warn') {
-    textColor = 'text-warning';
-  } else if (status === 'error') {
-    textColor = 'text-error';
-  }
+  const textColor = selectTextColorByStatus(status);
 
   return (
     <div className="mx-4 py-2 min-h-[52px] flex items-center not-last:border-b not-last:border-neutral-4 cursor-pointer">
