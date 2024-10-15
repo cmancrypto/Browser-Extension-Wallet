@@ -11,6 +11,7 @@ interface ValidatorScrollTileProps {
   reward?: string;
 }
 
+// TODO: enable these 4 actions
 const stake = (amount: string) => {
   console.log('Stake amount:', amount);
 };
