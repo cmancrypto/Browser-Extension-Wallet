@@ -106,7 +106,9 @@ export const ValidatorScrollTile = ({
       {reward && (
         <>
           <div className="text-center mb-2">
-            <div className="truncate text-base font-medium text-neutral-1">Reward: {reward}</div>
+            <div className="truncate text-base font-medium text-neutral-1">
+              Reward: <span className="text-blue">{reward}</span>
+            </div>
             <span className="text-grey-dark text-xs text-base">
               Unstaking period <span className="text-warning">{unbondingDays} days</span>
             </span>

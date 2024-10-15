@@ -21,7 +21,7 @@ export const ScrollTile = ({ title, subtitle, value, icon, status = 'good' }: Sc
 
   return (
     <div className="mx-4 py-2 min-h-[52px] flex items-center not-last:border-b not-last:border-neutral-4 cursor-pointer">
-      <div className="rounded-full h-9 w-9 bg-neutral-2 p-2 flex items-center justify-center">
+      <div className="rounded-full h-9 w-9 bg-neutral-2 p-1 flex items-center justify-center">
         {icon || <LogoIcon />}
       </div>
       <div className="flex flex-col ml-3">
