@@ -4,8 +4,8 @@ import {
   GREATER_EXPONENT_DEFAULT,
   CHAIN_ENDPOINTS,
 } from '@/constants';
-import { queryNode } from './queryNodes';
 import { Asset } from '@/types';
+import { queryRestNode } from './queryNodes';
 
 // Define the shape of WalletState
 interface WalletState {
@@ -28,7 +28,7 @@ const resolveIbcDenom = async (
     const getIBCInfoEndpoint = CHAIN_ENDPOINTS.getIBCInfo;
 
     // Use queryNode to try multiple nodes
-    const response = await queryNode(`${getIBCInfoEndpoint}${denomHash}`);
+    const response = await queryRestNode({ endpoint: `${getIBCInfoEndpoint}${denomHash}` });
     const baseDenom = response.denom_trace?.base_denom;
 
     if (!baseDenom) {
@@ -64,7 +64,7 @@ const getBalances = async (walletAddress: string): Promise<Asset[]> => {
   const getBalanceEndpoint = CHAIN_ENDPOINTS.getBalance;
 
   // Use queryNode to try querying balances across nodes
-  const response = await queryNode(`${getBalanceEndpoint}${walletAddress}`);
+  const response = await queryRestNode({ endpoint: `${getBalanceEndpoint}${walletAddress}` });
 
   if (!response.balances) {
     // TODO: show error to user

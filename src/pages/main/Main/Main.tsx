@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, CHAIN_NODES } from '@/constants';
 import axios from 'axios';
-import { convertToGreaterUnit, fetchDelegations, fetchValidatorInfo } from '@/helpers';
+import { convertToGreaterUnit, fetchDelegations, fetchValidators } from '@/helpers';
 import { Sort } from '@/assets/icons';
 import { Button } from '@/ui-kit';
 
@@ -39,10 +39,10 @@ export const Main = () => {
       setPaginationState(pagination);
 
       const validatorPromises = delegations.map(delegation =>
-        fetchValidatorInfo(delegation.delegation.validator_address),
+        fetchValidators(delegation.delegation.validator_address),
       );
       const validators = await Promise.all(validatorPromises);
-      setValidatorInfo(validators);
+      setValidatorInfo(validators.flatMap(info => info.validators));
 
       fetchRewards(walletState.address, delegations);
     } catch (error) {

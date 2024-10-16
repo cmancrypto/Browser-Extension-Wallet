@@ -1,47 +1,44 @@
 import { useState } from 'react';
-import { ValidatorInfo } from '@/types';
+import { DelegationResponse, ValidatorInfo } from '@/types';
 import { SlideTray, Button, Input } from '@/ui-kit';
 import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
-import { isValidUrl, selectTextColorByStatus } from '@/helpers';
+import {
+  claimAndRestake,
+  claimRewardsFromValidator,
+  convertToGreaterUnit,
+  isValidUrl,
+  selectTextColorByStatus,
+  stakeToValidator,
+  unstakeFromValidator,
+} from '@/helpers';
+import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
+import { useAtomValue } from 'jotai';
+import { walletStateAtom } from '@/atoms';
 
 interface ValidatorScrollTileProps {
   validator: ValidatorInfo;
-  delegatedAmount?: string;
+  delegation?: DelegationResponse;
   reward?: string;
 }
 
-// TODO: enable these 4 actions
-const stake = (amount: string) => {
-  console.log('Stake amount:', amount);
-};
-
-const unstake = (amount: string) => {
-  console.log(`Unstake ${amount}`);
-};
-
-const claimToWallet = () => {
-  console.log('Claim rewards to wallet');
-};
-
-const claimToRestake = () => {
-  console.log('Claim rewards to restake');
-};
-
 export const ValidatorScrollTile = ({
   validator,
-  delegatedAmount,
+  delegation,
   reward,
 }: ValidatorScrollTileProps) => {
   const [selectedAction, setSelectedAction] = useState<'stake' | 'unstake' | 'claim' | null>(
     // TODO: fix this not coming in on "all" page
-    !delegatedAmount ? 'stake' : null,
+    !delegation ? 'stake' : null,
   );
+  const walletState = useAtomValue(walletStateAtom);
   const [amount, setAmount] = useState('');
+
+  const delegatedAmount = `${delegation ? convertToGreaterUnit(parseFloat(delegation.balance.amount), GREATER_EXPONENT_DEFAULT) : 0} ${LOCAL_ASSET_REGISTRY.note.symbol}`;
 
   const title = validator.description.moniker || 'Unknown Validator';
   const subTitle = delegatedAmount || '';
-  const value = reward || '0 MLD';
+  const rewardAmount = reward || '0 MLD';
   const commission = `${parseFloat(validator.commission.commission_rates.rate) * 100}%`;
 
   const unbondingDays = 12; // TODO: After differentiating by chain, pull dynamically from the validator
@@ -74,7 +71,7 @@ export const ValidatorScrollTile = ({
           <ScrollTile
             title={title}
             subtitle={subTitle}
-            value={value}
+            value={rewardAmount}
             icon={<LogoIcon />}
             status={statusColor}
           />
@@ -105,6 +102,9 @@ export const ValidatorScrollTile = ({
           <span className={textColor}>{statusLabel}</span>
         </p>
         <p>
+          <strong>Amount Staked:</strong> <span className="text-blue">{delegatedAmount}</span>
+        </p>
+        <p>
           <strong>Validator Commission:</strong> {commission}
         </p>
         <p className="truncate">
@@ -121,13 +121,13 @@ export const ValidatorScrollTile = ({
             <span>{website}</span>
           )}
         </p>
-        <p className="line-clamp-3 max-h-[3.5rem] overflow-hidden">
+        <p className="line-clamp-2 max-h-[3.5rem] overflow-hidden">
           <strong>Details:</strong> {validator.description.details}
         </p>
       </div>
 
       {/* Action Selection */}
-      {delegatedAmount && (
+      {delegation && (
         <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
           <Button className="w-full" onClick={() => setSelectedAction('claim')}>
             Claim
@@ -159,7 +159,14 @@ export const ValidatorScrollTile = ({
                 size="sm"
                 className="ml-2 px-2 py-1 rounded-md w-16"
                 onClick={() => {
-                  selectedAction === 'stake' ? stake(amount) : unstake(amount);
+                  selectedAction === 'stake'
+                    ? stakeToValidator(
+                        amount,
+                        LOCAL_ASSET_REGISTRY.note.denom,
+                        walletState.address,
+                        validator.operator_address,
+                      )
+                    : unstakeFromValidator(amount, delegation as DelegationResponse);
                 }}
               >
                 {selectedAction === 'stake' ? 'Stake' : 'Unstake'}
@@ -171,10 +178,19 @@ export const ValidatorScrollTile = ({
         {/* Claim Action */}
         {selectedAction === 'claim' && (
           <div className="flex flex-col items-center justify-center grid grid-cols-2 gap-4">
-            <Button className="w-full" onClick={claimToWallet}>
+            <Button
+              className="w-full"
+              onClick={() =>
+                // TODO: update this entry in the validator list after completion (fix timing first.  can extract update function from that)
+                claimRewardsFromValidator(walletState.address, validator.operator_address)
+              }
+            >
               Claim to Wallet
             </Button>
-            <Button className="w-full" onClick={claimToRestake}>
+            <Button
+              className="w-full"
+              onClick={() => claimAndRestake(delegation as DelegationResponse)}
+            >
               Claim to Restake
             </Button>
           </div>

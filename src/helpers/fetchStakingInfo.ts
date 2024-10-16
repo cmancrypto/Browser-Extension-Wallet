@@ -1,14 +1,27 @@
-import { queryNode } from './queryNodes'; // Use queryNode helper
 import { DelegationResponse, ValidatorInfo } from '@/types';
+import { queryRestNode } from './queryNodes';
 
 // Fetch delegations (staked assets) from either the REST or RPC endpoint
 export const fetchDelegations = async (
   delegatorAddress: string,
+  validatorAddress?: string,
 ): Promise<{ delegations: DelegationResponse[]; pagination: any }> => {
   try {
-    console.log('Fetching delegations for delegator:', delegatorAddress);
-    const endpoint = `/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
-    const response = await queryNode(endpoint);
+    let endpoint = `/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
+
+    // If a validatorAddress is provided, modify the endpoint to fetch delegation for that specific validator
+    if (validatorAddress) {
+      endpoint = `/cosmos/staking/v1beta1/delegators/${delegatorAddress}/delegations/${validatorAddress}`;
+    }
+
+    console.log(
+      'Fetching delegations for delegator:',
+      delegatorAddress,
+      'Validator:',
+      validatorAddress || 'all',
+    );
+
+    const response = await queryRestNode({ endpoint });
 
     console.log('Delegation response:', response);
 
@@ -30,41 +43,40 @@ export const fetchDelegations = async (
 };
 
 // Fetch validator details using either the REST or RPC endpoint
-export const fetchValidatorInfo = async (validatorAddress: string): Promise<ValidatorInfo> => {
+export const fetchValidators = async (
+  validatorAddress?: string,
+): Promise<{ validators: ValidatorInfo[]; pagination: any }> => {
   try {
-    console.log('Fetching validator info for validator:', validatorAddress);
-    const endpoint = `/cosmos/staking/v1beta1/validators/${validatorAddress}`;
-    const response = await queryNode(endpoint);
+    let endpoint = `/cosmos/staking/v1beta1/validators`;
 
-    console.log('Validator response:', response);
+    // If a specific validatorAddress is provided, modify the endpoint to fetch that validator's info
+    if (validatorAddress) {
+      endpoint = `/cosmos/staking/v1beta1/validators/${validatorAddress}`;
+    }
 
-    return response.validator;
-  } catch (error) {
-    console.error(`Error fetching validator info for ${validatorAddress}:`, error);
-    throw error;
-  }
-};
+    console.log('Fetching validator(s) info for:', validatorAddress || 'all validators');
 
-export const fetchAllValidators = async (): Promise<{
-  validators: ValidatorInfo[];
-  pagination: any;
-}> => {
-  try {
-    console.log('Fetching all validators');
-    const endpoint = `/cosmos/staking/v1beta1/validators`;
-    const response = await queryNode(endpoint);
+    const response = await queryRestNode({ endpoint });
 
-    console.log('All validators response:', response);
+    console.log('Validator(s) response:', response);
+
+    // Handle the case when fetching all validators or a single validator
+    const validators = validatorAddress
+      ? [response.validator] // Return as an array when fetching a single validator
+      : response.validators; // Return the validators array when fetching all
 
     return {
-      validators: response.validators.map((validator: any) => {
+      validators: validators.map((validator: any) => {
         console.log('Validator recorded as:', validator);
         return validator;
       }),
       pagination: response.pagination,
     };
   } catch (error) {
-    console.error('Error fetching all validators:', error);
+    console.error(
+      `Error fetching validator info for ${validatorAddress || 'all validators'}:`,
+      error,
+    );
     throw error;
   }
 };

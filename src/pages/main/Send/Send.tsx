@@ -1,8 +1,6 @@
 import { Select, SelectValue } from '@radix-ui/react-select';
 import { Fragment, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { SigningStargateClient, calculateFee } from '@cosmjs/stargate';
-import { getSigningOsmosisClient, osmosis } from '@orchestra-labs/symphonyjs';
 
 import { ArrowLeft, LogoIcon, QRCode } from '@/assets/icons';
 import { GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
@@ -11,9 +9,7 @@ import { Button, Input, SelectContent, SelectItem, SelectSeparator, SelectTrigge
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { Asset } from '@/types';
-import { createOfflineSignerFromMnemonic, getSessionWallet } from '@/helpers';
-
-const { swapSend } = osmosis.market.v1beta1.MessageComposer.withTypeUrl;
+import { getSessionWallet, sendTransaction, swapTransaction } from '@/helpers';
 
 // TODO: add account selection after saving accounts
 // const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
@@ -33,10 +29,8 @@ export const Send = () => {
   const handleSend = async () => {
     console.log('Handling send...');
     const wallet = await getSessionWallet();
-    const offlineSigner = await createOfflineSignerFromMnemonic(wallet?.mnemonic || '');
     console.log('Send page, Session wallet:', wallet);
     console.log('Send page, Wallet state', walletState);
-    console.log('Send page, Offline Signer', offlineSigner);
 
     if (!wallet) {
       console.error('Wallet is locked or unavailable');
@@ -55,78 +49,29 @@ export const Send = () => {
 
     console.log('Adjusted amount:', adjustedAmount);
 
+    const sendObject = {
+      recipientAddress: recipientAddress,
+      amount: adjustedAmount,
+      denom: selectedAssetToSend,
+    };
+
     try {
       if (selectedAssetToSend === selectedAssetToReceive) {
-        // Perform a simple send transaction
-        const sendMsg = {
-          typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-          value: {
-            fromAddress: walletState.address,
-            toAddress: recipientAddress,
-            amount: [{ denom: selectedAssetToSend, amount: adjustedAmount }],
-          },
-        };
-
-        console.log('Send message:', sendMsg);
-
-        // TODO: use query file
-        console.log('Connecting to Stargate client...');
-        const client = await SigningStargateClient.connectWithSigner(
-          'https://symphony-rpc.kleomedes.network',
-          wallet,
-        );
-        console.log('Stargate client connected.');
-
         // TODO: change gas and fee calculations
         // TODO: show max and min for gas fees, show actual amount taken for transaction fee.  from simulated send?
-        const fee = calculateFee(100000, '0.0025note');
-        console.log('Calculated fee:', fee);
-
-        console.log('Signing and broadcasting transaction...');
-        const result = await client.signAndBroadcast(walletState.address, [sendMsg], fee);
-        console.log('Transaction result:', result);
-
-        if (result.code === 0) {
-          console.log('Transaction broadcasted successfully', result);
-        } else {
-          // TODO: show error to user
-          console.error('Transaction failed:', result.code);
-        }
+        sendTransaction(walletState.address, sendObject);
       } else {
-        // TODO: use query file
         // Perform a swap transaction
-        const client = await getSigningOsmosisClient({
-          rpcEndpoint: 'https://symphony-rpc.kleomedes.network',
-          signer: offlineSigner,
-        });
+        const sendObject = {
+          recipientAddress: recipientAddress,
+          amount: adjustedAmount,
+          denom: selectedAssetToSend,
+        };
+        const swapObject = { sendObject, resultDenom: selectedAssetToReceive };
 
-        const swapMsg = swapSend({
-          fromAddress: walletState.address,
-          toAddress: recipientAddress,
-          offerCoin: {
-            denom: selectedAssetToSend,
-            amount: adjustedAmount,
-          },
-          askDenom: selectedAssetToReceive,
-        });
+        console.log('swapMsg details:', swapObject);
 
-        console.log('swapMsg details:', swapMsg);
-
-        const gasAmount =
-          selectedAssetToSend === 'note' || selectedAssetToReceive === 'note' ? '100000' : '350000';
-
-        const result = await client.signAndBroadcast(walletState.address, [swapMsg], {
-          amount: [{ denom: 'note', amount: '1000000' }],
-          gas: gasAmount,
-        });
-
-        console.log('Transaction result:', result);
-
-        if (result.code === 0) {
-          console.log('Transaction broadcasted successfully', result);
-        } else {
-          console.error('Swap transaction failed:', result.code);
-        }
+        swapTransaction(walletState.address, swapObject);
       }
     } catch (error) {
       console.error('Error broadcasting transaction', error);
@@ -227,6 +172,7 @@ export const Send = () => {
           />
         </div>
 
+        {/* TODO: link to single source of truth for fee */}
         {/* Fee */}
         <div className="flex justify-between items-center text-blue text-sm font-bold">
           <p>Fee</p>

@@ -1,101 +1,91 @@
-import { SigningStargateClient } from '@cosmjs/stargate';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
-import { queryNode } from './queryNodes';
+import { queryRpcNode } from './queryNodes';
+import { DelegationResponse } from '@/types';
 
+export const buildClaimMessage = ({
+  endpoint,
+  delegatorAddress,
+  validatorAddress,
+  amount,
+  denom,
+  delegations,
+}: {
+  endpoint: string;
+  delegatorAddress?: string;
+  validatorAddress?: string | string[];
+  amount?: string;
+  denom?: string;
+  delegations?: DelegationResponse[];
+}): any => {
+  return delegations
+    ? delegations.map(delegation => ({
+        typeUrl: endpoint,
+        value: {
+          delegatorAddress: delegation.delegation.delegator_address,
+          validatorAddress: delegation.delegation.validator_address,
+          amount: {
+            denom: delegation.balance.denom,
+            amount: (parseFloat(delegation.balance.amount) - 5000).toFixed(0), // Subtracting 5000 for gas fee
+          },
+        },
+      }))
+    : [
+        {
+          typeUrl: endpoint,
+          value: {
+            delegatorAddress: delegatorAddress,
+            validatorAddress: validatorAddress,
+            ...(amount && denom ? { amount: { denom, amount } } : {}),
+          },
+        },
+      ];
+};
+
+// TODO: remove magic number fees in favor of single source of truth
 // Function to claim rewards from a designated validator
 export const claimRewardsFromValidator = async (
   delegatorAddress: string,
   validatorAddress: string,
-  mnemonic: string,
 ) => {
+  const endpoint = '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
+  const messages = buildClaimMessage({
+    endpoint,
+    delegatorAddress,
+    validatorAddress,
+  });
+
   try {
-    // Use queryNode to select an available RPC endpoint
-    const rpcEndpoint = await queryNode('', '', true); // Use RPC query to get an available node
+    const response = await queryRpcNode({
+      endpoint,
+      messages,
+    });
 
-    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: 'cosmos' });
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
-
-    const fee = {
-      amount: [{ denom: 'uatom', amount: '5000' }],
-      gas: '200000',
-    };
-
-    const msg = {
-      typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-      value: {
-        delegatorAddress: delegatorAddress,
-        validatorAddress: validatorAddress,
-      },
-    };
-
-    const result = await client.signAndBroadcast(delegatorAddress, [msg], fee, '');
-    console.log('Rewards claimed successfully from the validator:', result);
+    console.log('Rewards claimed successfully:', response);
   } catch (error) {
     console.error('Error claiming rewards from the validator:', error);
   }
 };
 
+// TODO: test all functions below this line
 // Function to claim rewards and then restake them to a designated validator
-export const claimAndRestake = async (
-  delegatorAddress: string,
-  validatorAddress: string,
-  mnemonic: string,
-) => {
+export const claimAndRestake = async (delegation: DelegationResponse) => {
+  const delegatorAddress = delegation.delegation.delegator_address;
+  const validatorAddress = delegation.delegation.validator_address;
+  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+
+  const messages = buildClaimMessage({
+    endpoint,
+    delegations: [delegation],
+  });
+
   try {
-    // Use queryNode to select an available RPC endpoint
-    const rpcEndpoint = await queryNode('', '', true); // Use RPC query to get an available node
+    await claimRewardsFromValidator(delegatorAddress, validatorAddress);
 
-    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: 'cosmos' });
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
+    const response = await queryRpcNode({
+      endpoint,
+      messages,
+    });
 
-    const fee = {
-      amount: [{ denom: 'uatom', amount: '5000' }],
-      gas: '200000',
-    };
-
-    // Step 1: Claim rewards from the validator
-    const claimMsg = {
-      typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-      value: {
-        delegatorAddress: delegatorAddress,
-        validatorAddress: validatorAddress,
-      },
-    };
-
-    console.log('Claiming rewards from validator...');
-    const claimResult = await client.signAndBroadcast(delegatorAddress, [claimMsg], fee, '');
-    if (claimResult.code !== 0) {
-      throw new Error(`Failed to claim rewards: ${claimResult.rawLog}`);
-    }
-    console.log('Rewards claimed successfully:', claimResult);
-
-    // Step 2: Get the available balance to restake
-    const availableBalance = await client.getBalance(delegatorAddress, 'uatom');
-    if (!availableBalance || parseFloat(availableBalance.amount) <= 0) {
-      throw new Error('No available balance to restake');
-    }
-
-    const restakeAmount = (parseFloat(availableBalance.amount) - 5000).toFixed(0); // Subtracting 5000 for gas fee
-
-    // Step 3: Restake the claimed rewards to the validator
-    const restakeMsg = {
-      typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
-      value: {
-        delegatorAddress: delegatorAddress,
-        validatorAddress: validatorAddress,
-        amount: {
-          denom: 'uatom',
-          amount: restakeAmount,
-        },
-      },
-    };
-
-    console.log('Restaking rewards to validator...');
-    const restakeResult = await client.signAndBroadcast(delegatorAddress, [restakeMsg], fee, '');
-    if (restakeResult.code !== 0) {
-      throw new Error(`Failed to restake rewards: ${restakeResult.rawLog}`);
-    }
-    console.log('Rewards restaked successfully:', restakeResult);
+    console.log('Rewards restaked successfully:', response);
   } catch (error) {
     console.error('Error during claim and restake:', error);
   }
@@ -104,98 +94,131 @@ export const claimAndRestake = async (
 // Function to claim rewards from all validators
 export const claimRewardsFromAllValidators = async (
   delegatorAddress: string,
-  validatorAddresses: string[],
-  mnemonic: string,
+  validatorAddress: string[],
 ) => {
+  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+
+  const messages = buildClaimMessage({
+    endpoint,
+    delegatorAddress,
+    validatorAddress,
+  });
+
   try {
-    // Use queryNode to select an available RPC endpoint
-    const rpcEndpoint = await queryNode('', '', true); // Use RPC query to get an available node
+    const response = await queryRpcNode({
+      endpoint: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+      messages,
+    });
 
-    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: 'cosmos' });
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
-
-    const fee = {
-      amount: [{ denom: 'uatom', amount: '5000' }],
-      gas: '200000',
-    };
-
-    const msgs = validatorAddresses.map(validatorAddress => ({
-      typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-      value: {
-        delegatorAddress: delegatorAddress,
-        validatorAddress: validatorAddress,
-      },
-    }));
-
-    const result = await client.signAndBroadcast(delegatorAddress, msgs, fee, '');
-    console.log('Rewards claimed successfully from all validators:', result);
+    console.log('Rewards claimed successfully from all validators:', response);
   } catch (error) {
     console.error('Error claiming rewards from all validators:', error);
   }
 };
 
 // Function to claim rewards from all validators and restake to designated validators
-export const claimAndRestakeAll = async (
-  delegatorAddress: string,
-  validatorAddresses: string[],
-  mnemonic: string,
-) => {
+export const claimAndRestakeAll = async (delegations: DelegationResponse[]) => {
+  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+  const delegatorAddress = delegations[0]?.delegation.delegator_address;
+  const validatorAddresses = delegations.map(d => d.delegation.validator_address);
+
+  const messages = buildClaimMessage({
+    endpoint,
+    delegations,
+  });
+
   try {
-    // Use queryNode to select an available RPC endpoint
-    const rpcEndpoint = await queryNode('', '', true); // Use RPC query to get an available node
-
-    const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix: 'cosmos' });
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, wallet);
-
-    const fee = {
-      amount: [{ denom: 'uatom', amount: '5000' }],
-      gas: '200000',
-    };
-
-    // Step 1: Claim rewards from all validators
-    const claimMsgs = validatorAddresses.map(validatorAddress => ({
-      typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-      value: {
-        delegatorAddress: delegatorAddress,
-        validatorAddress: validatorAddress,
-      },
-    }));
-
-    console.log('Claiming rewards from all validators...');
-    const claimResult = await client.signAndBroadcast(delegatorAddress, claimMsgs, fee, '');
-    if (claimResult.code !== 0) {
-      throw new Error(`Failed to claim rewards: ${claimResult.rawLog}`);
-    }
-    console.log('Rewards claimed successfully from all validators:', claimResult);
-
-    // Step 2: Get the available balance to restake
-    const availableBalance = await client.getBalance(delegatorAddress, 'uatom');
-    if (!availableBalance || parseFloat(availableBalance.amount) <= 0) {
-      throw new Error('No available balance to restake');
-    }
-
-    const restakeAmount = (parseFloat(availableBalance.amount) - 5000).toFixed(0); // Subtracting 5000 for gas fee
-
-    // Step 3: Restake the claimed rewards to all specified validators (split equally)
-    const restakeMsgs = validatorAddresses.map(validatorAddress => ({
-      typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
-      value: {
-        delegatorAddress: delegatorAddress,
-        validatorAddress: validatorAddress,
-        amount: {
-          denom: 'uatom',
-          amount: (parseFloat(restakeAmount) / validatorAddresses.length).toFixed(0), // Split equally among validators
-        },
-      },
-    }));
+    await claimRewardsFromAllValidators(delegatorAddress, validatorAddresses);
 
     console.log('Restaking rewards to all validators...');
-    const restakeResult = await client.signAndBroadcast(delegatorAddress, restakeMsgs, fee, '');
-    if (restakeResult.code !== 0) {
-      throw new Error(`Failed to restake rewards: ${restakeResult.rawLog}`);
+    const restakeResponse = await queryRpcNode({
+      endpoint,
+      messages,
+    });
+
+    if (restakeResponse.code !== 0) {
+      throw new Error(`Failed to restake rewards: ${restakeResponse.rawLog}`);
     }
-    console.log('Rewards restaked successfully to all validators:', restakeResult);
+
+    console.log('Rewards restaked successfully to all validators:', restakeResponse);
   } catch (error) {
     console.error('Error during claim and restake all:', error);
+  }
+};
+
+export const stakeToValidator = async (
+  amount: string,
+  denom: string,
+  walletAddress: string,
+  validatorAddress: string,
+) => {
+  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+  const messages = buildClaimMessage({
+    endpoint,
+    delegatorAddress: walletAddress,
+    validatorAddress,
+    amount,
+    denom,
+  });
+
+  try {
+    try {
+      const response = await queryRpcNode({
+        endpoint: '/cosmos.staking.v1beta1.MsgDelegate',
+        messages,
+      });
+
+      console.log('Successfully staked:', response);
+    } catch (error) {
+      console.error('Failed to stake:', error);
+    }
+  } catch (error) {
+    console.error('Error during staking:', error);
+  }
+};
+
+// TODO: if maximum amount is unstaked, also withdraw rewards
+export const unstakeFromValidator = async (amount: string, delegation: DelegationResponse) => {
+  const endpoint = '/cosmos.staking.v1beta1.MsgUndelegate';
+  const delegatorAddress = delegation.delegation.delegator_address;
+  const validatorAddress = delegation.delegation.validator_address;
+  const denom = delegation.balance.denom;
+
+  const messages = buildClaimMessage({
+    endpoint,
+    delegatorAddress,
+    validatorAddress,
+    amount,
+    denom,
+  });
+
+  try {
+    const response = await queryRpcNode({
+      endpoint: '/cosmos.staking.v1beta1.MsgUndelegate',
+      messages,
+    });
+
+    console.log('Successfully unstaked:', response);
+  } catch (error) {
+    console.error('Error during unstaking:', error);
+  }
+};
+
+export const unstakeFromAllValidators = async (delegations: DelegationResponse[]) => {
+  const endpoint = '/cosmos.staking.v1beta1.MsgUndelegate';
+
+  const messages = buildClaimMessage({
+    endpoint,
+    delegations,
+  });
+
+  try {
+    const unstakeResponse = await queryRpcNode({
+      endpoint,
+      messages,
+    });
+    console.log('Successfully unstaked:', unstakeResponse);
+  } catch (error) {
+    console.error('Error during unstaking:', error);
   }
 };

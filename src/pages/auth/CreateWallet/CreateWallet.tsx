@@ -105,7 +105,6 @@ export const CreateWallet = () => {
   // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC
 
-  // TODO: add icon retrieval from registry
   // TODO: move most of walletState atom into main.  this prevents re-building auth every time wallet updates
   // TODO: force loss of focus on click outside extension
   // TODO: fix update from token on return to focus (or find out what that's called when an extension becomes active again)

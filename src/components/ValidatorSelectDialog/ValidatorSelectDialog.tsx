@@ -8,6 +8,7 @@ interface ValidatorSelectDialogProps {
   isClaimDialog?: boolean;
 }
 
+// TODO: make select functional
 export const ValidatorSelectDialog: React.FC<ValidatorSelectDialogProps> = ({
   buttonText,
   buttonVariant,

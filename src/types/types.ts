@@ -12,6 +12,16 @@ export interface WalletAssets {
   assets: Asset[];
 }
 
+export interface SendObject {
+  recipientAddress: string;
+  amount: string;
+  denom: string;
+}
+export interface SwapObject {
+  sendObject: SendObject;
+  resultDenom: string;
+}
+
 // TODO: add nullable validator info to delegation response?
 export interface DelegationResponse {
   delegation: {

@@ -9,7 +9,7 @@ import {
   showCurrentValidatorsAtom,
 } from '@/atoms';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
-import { convertToGreaterUnit, fetchAllValidators } from '@/helpers';
+import { convertToGreaterUnit, fetchValidators } from '@/helpers';
 import { useEffect, useState } from 'react';
 import { ValidatorScrollTile } from '../ValidatorScrollTile';
 import { AssetScrollTile } from '../AssetScrollTile';
@@ -30,7 +30,7 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
   // Fetch all validators if needed
   useEffect(() => {
     if (!showCurrentValidators && allValidators.length === 0) {
-      fetchAllValidators().then(({ validators }) => setAllValidators(validators));
+      fetchValidators().then(({ validators }) => setAllValidators(validators));
     }
   }, [showCurrentValidators]);
 
@@ -75,14 +75,13 @@ export const TileScroller = ({ activeIndex }: { activeIndex: number }) => {
             (v: ValidatorInfo) => v.operator_address === validatorAddress,
           );
           const rewardAmount = getValidatorRewards(validatorAddress);
-          const delegatedAmount = `${convertToGreaterUnit(parseFloat(delegationResponse.balance.amount), GREATER_EXPONENT_DEFAULT)} ${LOCAL_ASSET_REGISTRY.note.symbol}`;
 
           return !validator ? null : (
             <ValidatorScrollTile
               key={validatorAddress}
               validator={validator}
               reward={rewardAmount}
-              delegatedAmount={delegatedAmount}
+              delegation={delegationResponse}
             />
           );
         })
