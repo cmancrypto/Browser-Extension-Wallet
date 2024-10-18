@@ -9,7 +9,7 @@ import { Button, Input, SelectContent, SelectItem, SelectSeparator, SelectTrigge
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { Asset } from '@/types';
-import { getSessionWallet, sendTransaction, swapTransaction } from '@/helpers';
+import { getSessionToken, sendTransaction, swapTransaction } from '@/helpers';
 
 // TODO: add account selection after saving accounts
 // const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
@@ -28,14 +28,9 @@ export const Send = () => {
 
   const handleSend = async () => {
     console.log('Handling send...');
-    const wallet = await getSessionWallet();
-    console.log('Send page, Session wallet:', wallet);
+    const sessionToken = getSessionToken();
+    console.log('Send page, Session token:', sessionToken);
     console.log('Send page, Wallet state', walletState);
-
-    if (!wallet) {
-      console.error('Wallet is locked or unavailable');
-      return;
-    }
 
     const assetToSend = walletAssets.find(a => a.denom === selectedAssetToSend);
     if (!assetToSend) {

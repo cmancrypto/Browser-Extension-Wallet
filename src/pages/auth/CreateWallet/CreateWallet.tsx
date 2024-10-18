@@ -95,7 +95,9 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: bring list views out to other screen.  component?
+  // TODO: prevent re-building auth every time wallet updates
+  // TODO: fix timed logout.  not currently functional
+
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: send fields vary in size and shift on data entry.  fix this.
@@ -105,13 +107,10 @@ export const CreateWallet = () => {
   // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC
 
-  // TODO: move most of walletState atom into main.  this prevents re-building auth every time wallet updates
-  // TODO: force loss of focus on click outside extension
-  // TODO: fix update from token on return to focus (or find out what that's called when an extension becomes active again)
   // TODO: clean up helper functions and hooks
   // TODO: add max button to amount section
   // TODO: add slide tray for asset selections (like on mobile)
-  // TODO: fix timed logout.  not currently functional
+  // TODO: bring list views out to other screen.  component?
 
   /* Inside wallet TODOs */
   // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
@@ -124,7 +123,7 @@ export const CreateWallet = () => {
   // TODO: abstract IBC needs
 
   /* Wallet UI TODOs */
-  // TODO: remove or enable connected services button
+  // TODO: remove or enable connected services button <-- could be good for using firebase to transfer/remove settings data
   // TODO: remove or enable transaction history
   // TODO: show donut chart with assets rather than singular value
   // TODO: remove or enable expand view
@@ -137,7 +136,6 @@ export const CreateWallet = () => {
 
   /* Auth TODOs */
   // TODO: abstract wallet prefix and mnemonic decryption
-  // TODO: look into changing return of wallet object into return of offline signer object.  can one be used for all activities?  is one more secure than the other?
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
 
   /* Less Critical Auth TODOs */

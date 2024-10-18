@@ -4,9 +4,8 @@ import {
   LOCAL_ASSET_REGISTRY,
   MAX_NODES_PER_QUERY,
 } from '@/constants';
-import { getNodeErrorCounts, storeNodeErrorCounts } from './localStorage';
+import { getNodeErrorCounts, getSessionToken, storeNodeErrorCounts } from './localStorage';
 import { SigningStargateClient } from '@cosmjs/stargate';
-import { getSessionWallet } from './sessionStorage';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { delay } from './timer';
 
@@ -93,16 +92,17 @@ const queryWithRetry = async ({
 
         console.log(`use rpc: ${useRPC}`);
         if (useRPC) {
-          const wallet = await getSessionWallet();
-          if (!wallet) {
+          const sessionToken = getSessionToken();
+          const mnemonic = sessionToken.mnemonic;
+          const address = sessionToken.address;
+          if (!mnemonic) {
             console.error('Wallet is locked or unavailable');
             return;
           }
 
-          const offlineSigner = await createOfflineSignerFromMnemonic(wallet?.mnemonic || '');
+          const offlineSigner = await createOfflineSignerFromMnemonic(mnemonic || '');
           const client = await SigningStargateClient.connectWithSigner(queryMethod, offlineSigner);
 
-          const [{ address }] = await wallet.getAccounts();
           const result = await performRpcQuery(client, address, messages, feeDenom);
           return result;
         }

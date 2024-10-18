@@ -1,3 +1,5 @@
+import { SessionToken } from '@/types';
+
 // General localStorage utility functions
 const setLocalStorageItem = (key: string, value: string): void => {
   localStorage.setItem(key, value);
@@ -82,6 +84,26 @@ export const storeMnemonic = (encryptedMnemonic: string): void => {
  */
 export const removeStoredAccessToken = (): void => {
   removeLocalStorageItem('accessToken');
+};
+
+export const saveSessionToken = (sessionToken: SessionToken): void => {
+  const sessionTokenJSON = JSON.stringify(sessionToken);
+  setLocalStorageItem('sessionToken', sessionTokenJSON);
+  console.log('Session token saved to localStorage');
+};
+
+export const getSessionToken = (): SessionToken => {
+  const sessionJSON = getLocalStorageItem('sessionToken');
+  console.log(sessionJSON);
+  const sessionToken = sessionJSON ? JSON.parse(sessionJSON) : null;
+  console.log('Session token retrieved from localStorage');
+
+  return sessionToken;
+};
+
+export const clearSessionToken = (): void => {
+  removeLocalStorageItem('sessionToken');
+  console.log('Session token removed');
 };
 
 /**

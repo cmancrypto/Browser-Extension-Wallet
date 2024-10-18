@@ -2,10 +2,10 @@ import { osmosis } from '@orchestra-labs/symphonyjs';
 import { incrementErrorCount, performRpcQuery, selectNodeProviders } from './queryNodes';
 import { SwapObject } from '@/types';
 import { DELAY_BETWEEN_NODE_ATTEMPTS, MAX_NODES_PER_QUERY } from '@/constants';
-import { getSessionWallet } from './sessionStorage';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { getSigningOsmosisClient } from '@orchestra-labs/symphonyjs';
 import { delay } from './timer';
+import { getSessionToken } from './localStorage';
 
 const { swapSend } = osmosis.market.v1beta1.MessageComposer.withTypeUrl;
 
@@ -32,8 +32,8 @@ const queryWithRetry = async ({
         const queryMethod = provider.rpc;
         console.log(`Querying node ${queryMethod} with endpoint: ${endpoint}`);
 
-        const wallet = await getSessionWallet();
-        const offlineSigner = await createOfflineSignerFromMnemonic(wallet?.mnemonic || '');
+        const sessionToken = getSessionToken();
+        const offlineSigner = await createOfflineSignerFromMnemonic(sessionToken.mnemonic || '');
 
         const client = await getSigningOsmosisClient({
           rpcEndpoint: queryMethod,

@@ -5,11 +5,13 @@ import {
   getStoredAccessToken,
   getStoredMnemonic,
   getStoredPassword,
+  saveSessionToken,
   storeAccessToken,
   storePassword,
 } from './localStorage';
 import { TOKEN_EXPIRATION_TIME, WALLET_PREFIX } from '@/constants';
 import { Secp256k1HdWallet } from '@cosmjs/amino';
+import { SessionToken } from '@/types';
 
 /**
  * Hash the password using SHA-512 with a salt (using CryptoJS).
@@ -100,20 +102,18 @@ export const savePersistentAuthToken = (address: string): string => {
  * @param address The wallet address for the session token.
  * @returns {string} The generated session token.
  */
-export const saveSessionAuthToken = async (wallet: Secp256k1HdWallet): Promise<string> => {
+export const saveSessionAuthToken = async (wallet: Secp256k1HdWallet): Promise<SessionToken> => {
   const [{ address }] = await wallet.getAccounts();
 
   // Save session token in sessionStorage with expiration time
-  const tokenData = {
+  const sessionToken = {
     mnemonic: wallet.mnemonic,
-    walletAddress: address,
+    address,
     network: WALLET_PREFIX,
     expiresIn: TOKEN_EXPIRATION_TIME,
   };
 
-  const sessionToken = JSON.stringify(tokenData);
-  // TODO: move this line to sessionStorage.ts
-  sessionStorage.setItem('sessionToken', sessionToken);
+  saveSessionToken(sessionToken);
 
   return sessionToken;
 };

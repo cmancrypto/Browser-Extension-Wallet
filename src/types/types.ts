@@ -1,3 +1,10 @@
+export interface SessionToken {
+  mnemonic: string;
+  address: string;
+  network: string;
+  expiresIn: number;
+}
+
 export interface Asset {
   denom: string;
   amount: string;

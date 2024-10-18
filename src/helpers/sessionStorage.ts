@@ -4,6 +4,7 @@ import { getWallet } from './wallet';
 let sessionWallet: Secp256k1HdWallet | null = null;
 let sessionExpiryTimeout: NodeJS.Timeout | null = null;
 
+// TODO: remove this file or find another use.  this information only stays in memory until loss of focus (onBlur event)
 const SESSION_TIMEOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 
 /**

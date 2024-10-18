@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
-import { fetchWalletAssets, getStoredAccessToken } from '@/helpers';
+import { fetchWalletAssets, getSessionToken, getStoredAccessToken } from '@/helpers';
 import { useInactivityCheck, useUpdateWalletTimer } from '@/hooks';
 import { walletStateAtom } from '@/atoms';
 import { useAtom } from 'jotai';
@@ -27,16 +27,20 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     if (walletInfoNotInState) {
       console.log('Fetching wallet address from token...');
       const accessToken = getStoredAccessToken();
+      const sessionToken = getSessionToken();
       const walletAddress = accessToken?.walletAddress;
 
       console.log('Access token:', accessToken);
+      console.log('Session token:', sessionToken);
       console.log('Wallet address from token:', walletAddress);
 
+      // If access token is set (logged in) and state hasn't been set (first mount)
       if (walletAddress && walletState.address === '') {
         // Set wallet address in the global state (atom)
         console.log('Setting wallet address and assets in state:', walletAddress);
         setIsLoading(true);
 
+        // TODO: move fetch of assets to lower level of state
         // Fetch wallet assets and update the state
         fetchWalletAssets({ address: walletAddress, assets: [] })
           .then(assets => {
@@ -70,6 +74,31 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     }
   }, [walletState.address]);
 
+  useEffect(() => {
+    console.log('Popup is opened (component mounted).');
+
+    const handleBlur = () => {
+      console.log('Browser extension lost focus (blur event)');
+    };
+
+    const handleFocus = () => {
+      // TODO: check timeout, pull from local storage (session storage will not exist)
+      console.log('Browser extension gained focus (focus event)');
+    };
+
+    // TODO: after blur, clear session token after timeout
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      // TODO: save any necessary items to local storage
+      console.log('Popup is closed (component unmounted).');
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  // TODO: remove?  is this necessary?
   // Prevent redirect or rendering while loading
   if (isLoading) {
     // TODO: change with centered scroll wheel or similar
