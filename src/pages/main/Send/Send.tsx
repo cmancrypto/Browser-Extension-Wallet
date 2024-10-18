@@ -92,7 +92,7 @@ export const Send = () => {
       </div>
 
       {/* Content container */}
-      <div className="flex flex-col justify-between flex-grow p-4 border border-neutral-2 rounded-lg mt-5 overflow-y-auto">
+      <div className="flex flex-col justify-between flex-grow p-4 border border-neutral-2 rounded-lg overflow-y-auto">
         {/* Address input */}
         <Input
           variant="primary"
