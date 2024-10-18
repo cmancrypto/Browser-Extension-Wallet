@@ -1,9 +1,9 @@
 import { Select, SelectValue } from '@radix-ui/react-select';
 import { Fragment, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import { ArrowLeft, LogoIcon, QRCode } from '@/assets/icons';
-import { GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
+import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, ROUTES } from '@/constants';
 import { cn } from '@/helpers/utils';
 import { Button, Input, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/ui-kit';
 import { useAtomValue } from 'jotai';
@@ -15,16 +15,18 @@ import { getSessionToken, sendTransaction, swapTransaction } from '@/helpers';
 // const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
 // const avatarUrl = chrome?.runtime?.getURL('avatar.png');
 
-// TODO: add send asset auto-selection if going through asset list on main page
 export const Send = () => {
+  const location = useLocation();
+  const selectedSendAsset = location.state?.selectedSendAsset;
   console.log('send page');
+  console.log('send asset:', selectedSendAsset);
+
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
-  // TODO: set selected asset to Asset object.
   const [recipientAddress, setRecipientAddress] = useState('');
-  const [selectedAssetToSend, setSelectedAssetToSend] = useState('');
-  const [selectedAssetToReceive, setSelectedAssetToReceive] = useState('');
-  const [amount, setAmount] = useState('1000');
+  const [sendAsset, setSendAsset] = useState<Asset | null>(selectedSendAsset || null);
+  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(null);
+  const [amount, setAmount] = useState('1');
 
   const handleSend = async () => {
     console.log('Handling send...');
@@ -32,7 +34,11 @@ export const Send = () => {
     console.log('Send page, Session token:', sessionToken);
     console.log('Send page, Wallet state', walletState);
 
-    const assetToSend = walletAssets.find(a => a.denom === selectedAssetToSend);
+    if (sendAsset === null) {
+      return;
+    }
+
+    const assetToSend = walletAssets.find(a => a.denom === sendAsset.denom);
     if (!assetToSend) {
       console.error('Selected asset to send not found in wallet assets.');
       return;
@@ -47,22 +53,20 @@ export const Send = () => {
     const sendObject = {
       recipientAddress: recipientAddress,
       amount: adjustedAmount,
-      denom: selectedAssetToSend,
+      denom: sendAsset.denom,
     };
 
     try {
-      if (selectedAssetToSend === selectedAssetToReceive) {
+      if (sendAsset === receiveAsset) {
         // TODO: change gas and fee calculations
         // TODO: show max and min for gas fees, show actual amount taken for transaction fee.  from simulated send?
         sendTransaction(walletState.address, sendObject);
       } else {
+        if (receiveAsset === null) {
+          return;
+        }
         // Perform a swap transaction
-        const sendObject = {
-          recipientAddress: recipientAddress,
-          amount: adjustedAmount,
-          denom: selectedAssetToSend,
-        };
-        const swapObject = { sendObject, resultDenom: selectedAssetToReceive };
+        const swapObject = { sendObject, resultDenom: receiveAsset.denom };
 
         console.log('swapMsg details:', swapObject);
 
@@ -102,7 +106,13 @@ export const Send = () => {
         {/* Send Asset selection */}
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm text-neutral-1">Send As</label>
-          <Select defaultValue="" onValueChange={value => setSelectedAssetToSend(value)}>
+          <Select
+            defaultValue={sendAsset?.denom || ''}
+            onValueChange={value => {
+              const asset = walletAssets.find(a => a.denom === value);
+              setSendAsset(asset || null);
+            }}
+          >
             <SelectTrigger className="max-w-56 py-2.5">
               <SelectValue placeholder="Asset to Send" />
             </SelectTrigger>
@@ -129,12 +139,18 @@ export const Send = () => {
         {/* Receive Asset selection */}
         <div className="flex items-center justify-between mb-4">
           <label className="text-sm text-neutral-1">Receive As</label>
-          <Select defaultValue="" onValueChange={value => setSelectedAssetToReceive(value)}>
+          <Select
+            defaultValue=""
+            onValueChange={value => {
+              const asset = walletAssets.find(a => a.denom === value);
+              setReceiveAsset(asset || null);
+            }}
+          >
             <SelectTrigger className="max-w-56 py-2.5">
               <SelectValue placeholder="Asset to Receive" />
             </SelectTrigger>
             <SelectContent>
-              {walletAssets.map((asset: Asset, index, array) => (
+              {Object.values(LOCAL_ASSET_REGISTRY).map((asset: Asset, index, array) => (
                 <Fragment key={asset.denom}>
                   <SelectItem value={asset.denom}>
                     <div className="flex items-center text-left">

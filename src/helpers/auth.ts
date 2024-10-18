@@ -147,7 +147,7 @@ export const tryAuthorizeWalletAccess = async (password: string): Promise<boolea
     const wallet = await getWallet(mnemonic);
     const [{ address }] = await wallet.getAccounts();
 
-    // TODO: use localstorage or session storage based on if "remember me" is used
+    // TODO: add "remember me" feature
     // Generate and save both the access token and session token
     savePersistentAuthToken(address);
     saveSessionAuthToken(wallet);

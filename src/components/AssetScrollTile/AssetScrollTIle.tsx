@@ -72,7 +72,9 @@ export const AssetScrollTile = ({ asset }: AssetScrollTileProps) => {
       {/* TODO: only 2 columns if not a stakeable currency */}
       <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
         <Button className={'w-full'} asChild>
-          <NavLink to={ROUTES.APP.SEND}>Send</NavLink>
+          <NavLink to={ROUTES.APP.SEND} state={{ selectedSendAsset: asset }}>
+            Send
+          </NavLink>
         </Button>
         <ReceiveDialog />
         <Button className={'w-full'} onClick={() => setActiveIndex(1)}>
