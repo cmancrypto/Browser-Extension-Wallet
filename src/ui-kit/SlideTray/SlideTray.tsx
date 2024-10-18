@@ -3,6 +3,7 @@ import * as React from 'react';
 import { cn } from '@/helpers/utils';
 import { X } from '@/assets/icons';
 import { Button } from '../Button';
+import { Separator } from '../Separator';
 
 interface SlideTrayProps {
   triggerComponent: React.ReactNode;
@@ -55,7 +56,7 @@ export const SlideTray: React.FC<SlideTrayProps> = ({
             {title && (
               <>
                 <h2 className={`text-h5 font-bold ${titleColor} text-center mb-2`}>{title}</h2>
-                <div className="border-b border-neutral-4 mb-4" />
+                <Separator variant="top" />
               </>
             )}
 
@@ -69,9 +70,7 @@ export const SlideTray: React.FC<SlideTrayProps> = ({
             )}
             {closeButtonVariant === 'bottom-center' && (
               <>
-                <div
-                  className={`border-b ${showBottomBorder ? 'border-neutral-4' : 'border-transparent'} mt-1 mb-2`}
-                />
+                <Separator variant="bottom" showBorder={showBottomBorder} />
                 <div className="absolute left-0 right-0 flex justify-center mt-1">
                   <DialogPrimitive.Close asChild>
                     <Button className="w-[56%] py-3 rounded-full text-lg">Close</Button>
