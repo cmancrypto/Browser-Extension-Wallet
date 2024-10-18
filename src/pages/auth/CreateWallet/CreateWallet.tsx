@@ -116,6 +116,8 @@ export const CreateWallet = () => {
   // TODO: abstract wallet prefix and mnemonic decryption
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
   // TODO: add link to github repo for registry
+  // TODO: abstract IBC needs
+  // TODO: ensure pipeline to other registries is functional.  change here auto-PRs there
 
   /* Inside wallet TODOs */
   // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
@@ -125,7 +127,6 @@ export const CreateWallet = () => {
   // TODO: add sorting function to validator list
   // TODO: add search function to validator list
   // TODO: add show/hide function to validator list
-  // TODO: abstract IBC needs
 
   /* Wallet UI TODOs */
   // TODO: remove or enable connected services button <-- could be good for using firebase to transfer/remove settings data
@@ -163,7 +164,6 @@ export const CreateWallet = () => {
 
   /* Interchain-compatibility TODOs */
   // TODO: add manual IBC (for rare cases.  hide behind dev tool enabling?)
-  // TODO: ensure pipeline to other registries is functional.  change here auto-PRs there
 
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
