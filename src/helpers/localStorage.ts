@@ -101,7 +101,7 @@ export const getSessionToken = (): SessionToken => {
   return sessionToken;
 };
 
-export const clearSessionToken = (): void => {
+export const removeSessionToken = (): void => {
   removeLocalStorageItem('sessionToken');
   console.log('Session token removed');
 };

@@ -96,20 +96,19 @@ export const CreateWallet = () => {
 
   /* Current TODOs */
   // TODO: prevent re-building auth every time wallet updates
-  // TODO: fix timed logout.  not currently functional
+  // TODO: ensure logout after blur (click outside application to close).  to remove sensitive data after time period
 
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: send fields vary in size and shift on data entry.  fix this.
   // TODO: add mock max amount placeholder to amount sections (send and validator)
   // TODO: after send, navigate to congratulations page
-
   // TODO: provide updates to user as send information updates (viewable in console currently)
   // TODO: add fields to let user know when sending over IBC
-
   // TODO: clean up helper functions and hooks
-  // TODO: add max button to amount section
+  // TODO: add clear and max buttons to amount section
   // TODO: add slide tray for asset selections (like on mobile)
+
   // TODO: bring list views out to other screen.  component?
 
   /* Inside wallet TODOs */
