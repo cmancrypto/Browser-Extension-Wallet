@@ -96,7 +96,6 @@ export const CreateWallet = () => {
 
   /* Current TODOs */
   // TODO: prevent re-building auth every time wallet updates
-  // TODO: ensure logout after blur (click outside application to close).  to remove sensitive data after time period
 
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
@@ -110,6 +109,8 @@ export const CreateWallet = () => {
   // TODO: add slide tray for asset selections (like on mobile)
 
   // TODO: bring list views out to other screen.  component?
+
+  // TODO: ensure logout after blur (click outside application to close).  to remove sensitive data after time period
 
   /* Inside wallet TODOs */
   // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
