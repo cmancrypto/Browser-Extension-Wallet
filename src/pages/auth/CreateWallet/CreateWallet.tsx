@@ -112,6 +112,11 @@ export const CreateWallet = () => {
 
   // TODO: ensure logout after blur (click outside application to close).  to remove sensitive data after time period
 
+  // TODO: add icon and chain display name to copy address for receive
+  // TODO: abstract wallet prefix and mnemonic decryption
+  // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
+  // TODO: add link to github repo for registry
+
   /* Inside wallet TODOs */
   // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
   // TODO: add sorting function to wallet asset list
@@ -128,15 +133,10 @@ export const CreateWallet = () => {
   // TODO: show donut chart with assets rather than singular value
   // TODO: remove or enable expand view
   // TODO: remove "support" in favor of links to site and socials
-  // TODO: add link to github repo for registry
   // TODO: change "options" to settings?
   // TODO: security tab enables/disables need to confirm transactions/re-entry of password on transactions (3 levels of security)
   // TODO: change options buttons
   // TODO: update transactions history button (need endpoint for this.  disable until ready)
-
-  /* Auth TODOs */
-  // TODO: abstract wallet prefix and mnemonic decryption
-  // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
 
   /* Less Critical Auth TODOs */
   // TODO: cut trailing 0s on numeric asset displays
@@ -162,8 +162,8 @@ export const CreateWallet = () => {
   // TODO: keep track of current page for case of re-open before timeout
 
   /* Interchain-compatibility TODOs */
-  // TODO: add icon and chain display name to copy address for receive
   // TODO: add manual IBC (for rare cases.  hide behind dev tool enabling?)
+  // TODO: ensure pipeline to other registries is functional.  change here auto-PRs there
 
   // Check everything is completed properly and pass to confirmation screen
   const handleCreateWallet = async () => {
