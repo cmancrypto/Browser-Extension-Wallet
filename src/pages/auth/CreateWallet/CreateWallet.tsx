@@ -95,8 +95,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: prevent re-building auth every time wallet updates
-
   // TODO: check format of entered address for send field
   // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: send fields vary in size and shift on data entry.  fix this.
@@ -110,14 +108,15 @@ export const CreateWallet = () => {
 
   // TODO: bring list views out to other screen.  component?
 
-  // TODO: ensure logout after blur (click outside application to close).  to remove sensitive data after time period
-
   // TODO: add icon and chain display name to copy address for receive
   // TODO: abstract wallet prefix and mnemonic decryption
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
   // TODO: add link to github repo for registry
   // TODO: abstract IBC needs
   // TODO: ensure pipeline to other registries is functional.  change here auto-PRs there
+
+  // TODO: ensure logout after blur (click outside application to close).  to remove sensitive data after time period
+  // TODO: prevent re-building auth every time wallet updates
 
   /* Inside wallet TODOs */
   // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
