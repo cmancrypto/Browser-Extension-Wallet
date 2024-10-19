@@ -95,20 +95,17 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: check format of entered address for send field
-  // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
-  // TODO: send fields vary in size and shift on data entry.  fix this.
-  // TODO: add mock max amount placeholder to amount sections (send and validator)
-  // TODO: after send, navigate to congratulations page
-  // TODO: provide updates to user as send information updates (viewable in console currently)
-  // TODO: add fields to let user know when sending over IBC
-  // TODO: clean up helper functions and hooks
-  // TODO: add clear and max buttons to amount section
   // TODO: add slide tray for asset selections (like on mobile)
+  // TODO: after send, navigate to congratulations page
+  // TODO: provide updates to user as send information updates (errors, success, and changing gas fees)
+  // TODO: add mock max amount placeholder to amount sections (send and validator)
+  // TODO: add clear and max buttons to amount section
+  // TODO: check format of entered address for send field
+  // TODO: add fields to let user know when sending over IBC
 
+  // TODO: clean up helper functions and hooks
   // TODO: bring list views out to other screen.  component?
 
-  // TODO: add icon and chain display name to copy address for receive
   // TODO: abstract wallet prefix and mnemonic decryption
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
   // TODO: add link to github repo for registry
@@ -128,6 +125,8 @@ export const CreateWallet = () => {
   // TODO: add show/hide function to validator list
 
   /* Wallet UI TODOs */
+  // TODO: make "clear" and "max" button placement and appearance more uniform (send and unstake sections)
+  // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
   // TODO: remove or enable connected services button <-- could be good for using firebase to transfer/remove settings data
   // TODO: remove or enable transaction history
   // TODO: show donut chart with assets rather than singular value
@@ -140,10 +139,10 @@ export const CreateWallet = () => {
 
   /* Less Critical Auth TODOs */
   // TODO: cut trailing 0s on numeric asset displays
-  // TODO: handle error printout (in place of subtitle on verify screen?)
+  // TODO: handle error printout for create/import wallet (in place of subtitle on verify screen?)
   // TODO: for default on text, ensure no focus and basic mouse onHover (no change)
   // TODO: test path and create error for no wallet exists and user attempts login
-  // TODO: Add Manual RPC changes in-app
+  // TODO: Add Manual RPC changes in-app (both selection in list and form entry.  one or both of these should be kept behind dev-mode toggle)
 
   /* Less Critical Wallet TODOs */
   // TODO: add QR code input to address on send screen (drag and drop/image selection)
@@ -161,7 +160,7 @@ export const CreateWallet = () => {
   // TODO: add click and drag to scroll for passphrase box and tilescroller
   // TODO: keep track of current page for case of re-open before timeout
 
-  /* Interchain-compatibility TODOs */
+  /* Nice to have Interchain-compatibility TODOs */
   // TODO: add manual IBC (for rare cases.  hide behind dev tool enabling?)
 
   // Check everything is completed properly and pass to confirmation screen

@@ -19,6 +19,7 @@ export * from './Security';
 export * from './Spinner';
 export * from './Success';
 export * from './Support';
+export * from './Swap';
 export * from './UniswapLogo';
 export * from './VerifySuccess';
 export * from './X';

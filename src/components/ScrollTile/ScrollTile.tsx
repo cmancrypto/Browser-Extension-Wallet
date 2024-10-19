@@ -1,20 +1,33 @@
 import { LogoIcon } from '@/assets/icons';
 import { selectTextColorByStatus } from '@/helpers';
 
-// TODO: dialog needs selectable variant.  new component?
 interface ScrollTileProps {
   title: string;
   subtitle: string;
   value: string;
   icon?: React.ReactNode;
   status?: 'error' | 'warn' | 'good';
+  selected?: boolean;
+  onClick?: () => void;
 }
 
-export const ScrollTile = ({ title, subtitle, value, icon, status = 'good' }: ScrollTileProps) => {
+export const ScrollTile = ({
+  title,
+  subtitle,
+  value,
+  icon,
+  status = 'good',
+  selected = false,
+  onClick,
+}: ScrollTileProps) => {
   const textColor = selectTextColorByStatus(status);
+  const borderClass = selected ? 'border-blue-500' : 'border-neutral-4';
 
   return (
-    <div className="mx-4 py-2 min-h-[52px] flex items-center not-last:border-b not-last:border-neutral-4 cursor-pointer">
+    <div
+      className={`mx-4 py-2 min-h-[52px] flex items-center cursor-pointer border ${borderClass}`}
+      onClick={onClick}
+    >
       <div className="rounded-full h-9 w-9 bg-neutral-2 p-1 flex items-center justify-center">
         {icon || <LogoIcon />}
       </div>

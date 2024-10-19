@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { cn } from '@/helpers/utils';
+import { LogoIcon } from '@/assets/icons';
 
 interface SeparatorProps {
   showBorder?: boolean;
-  variant?: 'top' | 'bottom' | 'neutral';
+  variant?: 'top' | 'bottom' | 'centered-icon' | 'neutral';
   className?: string;
+  icon?: ReactNode;
 }
 
 const variantStyles = {
@@ -17,14 +19,17 @@ export const Separator: React.FC<SeparatorProps> = ({
   showBorder = true,
   variant = 'neutral',
   className = '',
+  icon = <LogoIcon />,
 }) => {
-  return (
-    <div
-      className={cn(
-        `border-b ${showBorder ? 'border-neutral-4' : 'border-transparent'}`,
-        variantStyles[variant],
-        className,
-      )}
-    />
+  const lineColor = showBorder ? 'border-neutral-2' : 'border-transparent';
+
+  return variant === 'centered-icon' ? (
+    <div className="relative flex items-center justify-center mb-4">
+      <div className={cn(`flex-grow border-t ${lineColor}`, className)}></div>
+      {icon}
+      <div className={cn(`flex-grow border-t ${lineColor}`, className)}></div>
+    </div>
+  ) : (
+    <div className={cn(`border-b ${lineColor}`, variantStyles[variant], className)} />
   );
 };
