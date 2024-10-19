@@ -95,7 +95,6 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: add slide tray for asset selections (like on mobile)
   // TODO: after send, navigate to congratulations page
   // TODO: provide updates to user as send information updates (errors, success, and changing gas fees)
   // TODO: add mock max amount placeholder to amount sections (send and validator)
