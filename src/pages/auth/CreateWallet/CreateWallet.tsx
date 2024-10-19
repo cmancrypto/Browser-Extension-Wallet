@@ -95,7 +95,9 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: provide updates to user as send information updates (errors, success, and changing gas fees)
+  // TODO: provide updates to user as staking, claim, and unstaking information changes (successes, errors, and changing gas fees)
+
+  // TODO: provide updates to user as send information updates (errors and changing gas fees)
   // TODO: add mock max amount placeholder to amount sections (send and validator)
   // TODO: add clear and max buttons to amount section
   // TODO: check format of entered address for send field
