@@ -152,7 +152,13 @@ export const Main = () => {
       {/* Assets section */}
       <div className="flex-grow pt-4 pb-4 flex flex-col overflow-hidden">
         {activeIndex === 0 ? (
-          <h3 className="text-h4 text-white font-bold px-4 text-left">Holdings</h3>
+          <h3 className="text-h4 text-white font-bold px-4 text-left flex items-center">
+            <span className="flex-1">Holdings</span>
+            <div className="flex-1 flex justify-end">
+              {/* TODO: add functionality */}
+              <Sort width={20} className="text-white" />
+            </div>
+          </h3>
         ) : (
           <h3 className="text-h4 text-white font-bold px-4 text-left flex items-center">
             <span className="flex-1">Validators</span>

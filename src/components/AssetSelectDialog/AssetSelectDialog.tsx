@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, SlideTray } from '@/ui-kit';
+import { SlideTray } from '@/ui-kit';
 import { TileScroller } from '../TileScroller';
-import { LogoIcon } from '@/assets/icons';
+import { LogoIcon, Sort } from '@/assets/icons';
 import { Asset } from '@/types';
 
 interface AssetSelectDialogProps {
@@ -32,9 +32,13 @@ export const AssetSelectDialog: React.FC<AssetSelectDialogProps> = ({
       <div className="flex flex-col items-center space-y-2">
         {/* Flex container for Tap to Select and Selected on the same line */}
         <div className="flex justify-between items-center w-full px-2">
-          <div className="text-sm">Tap to select</div>
-          <div className="text-sm">
+          <div className="text-sm flex w-[5rem]">Tap to select</div>
+          <div className="text-sm flex-1 text-center">
             Selected: <span className="text-blue">{selectedAsset?.symbol || 'None'}</span>
+          </div>
+          <div className="flex justify-end w-[5rem]">
+            {/* TODO: add functionality */}
+            <Sort width={20} className="text-white" />
           </div>
         </div>
 
@@ -51,11 +55,6 @@ export const AssetSelectDialog: React.FC<AssetSelectDialogProps> = ({
               onSelectAsset={onClick}
             />
           </div>
-        </div>
-
-        {/* Confirm button */}
-        <div className="w-full mt-2">
-          <Button className="w-full">Confirm</Button>
         </div>
       </div>
     </SlideTray>
