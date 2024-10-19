@@ -158,10 +158,11 @@ export const Send = () => {
           <p>0.0004 MLD</p>
         </div>
 
-        {/* TODO: add separator over this button */}
-        {/* TODO: move fee to just above send button */}
-        {/* Send Button */}
-        <div className="mt-4">
+        {/* Separator */}
+        <div className="mt-2">
+          <Separator variant="top" />
+
+          {/* Send Button */}
           <Button className="w-full" onClick={handleSend}>
             Send
           </Button>
