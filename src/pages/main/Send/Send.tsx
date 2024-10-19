@@ -8,11 +8,8 @@ import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { Asset } from '@/types';
 import { getSessionToken, sendTransaction, swapTransaction } from '@/helpers';
-import { AssetSelectDialog } from '@/components/AssetSelectDialog';
+import { AssetSelectDialog, WalletSuccessScreen } from '@/components';
 
-// TODO: add account selection after saving accounts
-// const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
-// const avatarUrl = chrome?.runtime?.getURL('avatar.png');
 export const Send = () => {
   const location = useLocation();
   const selectedSendAsset = location.state?.selectedSendAsset;
@@ -24,6 +21,7 @@ export const Send = () => {
   const [receiveAsset, setReceiveAsset] = useState<Asset | null>(null);
   const [sendAmount, setSendAmount] = useState('1');
   const [receiveAmount, setReceiveAmount] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSend = async () => {
     console.log('Handling send...');
@@ -49,17 +47,25 @@ export const Send = () => {
 
     try {
       if (sendAsset === receiveAsset) {
-        // TODO: change gas and fee calculations
-        // TODO: show max and min for gas fees, show actual amount taken for transaction fee.  from simulated send?
-        sendTransaction(walletState.address, sendObject);
+        // Send transaction
+        await sendTransaction(walletState.address, sendObject);
+        // Set success state to true after transaction
+        setIsSuccess(true);
       } else if (receiveAsset) {
+        // Swap transaction
         const swapObject = { sendObject, resultDenom: receiveAsset.denom };
-        swapTransaction(walletState.address, swapObject);
+        await swapTransaction(walletState.address, swapObject);
+        // Set success state to true after swap
+        setIsSuccess(true);
       }
     } catch (error) {
       console.error('Error broadcasting transaction', error);
     }
   };
+
+  if (isSuccess) {
+    return <WalletSuccessScreen caption="Transaction success!" />;
+  }
 
   return (
     <div className="h-screen flex flex-col bg-black text-white">
@@ -85,7 +91,6 @@ export const Send = () => {
               <Input
                 variant="primary"
                 placeholder="Wallet Address or ICNS"
-                // TODO: make QRCode functional with drag/drop, file selection, and/or camera access
                 icon={<QRCode width={20} />}
                 value={recipientAddress}
                 onChange={e => setRecipientAddress(e.target.value)}
@@ -119,7 +124,6 @@ export const Send = () => {
 
           {/* Separator with reverse icon */}
           <div className="flex justify-center my-4">
-            {/* TODO: onlick switch send and receive assets, prioritize new send amount for conversion */}
             <Button className="rounded-md h-9 w-9 bg-neutral-3" onClick={() => {}}>
               <Swap />
             </Button>
