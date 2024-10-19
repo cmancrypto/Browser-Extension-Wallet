@@ -27,7 +27,9 @@ export const ValidatorSelectDialog: React.FC<ValidatorSelectDialogProps> = ({
         {/* Conditionally render buttons based on the dialog type */}
         {isClaimDialog ? (
           <div className="grid grid-cols-2 w-full gap-x-4 px-2">
-            <Button className="w-full">To Wallet</Button>
+            <Button variant="secondary" className="w-full">
+              To Wallet
+            </Button>
             <Button className="w-full">To Restake</Button>
           </div>
         ) : (
@@ -54,7 +56,7 @@ export const ValidatorSelectDialog: React.FC<ValidatorSelectDialogProps> = ({
           {/* QR Code Display */}
           <div className="flex-grow w-full max-h-[13.5rem] overflow-y-auto border border-gray-300 rounded-md">
             {/* TODO: within tilescroller, ensure overflow over halfway results in ellipses.  they can click in for more information if needed */}
-            <TileScroller activeIndex={1} />
+            <TileScroller activeIndex={1} addMargin={false} />
           </div>
         </div>
       </div>

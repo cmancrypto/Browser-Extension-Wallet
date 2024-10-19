@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ArrowLeft, LogoIcon, QRCode, Swap } from '@/assets/icons';
+import {
+  ArrowLeft,
+  // LogoIcon,
+  QRCode,
+  Swap,
+} from '@/assets/icons';
 import {
   GREATER_EXPONENT_DEFAULT,
   // LOCAL_ASSET_REGISTRY,
@@ -12,6 +17,7 @@ import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { Asset } from '@/types';
 import { getSessionToken, sendTransaction, swapTransaction } from '@/helpers';
+import { AssetSelectDialog } from '@/components/AssetSelectDialog';
 
 // TODO: add account selection after saving accounts
 // const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
@@ -23,14 +29,8 @@ export const Send = () => {
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
   const [recipientAddress, setRecipientAddress] = useState('');
-  const [
-    sendAsset,
-    // setSendAsset
-  ] = useState<Asset | null>(selectedSendAsset || null);
-  const [
-    receiveAsset,
-    // setReceiveAsset
-  ] = useState<Asset | null>(null);
+  const [sendAsset, setSendAsset] = useState<Asset | null>(selectedSendAsset || null);
+  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(null);
   const [sendAmount, setSendAmount] = useState('1');
   const [receiveAmount, setReceiveAmount] = useState('');
 
@@ -94,10 +94,10 @@ export const Send = () => {
               <Input
                 variant="primary"
                 placeholder="Wallet Address or ICNS"
+                // TODO: make QRCode functional with drag/drop, file selection, and/or camera access
                 icon={<QRCode width={20} />}
                 value={recipientAddress}
                 onChange={e => setRecipientAddress(e.target.value)}
-                // iconPosition="left"
                 className="text-white w-full"
               />
             </div>
@@ -110,21 +110,17 @@ export const Send = () => {
           <div className="flex items-center mb-4 space-x-2">
             <label className="text-sm text-neutral-1 whitespace-nowrap">Sending:</label>
             <div className="flex-grow">
-              {/* TODO: ensure asset change works on this image */}
               <Input
                 variant="primary"
                 value={sendAmount}
                 onChange={e => setSendAmount(e.target.value)}
                 icon={
-                  <div className="rounded-full h-7 w-7 bg-neutral-2 p-1 flex items-center justify-center">
-                    {sendAsset && sendAsset?.logo ? (
-                      <img src={sendAsset.logo} alt={sendAsset.symbol || 'Unknown Asset'} />
-                    ) : (
-                      <LogoIcon />
-                    )}
-                  </div>
+                  <AssetSelectDialog
+                    selectedAsset={sendAsset}
+                    isSendDialog={true}
+                    onClick={setSendAsset}
+                  />
                 }
-                // iconPosition="left"
                 className={cn('p-2.5 text-white border border-neutral-2 rounded-md w-full h-10')}
               />
             </div>
@@ -132,7 +128,7 @@ export const Send = () => {
 
           {/* Separator with reverse icon */}
           <div className="flex justify-center my-4">
-            {/* TODO: switch send and receive assets, prioritize new send amount for conversion */}
+            {/* TODO: onlick switch send and receive assets, prioritize new send amount for conversion */}
             <Button className="rounded-md h-9 w-9 bg-neutral-3" onClick={() => {}}>
               <Swap />
             </Button>
@@ -142,21 +138,17 @@ export const Send = () => {
           <div className="flex items-center mb-4 space-x-2">
             <label className="text-sm text-neutral-1 whitespace-nowrap">Receiving:</label>
             <div className="flex-grow">
-              {/* TODO: ensure asset change works on this image */}
               <Input
                 variant="primary"
                 value={receiveAmount}
                 onChange={e => setReceiveAmount(e.target.value)}
                 icon={
-                  <div className="rounded-full h-7 w-7 bg-neutral-2 p-1 flex items-center justify-center">
-                    {receiveAsset && receiveAsset.logo ? (
-                      <img src={receiveAsset.logo} alt={receiveAsset.symbol || 'Unknown Asset'} />
-                    ) : (
-                      <LogoIcon />
-                    )}
-                  </div>
+                  <AssetSelectDialog
+                    selectedAsset={receiveAsset}
+                    isSendDialog={false}
+                    onClick={setReceiveAsset}
+                  />
                 }
-                // iconPosition="left"
                 className={cn('p-2.5 text-white border border-neutral-2 rounded-md w-full h-10')}
               />
             </div>

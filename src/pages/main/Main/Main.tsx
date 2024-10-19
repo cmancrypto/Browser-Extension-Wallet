@@ -197,6 +197,7 @@ export const Main = () => {
         ) : (
           <p className="text-base text-neutral-1 px-4">No available assets</p>
         )}
+        <div className="h-4" />
       </div>
     </div>
   );

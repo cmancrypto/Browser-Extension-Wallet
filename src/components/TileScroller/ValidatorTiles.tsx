@@ -8,6 +8,7 @@ import { convertToGreaterUnit, fetchValidators } from '@/helpers';
 
 interface ValidatorTilesProps {
   isSelectable?: boolean;
+  addMargin?: boolean;
 }
 
 const getValidatorRewards = (validatorAddress: string, rewards: any[]): string => {
@@ -33,7 +34,10 @@ const getValidatorRewards = (validatorAddress: string, rewards: any[]): string =
 // TODO: show some indicator of APY (on all screen)
 // TODO: check for registry symbol where symbol equals denom
 // const denom = validatorReward.rewards[0]?.denom || 'UNKNOWN';
-export const ValidatorTiles: React.FC<ValidatorTilesProps> = ({ isSelectable = false }) => {
+export const ValidatorTiles: React.FC<ValidatorTilesProps> = ({
+  isSelectable = false,
+  addMargin = true,
+}) => {
   const delegations = useAtomValue(delegationAtom);
   const rewards = useAtomValue(rewardsAtom);
   const showCurrentValidators = useAtomValue(showCurrentValidatorsAtom);
@@ -66,6 +70,7 @@ export const ValidatorTiles: React.FC<ValidatorTilesProps> = ({ isSelectable = f
               d => d.delegation.validator_address === validator.operator_address,
             )}
             isSelectable={isSelectable}
+            addMargin={addMargin}
           />
         );
       })}
