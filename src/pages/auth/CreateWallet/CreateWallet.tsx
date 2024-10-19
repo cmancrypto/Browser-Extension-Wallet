@@ -103,7 +103,6 @@ export const CreateWallet = () => {
   // TODO: add fields to let user know when sending over IBC
 
   // TODO: clean up helper functions and hooks
-  // TODO: bring list views out to other screen.  component?
 
   // TODO: abstract wallet prefix and mnemonic decryption
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
