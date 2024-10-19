@@ -1,6 +1,6 @@
 import { osmosis } from '@orchestra-labs/symphonyjs';
 import { incrementErrorCount, performRpcQuery, selectNodeProviders } from './queryNodes';
-import { SwapObject } from '@/types';
+import { SwapObject, TransactionResult } from '@/types';
 import { DELAY_BETWEEN_NODE_ATTEMPTS, MAX_NODES_PER_QUERY } from '@/constants';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { getSigningOsmosisClient } from '@orchestra-labs/symphonyjs';
@@ -59,7 +59,8 @@ const queryWithRetry = async ({
   throw new Error(`All node query attempts failed after ${MAX_NODES_PER_QUERY} attempts.`);
 };
 
-export const swapTransaction = async (fromAddress: string, swapObject: SwapObject) => {
+
+export const swapTransaction = async (fromAddress: string, swapObject: SwapObject): Promise<TransactionResult> => {
   const endpoint = '/cosmos.bank.v1beta1.MsgSend';
 
   const messages = [
@@ -83,13 +84,22 @@ export const swapTransaction = async (fromAddress: string, swapObject: SwapObjec
     });
 
     console.log('Successfully sent:', response);
+    return {
+      success: true,
+      message: 'Swap transaction completed successfully!',
+      data: response,
+    };
   } catch (error) {
-    console.error('Error during send:', error);
+    console.error('Error during swap:', error);
+    return {
+      success: false,
+      message: 'Error processing swap transaction. Please try again.',
+      data: error,
+    };
   }
 };
 
-// TODO: support swapping multiple tramsactons (fee is currently a blocker)
-export const multiSwapTransaction = async (fromAddress: string, swapObjects: SwapObject[]) => {
+export const multiSwapTransaction = async (fromAddress: string, swapObjects: SwapObject[]): Promise<TransactionResult> => {
   const endpoint = '/cosmos.bank.v1beta1.MsgSend';
 
   const messages = swapObjects.map(swapObject =>
@@ -113,8 +123,17 @@ export const multiSwapTransaction = async (fromAddress: string, swapObjects: Swa
     });
 
     console.log('Successfully sent to all recipients:', response);
+    return {
+      success: true,
+      message: 'Multiple swap transactions completed successfully!',
+      data: response,
+    };
   } catch (error) {
-    // TODO: show error to user
-    console.error('Error during sending:', error);
+    console.error('Error during multiple swaps:', error);
+    return {
+      success: false,
+      message: 'Error processing multiple swap transactions. Please try again.',
+      data: error,
+    };
   }
 };
