@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import {
-  ArrowLeft,
-  // LogoIcon,
-  QRCode,
-  Swap,
-} from '@/assets/icons';
-import {
-  GREATER_EXPONENT_DEFAULT,
-  // LOCAL_ASSET_REGISTRY,
-  ROUTES,
-} from '@/constants';
+import { ArrowLeft, QRCode, Swap } from '@/assets/icons';
+import { GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
 import { cn } from '@/helpers/utils';
 import { Button, Input, Separator } from '@/ui-kit';
 import { useAtomValue } from 'jotai';
