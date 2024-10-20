@@ -93,7 +93,12 @@ export const Send = () => {
               <Input
                 variant="primary"
                 placeholder="Wallet Address or ICNS"
-                icon={<QRCode width={20} />}
+                icon={
+                  <QRCode
+                    className="h-7 w-7 text-neutral-1 hover:bg-blue-hover hover:text-blue-dark cursor-pointer"
+                    width={20}
+                  />
+                }
                 value={recipientAddress}
                 onChange={e => setRecipientAddress(e.target.value)}
                 className="text-white w-full"
