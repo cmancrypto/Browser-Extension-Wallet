@@ -25,14 +25,10 @@ export const Send = () => {
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
   const [recipientAddress, setRecipientAddress] = useState('');
-  const [
-    sendAsset,
-    // setSendAsset
-  ] = useState<Asset | null>(selectedSendAsset || null);
-  const [
-    receiveAsset,
-    // setReceiveAsset
-  ] = useState<Asset | null>(null);
+  const [sendAsset, 
+    //setSendAsset
+    ]= useState<Asset | null>(selectedSendAsset || null);
+  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(null);
   const [sendAmount, setSendAmount] = useState('1');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -47,6 +43,13 @@ export const Send = () => {
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+
+  useEffect(() => {
+    if (sendAsset && !receiveAsset) {
+      setReceiveAsset(sendAsset);
+    }
+  }, [sendAsset, receiveAsset]);
 
   const handleSend = async () => {
     console.log('Handling send...');
