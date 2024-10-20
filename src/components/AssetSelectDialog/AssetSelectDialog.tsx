@@ -3,6 +3,7 @@ import { SlideTray } from '@/ui-kit';
 import { TileScroller } from '../TileScroller';
 import { LogoIcon, Sort } from '@/assets/icons';
 import { Asset } from '@/types';
+import { cn } from '@/helpers';
 
 interface AssetSelectDialogProps {
   selectedAsset: Asset | null;
@@ -18,7 +19,11 @@ export const AssetSelectDialog: React.FC<AssetSelectDialogProps> = ({
   return (
     <SlideTray
       triggerComponent={
-        <div className="rounded-full h-7 w-7 bg-neutral-2 p-1 flex items-center justify-center hover:bg-blue-hover hover:text-blue-dark cursor-pointer">
+        <div
+          className={cn(
+            `rounded-full h-7 w-7 bg-neutral-2 ${selectedAsset && selectedAsset.logo ? '' : 'p-1'} flex items-center justify-center hover:bg-blue-hover hover:text-blue-dark cursor-pointer`,
+          )}
+        >
           {selectedAsset && selectedAsset.logo ? (
             <img src={selectedAsset.logo} alt={selectedAsset.symbol || 'Unknown Asset'} />
           ) : (

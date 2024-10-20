@@ -104,3 +104,5 @@ export const LOCAL_ASSET_REGISTRY: AssetRegistry = {
     exponent: GREATER_EXPONENT_DEFAULT,
   },
 };
+
+export const DEFAULT_ASSET = LOCAL_ASSET_REGISTRY.note;

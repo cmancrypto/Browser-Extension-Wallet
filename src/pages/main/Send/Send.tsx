@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ArrowLeft, QRCode, Swap } from '@/assets/icons';
-import { GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
+import { DEFAULT_ASSET, GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
 import { cn } from '@/helpers/utils';
 import { Button, Input, Separator } from '@/ui-kit';
 import { useAtomValue } from 'jotai';
@@ -17,8 +17,10 @@ export const Send = () => {
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
   const [recipientAddress, setRecipientAddress] = useState('');
-  const [sendAsset, setSendAsset] = useState<Asset | null>(selectedSendAsset || null);
-  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(null);
+  const [sendAsset, setSendAsset] = useState<Asset | null>(selectedSendAsset || DEFAULT_ASSET);
+  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(
+    selectedSendAsset || DEFAULT_ASSET,
+  );
   const [sendAmount, setSendAmount] = useState('1');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
