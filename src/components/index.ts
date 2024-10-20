@@ -1,4 +1,5 @@
 export * from './AssetScrollTile';
+export * from './AssetSelectDialog';
 export * from './BalanceCard';
 export * from './ConnectedServicesDialog';
 export * from './CreatePasswordForm';

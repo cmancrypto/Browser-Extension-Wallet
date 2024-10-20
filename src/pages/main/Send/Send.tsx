@@ -1,23 +1,16 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ArrowLeft, LogoIcon, QRCode, Swap } from '@/assets/icons';
-import {
-  GREATER_EXPONENT_DEFAULT,
-  // LOCAL_ASSET_REGISTRY,
-  ROUTES,
-} from '@/constants';
+import { ArrowLeft, QRCode, Swap } from '@/assets/icons';
+import { DEFAULT_ASSET, GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
 import { cn } from '@/helpers/utils';
 import { Button, Input, Separator } from '@/ui-kit';
 import { useAtomValue } from 'jotai';
 import { walletStateAtom } from '@/atoms';
 import { Asset, TransactionResult } from '@/types';
 import { getSessionToken, sendTransaction, swapTransaction} from '@/helpers';
+import { AssetSelectDialog, WalletSuccessScreen } from '@/components';
 
 
-
-// TODO: add account selection after saving accounts
-// const SELECT_ACCOUNT = [{ id: 'account1', name: 'MLD', balance: '1504 MLD' }];
-// const avatarUrl = chrome?.runtime?.getURL('avatar.png');
 export const Send = () => {
   const location = useLocation();
   const selectedSendAsset = location.state?.selectedSendAsset;
@@ -25,14 +18,10 @@ export const Send = () => {
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
   const [recipientAddress, setRecipientAddress] = useState('');
-  const [
-    sendAsset,
-    // setSendAsset
-  ] = useState<Asset | null>(selectedSendAsset || null);
-  const [
-    receiveAsset,
-    // setReceiveAsset
-  ] = useState<Asset | null>(null);
+  const [sendAsset, setSendAsset] = useState<Asset | null>(selectedSendAsset || DEFAULT_ASSET);
+  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(
+    selectedSendAsset || DEFAULT_ASSET,
+  );
   const [sendAmount, setSendAmount] = useState('1');
   const [receiveAmount, setReceiveAmount] = useState('');
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -47,6 +36,8 @@ export const Send = () => {
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSend = async () => {
     console.log('Handling send...');
@@ -76,9 +67,13 @@ export const Send = () => {
         result = await sendTransaction(walletState.address, sendObject);
         // TODO: change gas and fee calculations
         // TODO: show max and min for gas fees, show actual amount taken for transaction fee.  from simulated send?
+        // Set success state to true after transaction
+        setIsSuccess(true);
       } else if (receiveAsset) {
+        // Swap transaction
         const swapObject = { sendObject, resultDenom: receiveAsset.denom };
         result = await swapTransaction(walletState.address, swapObject);
+                setIsSuccess(true);
       } else {
         throw new Error('Invalid asset configuration');
       }
@@ -100,6 +95,10 @@ export const Send = () => {
     }
   };
   
+
+  if (isSuccess) {
+    return <WalletSuccessScreen caption="Transaction success!" />;
+  }
 
   return (
     <div className="h-screen flex flex-col bg-black text-white">
@@ -125,10 +124,14 @@ export const Send = () => {
               <Input
                 variant="primary"
                 placeholder="Wallet Address or ICNS"
-                icon={<QRCode width={20} />}
+                icon={
+                  <QRCode
+                    className="h-7 w-7 text-neutral-1 hover:bg-blue-hover hover:text-blue-dark cursor-pointer"
+                    width={20}
+                  />
+                }
                 value={recipientAddress}
                 onChange={e => setRecipientAddress(e.target.value)}
-                // iconPosition="left"
                 className="text-white w-full"
               />
             </div>
@@ -141,21 +144,17 @@ export const Send = () => {
           <div className="flex items-center mb-4 space-x-2">
             <label className="text-sm text-neutral-1 whitespace-nowrap">Sending:</label>
             <div className="flex-grow">
-              {/* TODO: ensure asset change works on this image */}
               <Input
                 variant="primary"
                 value={sendAmount}
                 onChange={e => setSendAmount(e.target.value)}
                 icon={
-                  <div className="rounded-full h-7 w-7 bg-neutral-2 p-1 flex items-center justify-center">
-                    {sendAsset && sendAsset?.logo ? (
-                      <img src={sendAsset.logo} alt={sendAsset.symbol || 'Unknown Asset'} />
-                    ) : (
-                      <LogoIcon />
-                    )}
-                  </div>
+                  <AssetSelectDialog
+                    selectedAsset={sendAsset}
+                    isSendDialog={true}
+                    onClick={setSendAsset}
+                  />
                 }
-                // iconPosition="left"
                 className={cn('p-2.5 text-white border border-neutral-2 rounded-md w-full h-10')}
               />
             </div>
@@ -163,7 +162,6 @@ export const Send = () => {
 
           {/* Separator with reverse icon */}
           <div className="flex justify-center my-4">
-            {/* TODO: switch send and receive assets, prioritize new send amount for conversion */}
             <Button className="rounded-md h-9 w-9 bg-neutral-3" onClick={() => {}}>
               <Swap />
             </Button>
@@ -173,21 +171,17 @@ export const Send = () => {
           <div className="flex items-center mb-4 space-x-2">
             <label className="text-sm text-neutral-1 whitespace-nowrap">Receiving:</label>
             <div className="flex-grow">
-              {/* TODO: ensure asset change works on this image */}
               <Input
                 variant="primary"
                 value={receiveAmount}
                 onChange={e => setReceiveAmount(e.target.value)}
                 icon={
-                  <div className="rounded-full h-7 w-7 bg-neutral-2 p-1 flex items-center justify-center">
-                    {receiveAsset && receiveAsset.logo ? (
-                      <img src={receiveAsset.logo} alt={receiveAsset.symbol || 'Unknown Asset'} />
-                    ) : (
-                      <LogoIcon />
-                    )}
-                  </div>
+                  <AssetSelectDialog
+                    selectedAsset={receiveAsset}
+                    isSendDialog={false}
+                    onClick={setReceiveAsset}
+                  />
                 }
-                // iconPosition="left"
                 className={cn('p-2.5 text-white border border-neutral-2 rounded-md w-full h-10')}
               />
             </div>
@@ -202,10 +196,11 @@ export const Send = () => {
           <p>0.0004 MLD</p>
         </div>
 
-        {/* TODO: add separator over this button */}
-        {/* TODO: move fee to just above send button */}
-        {/* Send Button */}
-        <div className="mt-4">
+        {/* Separator */}
+        <div className="mt-2">
+          <Separator variant="top" />
+
+          {/* Send Button */}
           <Button className="w-full" onClick={handleSend}>
             Send
           </Button>

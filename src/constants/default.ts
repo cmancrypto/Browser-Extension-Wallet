@@ -36,7 +36,13 @@ export const CHAIN_NODES = {
 };
 export const CHAIN_ENDPOINTS = {
   getBalance: '/cosmos/bank/v1beta1/balances/',
+  getDelegations: '/cosmos/staking/v1beta1/delegations/',
+  getValidators: '/cosmos/staking/v1beta1/validators',
   getIBCInfo: '/ibc/apps/transfer/v1/denom_traces/',
+  claimRewards: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+  delegateToValidator: '/cosmos.staking.v1beta1.MsgDelegate',
+  undelegateFromValidator: '/cosmos.staking.v1beta1.MsgUndelegate',
+  sendMessage: '/cosmos.bank.v1beta1.MsgSend',
 };
 
 // Time constants
@@ -104,3 +110,5 @@ export const LOCAL_ASSET_REGISTRY: AssetRegistry = {
     exponent: GREATER_EXPONENT_DEFAULT,
   },
 };
+
+export const DEFAULT_ASSET = LOCAL_ASSET_REGISTRY.note;

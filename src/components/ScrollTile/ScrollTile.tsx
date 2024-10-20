@@ -1,5 +1,5 @@
 import { LogoIcon } from '@/assets/icons';
-import { selectTextColorByStatus } from '@/helpers';
+import { cn, selectTextColorByStatus } from '@/helpers';
 
 interface ScrollTileProps {
   title: string;
@@ -8,6 +8,7 @@ interface ScrollTileProps {
   icon?: React.ReactNode;
   status?: 'error' | 'warn' | 'good';
   selected?: boolean;
+  addMargin?: boolean;
   onClick?: () => void;
 }
 
@@ -18,6 +19,7 @@ export const ScrollTile = ({
   icon,
   status = 'good',
   selected = false,
+  addMargin = true,
   onClick,
 }: ScrollTileProps) => {
   const textColor = selectTextColorByStatus(status);
@@ -25,7 +27,9 @@ export const ScrollTile = ({
 
   return (
     <div
-      className={`mx-4 py-2 min-h-[52px] flex items-center cursor-pointer border ${borderClass}`}
+      className={cn(
+        `${addMargin ? 'mx-4' : ''} p-2 min-h-[52px] flex items-center cursor-pointer border ${borderClass}`,
+      )}
       onClick={onClick}
     >
       <div className="rounded-full h-9 w-9 bg-neutral-2 p-1 flex items-center justify-center">

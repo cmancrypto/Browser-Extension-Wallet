@@ -95,16 +95,16 @@ export const CreateWallet = () => {
   }, [use24Words]);
 
   /* Current TODOs */
-  // TODO: add slide tray for asset selections (like on mobile)
-  // TODO: after send, navigate to congratulations page
-  // TODO: provide updates to user as send information updates (errors, success, and changing gas fees)
+  // TODO: provide updates to user as staking, claim, and unstaking information changes (successes, errors, and changing gas fees)
+
+  // TODO: change receiving asset with sending asset until receive asset is changed through saved wallet or directly
+  // TODO: provide updates to user as send information updates (errors and changing gas fees)
   // TODO: add mock max amount placeholder to amount sections (send and validator)
   // TODO: add clear and max buttons to amount section
   // TODO: check format of entered address for send field
   // TODO: add fields to let user know when sending over IBC
 
   // TODO: clean up helper functions and hooks
-  // TODO: bring list views out to other screen.  component?
 
   // TODO: abstract wallet prefix and mnemonic decryption
   // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors

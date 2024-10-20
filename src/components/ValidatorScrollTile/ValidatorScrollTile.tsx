@@ -21,6 +21,7 @@ interface ValidatorScrollTileProps {
   delegation?: DelegationResponse;
   reward?: string;
   isSelectable?: boolean;
+  addMargin?: boolean;
 }
 
 export const ValidatorScrollTile = ({
@@ -28,6 +29,7 @@ export const ValidatorScrollTile = ({
   delegation,
   reward,
   isSelectable = false,
+  addMargin = true,
 }: ValidatorScrollTileProps) => {
   const [selectedAction, setSelectedAction] = useState<'stake' | 'unstake' | 'claim' | null>(
     // TODO: fix this not coming in on "all" page
@@ -75,6 +77,7 @@ export const ValidatorScrollTile = ({
           value={rewardAmount}
           icon={<LogoIcon />}
           status={statusColor}
+          addMargin={addMargin}
         />
       ) : (
         <SlideTray
@@ -86,6 +89,7 @@ export const ValidatorScrollTile = ({
                 value={rewardAmount}
                 icon={<LogoIcon />}
                 status={statusColor}
+                addMargin={addMargin}
               />
             </div>
           }
@@ -141,14 +145,18 @@ export const ValidatorScrollTile = ({
           {/* Action Selection */}
           {delegation && (
             <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
-              <Button className="w-full" onClick={() => setSelectedAction('claim')}>
-                Claim
-              </Button>
               <Button className="w-full" onClick={() => setSelectedAction('stake')}>
                 Stake
               </Button>
-              <Button className="w-full" onClick={() => setSelectedAction('unstake')}>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => setSelectedAction('unstake')}
+              >
                 Unstake
+              </Button>
+              <Button className="w-full" onClick={() => setSelectedAction('claim')}>
+                Claim
               </Button>
             </div>
           )}
@@ -189,8 +197,9 @@ export const ValidatorScrollTile = ({
 
             {/* Claim Action */}
             {selectedAction === 'claim' && (
-              <div className="flex flex-col items-center justify-center grid grid-cols-2 gap-4">
+              <div className="flex flex-col items-center justify-center grid grid-cols-2 gap-4 mt-[1.5rem]">
                 <Button
+                  variant="secondary"
                   className="w-full"
                   onClick={() =>
                     // TODO: update this entry in the validator list after completion (fix timing first.  can extract update function from that)

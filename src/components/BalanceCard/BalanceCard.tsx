@@ -30,16 +30,16 @@ export const BalanceCard = ({
       <div className="grid grid-cols-2 w-full gap-x-4 px-2">
         {currentStep === 0 && (
           <>
-            <ReceiveDialog />
             <Button className={'w-full'} asChild>
               <NavLink to={ROUTES.APP.SEND}>Send</NavLink>
             </Button>
+            <ReceiveDialog />
           </>
         )}
         {currentStep === 1 && (
           <>
-            <ValidatorSelectDialog buttonText="Claim" isClaimDialog />
             <ValidatorSelectDialog buttonText="Unstake" buttonVariant="secondary" />
+            <ValidatorSelectDialog buttonText="Claim" isClaimDialog />
           </>
         )}
       </div>
