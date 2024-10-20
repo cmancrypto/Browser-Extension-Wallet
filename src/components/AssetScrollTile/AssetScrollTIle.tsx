@@ -10,14 +10,27 @@ import { swiperIndexState } from '@/atoms/';
 interface AssetScrollTileProps {
   asset: Asset;
   isSelectable?: boolean;
+  addMargin?: boolean;
+  onClick?: (asset: Asset) => void;
 }
 
-export const AssetScrollTile = ({ asset, isSelectable = false }: AssetScrollTileProps) => {
+export const AssetScrollTile = ({
+  asset,
+  isSelectable = false,
+  addMargin = true,
+  onClick,
+}: AssetScrollTileProps) => {
   const setActiveIndex = useSetAtom(swiperIndexState);
 
   const title = asset.symbol || 'Unknown Asset';
   const value = `${asset.amount} ${asset.symbol}`;
   const logo = asset.logo;
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick(asset);
+    }
+  };
 
   return (
     <>
@@ -27,6 +40,8 @@ export const AssetScrollTile = ({ asset, isSelectable = false }: AssetScrollTile
           subtitle="Symphony"
           value={value}
           icon={<img src={logo} alt={title} />}
+          addMargin={addMargin}
+          onClick={handleClick}
         />
       ) : (
         <SlideTray
@@ -37,6 +52,7 @@ export const AssetScrollTile = ({ asset, isSelectable = false }: AssetScrollTile
                 subtitle="Symphony"
                 value={value}
                 icon={<img src={logo} alt={title} />}
+                addMargin={addMargin}
               />
             </div>
           }

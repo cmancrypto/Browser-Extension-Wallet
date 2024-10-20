@@ -1,5 +1,6 @@
 import { DelegationResponse, ValidatorInfo } from '@/types';
 import { queryRestNode } from './queryNodes';
+import { CHAIN_ENDPOINTS } from '@/constants';
 
 // Fetch delegations (staked assets) from either the REST or RPC endpoint
 export const fetchDelegations = async (
@@ -7,11 +8,11 @@ export const fetchDelegations = async (
   validatorAddress?: string,
 ): Promise<{ delegations: DelegationResponse[]; pagination: any }> => {
   try {
-    let endpoint = `/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
+    let endpoint = `${CHAIN_ENDPOINTS.getDelegations}${delegatorAddress}`;
 
     // If a validatorAddress is provided, modify the endpoint to fetch delegation for that specific validator
     if (validatorAddress) {
-      endpoint = `/cosmos/staking/v1beta1/delegators/${delegatorAddress}/delegations/${validatorAddress}`;
+      endpoint = `${CHAIN_ENDPOINTS.getDelegations}${delegatorAddress}/delegations/${validatorAddress}`;
     }
 
     console.log(
@@ -51,7 +52,7 @@ export const fetchAllValidators = async (bondStatus?: BondStatus): Promise<Valid
   
   do {
     try {
-      let endpoint = `/cosmos/staking/v1beta1/validators?pagination.key=${encodeURIComponent(nextKey || '')}`;;
+      let endpoint = `${CHAIN_ENDPOINTS.getValidators}?pagination.key=${encodeURIComponent(nextKey || '')}`;
       if (bondStatus) {
         endpoint += `&status=${bondStatus}`;
       }
@@ -81,7 +82,7 @@ export const fetchValidators = async (
 ): Promise<{ validators: ValidatorInfo[]; pagination: any }> => {
   try {
     if (validatorAddress) {
-      const endpoint = `/cosmos/staking/v1beta1/validators/${validatorAddress}`;
+      let endpoint = `${CHAIN_ENDPOINTS.getValidators}${validatorAddress}`;
       console.log('Fetching validator info for:', validatorAddress);
       const response = await queryRestNode({ endpoint });
       console.log('Validator response:', response);

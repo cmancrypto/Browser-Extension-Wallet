@@ -1,3 +1,4 @@
+import { CHAIN_ENDPOINTS } from '@/constants';
 import { queryRpcNode } from './queryNodes';
 import { DelegationResponse } from '@/types';
 
@@ -46,7 +47,7 @@ export const claimRewardsFromValidator = async (
   delegatorAddress: string,
   validatorAddress: string,
 ) => {
-  const endpoint = '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
+  const endpoint = CHAIN_ENDPOINTS.claimRewards;
   const messages = buildClaimMessage({
     endpoint,
     delegatorAddress,
@@ -70,7 +71,7 @@ export const claimRewardsFromValidator = async (
 export const claimAndRestake = async (delegation: DelegationResponse) => {
   const delegatorAddress = delegation.delegation.delegator_address;
   const validatorAddress = delegation.delegation.validator_address;
-  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+  const endpoint = CHAIN_ENDPOINTS.delegateToValidator;
 
   const messages = buildClaimMessage({
     endpoint,
@@ -96,7 +97,7 @@ export const claimRewardsFromAllValidators = async (
   delegatorAddress: string,
   validatorAddress: string[],
 ) => {
-  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+  const endpoint = CHAIN_ENDPOINTS.delegateToValidator;
 
   const messages = buildClaimMessage({
     endpoint,
@@ -106,7 +107,7 @@ export const claimRewardsFromAllValidators = async (
 
   try {
     const response = await queryRpcNode({
-      endpoint: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+      endpoint: CHAIN_ENDPOINTS.claimRewards,
       messages,
     });
 
@@ -118,7 +119,7 @@ export const claimRewardsFromAllValidators = async (
 
 // Function to claim rewards from all validators and restake to designated validators
 export const claimAndRestakeAll = async (delegations: DelegationResponse[]) => {
-  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+  const endpoint = CHAIN_ENDPOINTS.delegateToValidator;
   const delegatorAddress = delegations[0]?.delegation.delegator_address;
   const validatorAddresses = delegations.map(d => d.delegation.validator_address);
 
@@ -152,7 +153,7 @@ export const stakeToValidator = async (
   walletAddress: string,
   validatorAddress: string,
 ) => {
-  const endpoint = '/cosmos.staking.v1beta1.MsgDelegate';
+  const endpoint = CHAIN_ENDPOINTS.delegateToValidator;
   const messages = buildClaimMessage({
     endpoint,
     delegatorAddress: walletAddress,
@@ -164,7 +165,7 @@ export const stakeToValidator = async (
   try {
     try {
       const response = await queryRpcNode({
-        endpoint: '/cosmos.staking.v1beta1.MsgDelegate',
+        endpoint,
         messages,
       });
 
@@ -179,7 +180,7 @@ export const stakeToValidator = async (
 
 // TODO: if maximum amount is unstaked, also withdraw rewards
 export const unstakeFromValidator = async (amount: string, delegation: DelegationResponse) => {
-  const endpoint = '/cosmos.staking.v1beta1.MsgUndelegate';
+  const endpoint = CHAIN_ENDPOINTS.undelegateFromValidator;
   const delegatorAddress = delegation.delegation.delegator_address;
   const validatorAddress = delegation.delegation.validator_address;
   const denom = delegation.balance.denom;
@@ -194,7 +195,7 @@ export const unstakeFromValidator = async (amount: string, delegation: Delegatio
 
   try {
     const response = await queryRpcNode({
-      endpoint: '/cosmos.staking.v1beta1.MsgUndelegate',
+      endpoint,
       messages,
     });
 
@@ -205,7 +206,7 @@ export const unstakeFromValidator = async (amount: string, delegation: Delegatio
 };
 
 export const unstakeFromAllValidators = async (delegations: DelegationResponse[]) => {
-  const endpoint = '/cosmos.staking.v1beta1.MsgUndelegate';
+  const endpoint = CHAIN_ENDPOINTS.undelegateFromValidator;
 
   const messages = buildClaimMessage({
     endpoint,
