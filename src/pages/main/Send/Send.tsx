@@ -1,51 +1,70 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ArrowLeft, QRCode, Swap } from '@/assets/icons';
+import { ArrowLeft, Spinner, Swap } from '@/assets/icons';
 import { DEFAULT_ASSET, GREATER_EXPONENT_DEFAULT, ROUTES } from '@/constants';
-import { cn } from '@/helpers/utils';
-import { Button, Input, Separator } from '@/ui-kit';
-import { useAtomValue } from 'jotai';
-import { walletStateAtom } from '@/atoms';
+import { Button, Separator } from '@/ui-kit';
+import { useAtom, useAtomValue } from 'jotai';
+import {
+  callbackChangeMapAtom,
+  changeMapAtom,
+  recipientAddressAtom,
+  receiveStateAtom,
+  sendStateAtom,
+  walletStateAtom,
+} from '@/atoms';
 import { Asset } from '@/types';
-import { getSessionToken, sendTransaction, swapTransaction } from '@/helpers';
-import { AssetSelectDialog, WalletSuccessScreen } from '@/components';
+import { sendTransaction, swapTransaction } from '@/helpers';
+import { WalletSuccessScreen } from '@/components';
+import { loadingAtom } from '@/atoms/loadingAtom';
+import { useExchangeRate } from '@/hooks/';
+import { AssetInput } from './AssetInput';
+import { AddressInput } from './AddressInput';
 
 export const Send = () => {
   const location = useLocation();
-  const selectedSendAsset = location.state?.selectedSendAsset;
+  const selectedSendAsset = location.state?.selectedSendAsset || DEFAULT_ASSET;
 
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
-  const [recipientAddress, setRecipientAddress] = useState('');
-  const [sendAsset, setSendAsset] = useState<Asset | null>(selectedSendAsset || DEFAULT_ASSET);
-  const [receiveAsset, setReceiveAsset] = useState<Asset | null>(
-    selectedSendAsset || DEFAULT_ASSET,
-  );
-  const [sendAmount, setSendAmount] = useState('1');
-  const [receiveAmount, setReceiveAmount] = useState('');
+  const [sendState, setSendState] = useAtom(sendStateAtom);
+  const [receiveState, setReceiveState] = useAtom(receiveStateAtom);
+  const [changeMap, setChangeMap] = useAtom(changeMapAtom);
+  const [callbackChangeMap, setCallbackChangeMap] = useAtom(callbackChangeMapAtom);
+  const [isLoading, setLoading] = useAtom(loadingAtom);
+  const recipientAddress = useAtomValue(recipientAddressAtom);
+
+  const { exchangeRate } = useExchangeRate();
+
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // TODO: write and enable function
+  // const checkTransactionType = () => {
+  // regular transaction
+  // swap transaction
+  // ibc (cross-chain transaction)
+  // ibc and swap transaction (change both asset and chain)
+  // };
+
   const handleSend = async () => {
-    console.log('Handling send...');
-    const sessionToken = getSessionToken();
-    console.log('Send page, Session token:', sessionToken);
-    console.log('Send page, Wallet state', walletState);
+    const sendAsset = sendState.asset;
+    const sendAmount = sendState.amount;
+    const receiveAsset = receiveState.asset;
 
     if (!sendAsset) return;
     const assetToSend = walletAssets.find(a => a.denom === sendAsset.denom);
     if (!assetToSend) return;
 
     const adjustedAmount = (
-      parseFloat(sendAmount) * Math.pow(10, assetToSend.exponent || GREATER_EXPONENT_DEFAULT)
+      sendAmount * Math.pow(10, assetToSend.exponent || GREATER_EXPONENT_DEFAULT)
     ).toFixed(0); // No decimals, as this is sending the minor unit, not the greater.
-
-    console.log('Adjusted amount:', adjustedAmount);
 
     const sendObject = {
       recipientAddress,
       amount: adjustedAmount,
       denom: sendAsset.denom,
     };
+
+    setLoading(true);
 
     try {
       if (sendAsset === receiveAsset) {
@@ -63,7 +82,249 @@ export const Send = () => {
     } catch (error) {
       console.error('Error broadcasting transaction', error);
     }
+    // TODO: also put refetch after the stake and unstake functions
+    // TODO: re-apply refetch if helpers are changed into hooks
+    // refetch();
+    setLoading(false);
   };
+
+  const calculateMaxAvailable = (sendAsset: Asset) => {
+    // Find the wallet asset that matches the send asset's denom
+    const walletAsset = walletAssets.find(asset => asset.denom === sendAsset.denom);
+    if (!walletAsset) {
+      return 0;
+    }
+
+    const maxAmount = parseFloat(walletAsset?.amount ?? '0');
+    return maxAmount;
+  };
+
+  const updateSendAsset = (newAsset: Asset, propagateChanges: boolean = false) => {
+    setSendState(prevState => ({
+      ...prevState,
+      asset: {
+        ...newAsset,
+      },
+    }));
+
+    if (propagateChanges) {
+      setChangeMap(prevMap => ({ ...prevMap, sendAsset: true }));
+      setCallbackChangeMap({
+        sendAsset: true,
+        receiveAsset: false,
+        sendAmount: false,
+        receiveAmount: false,
+      });
+    }
+  };
+
+  const updateReceiveAsset = (newAsset: Asset, propagate: boolean = false) => {
+    setReceiveState(prevState => ({
+      ...prevState,
+      asset: {
+        ...newAsset,
+      },
+    }));
+
+    if (propagate) {
+      setChangeMap(prevMap => ({
+        ...prevMap,
+        receiveAsset: true,
+      }));
+      setCallbackChangeMap({
+        sendAsset: false,
+        receiveAsset: true,
+        sendAmount: false,
+        receiveAmount: false,
+      });
+    }
+  };
+
+  const updateSendAmount = (newSendAmount: number, propagateChanges: boolean = false) => {
+    const sendAsset = sendState.asset;
+    if (!sendAsset) {
+      return;
+    }
+
+    const exponent = sendAsset.exponent ?? GREATER_EXPONENT_DEFAULT;
+    const roundedSendAmount = parseFloat(newSendAmount.toFixed(exponent));
+
+    // Update the sendState with the new rounded amount
+    setSendState(prevState => {
+      return {
+        ...prevState,
+        amount: roundedSendAmount,
+      };
+    });
+
+    // Handle propagation of changes if required
+    if (propagateChanges) {
+      setChangeMap(prevMap => ({
+        ...prevMap,
+        sendAmount: true,
+      }));
+
+      setCallbackChangeMap({
+        sendAsset: false,
+        receiveAsset: false,
+        sendAmount: true,
+        receiveAmount: false,
+      });
+    }
+  };
+
+  const updateReceiveAmount = (newReceiveAmount: number, propagateChanges: boolean = false) => {
+    const receiveAsset = receiveState.asset;
+    if (!receiveAsset) return;
+
+    const exponent = receiveAsset.exponent ?? GREATER_EXPONENT_DEFAULT;
+    const roundedReceiveAmount = parseFloat(newReceiveAmount.toFixed(exponent));
+
+    setReceiveState(prevState => ({
+      ...prevState,
+      amount: roundedReceiveAmount,
+    }));
+
+    if (propagateChanges) {
+      setChangeMap(prevMap => ({
+        ...prevMap,
+        receiveAmount: true,
+      }));
+      setCallbackChangeMap({
+        sendAsset: false,
+        receiveAsset: false,
+        sendAmount: false,
+        receiveAmount: true,
+      });
+    }
+  };
+
+  const propagateChanges = (
+    map = changeMap,
+    setMap = setChangeMap,
+    isExchangeRateUpdate = false,
+  ) => {
+    if (map.sendAsset) {
+      const sendAsset = sendState.asset;
+      const sendAmount = sendState.amount;
+
+      if (sendAsset == null) {
+        return;
+      }
+
+      const maxAvailable = calculateMaxAvailable(sendAsset);
+
+      if (sendAmount > maxAvailable) {
+        const newSendAmount = maxAvailable;
+        const newReceiveAmount = newSendAmount * (exchangeRate || 1);
+
+        updateSendAmount(newSendAmount);
+        updateReceiveAmount(newReceiveAmount);
+      } else {
+        const newReceiveAmount = sendAmount * (exchangeRate || 1);
+        updateReceiveAmount(newReceiveAmount);
+      }
+
+      if (!isExchangeRateUpdate) {
+        setMap(prevMap => ({ ...prevMap, sendAsset: false }));
+      }
+    }
+
+    if (map.receiveAsset) {
+      const sendAmount = sendState.amount;
+      const newReceiveAmount = sendAmount * (exchangeRate || 1);
+
+      updateReceiveAmount(newReceiveAmount);
+
+      if (!isExchangeRateUpdate) {
+        setMap(prevMap => ({ ...prevMap, receiveAsset: false }));
+      }
+    }
+
+    if (map.sendAmount) {
+      const sendAsset = sendState.asset;
+
+      if (!sendAsset) {
+        return;
+      }
+
+      const sendAmount = sendState.amount;
+      const maxAvailable = calculateMaxAvailable(sendAsset);
+
+      let verifiedSendAmount = sendAmount > maxAvailable ? maxAvailable : sendAmount;
+
+      if (sendAmount > maxAvailable) {
+        updateSendAmount(maxAvailable);
+        verifiedSendAmount = maxAvailable;
+      }
+
+      const applicableExchangeRate =
+        sendAsset.denom === receiveState.asset?.denom ? 1 : exchangeRate || 1;
+      const newReceiveAmount = verifiedSendAmount * applicableExchangeRate;
+
+      updateReceiveAmount(newReceiveAmount);
+
+      if (!isExchangeRateUpdate) {
+        setMap(prevMap => ({ ...prevMap, sendAmount: false }));
+      }
+    }
+
+    if (map.receiveAmount) {
+      const sendAsset = sendState.asset;
+
+      if (!sendAsset) {
+        return;
+      }
+
+      const receiveAmount = receiveState.amount;
+
+      const applicableExchangeRate =
+        sendAsset.denom === receiveState.asset?.denom ? 1 : 1 / (exchangeRate || 1);
+      let newSendAmount = receiveAmount * applicableExchangeRate;
+
+      const maxAvailable = calculateMaxAvailable(sendAsset);
+
+      if (newSendAmount > maxAvailable) {
+        newSendAmount = maxAvailable;
+        const adjustedReceiveAmount = newSendAmount * (exchangeRate || 1);
+
+        updateSendAmount(newSendAmount);
+        updateReceiveAmount(adjustedReceiveAmount);
+      } else {
+        updateSendAmount(newSendAmount);
+      }
+
+      if (!isExchangeRateUpdate) {
+        setMap(prevMap => ({ ...prevMap, receiveAmount: false }));
+      }
+    }
+  };
+
+  const switchFields = () => {
+    const sendAsset = sendState.asset as Asset;
+    const receiveAsset = receiveState.asset as Asset;
+    const receiveAmount = receiveState.amount;
+
+    if (sendAsset.denom !== receiveAsset.denom) {
+      updateReceiveAsset(sendAsset);
+      updateSendAmount(receiveAmount);
+      updateSendAsset(receiveAsset, true);
+    }
+  };
+
+  useEffect(() => {
+    propagateChanges();
+  }, [changeMap]);
+
+  // Update on late exchangeRate returns
+  useEffect(() => {
+    propagateChanges(callbackChangeMap, setCallbackChangeMap, true);
+  }, [exchangeRate]);
+
+  useEffect(() => {
+    updateSendAsset(selectedSendAsset);
+    updateReceiveAsset(selectedSendAsset);
+  }, [selectedSendAsset]);
 
   if (isSuccess) {
     return <WalletSuccessScreen caption="Transaction success!" />;
@@ -85,77 +346,36 @@ export const Send = () => {
 
       {/* Content container */}
       <div className="flex flex-col justify-between flex-grow p-4 border border-neutral-2 rounded-lg overflow-y-auto">
-        {/* Address Input */}
-        <div className="">
-          <div className="flex items-center mb-4 space-x-2">
-            <label className="text-sm text-neutral-1 whitespace-nowrap">Send to:</label>
-            <div className="flex-grow">
-              <Input
-                variant="primary"
-                placeholder="Wallet Address or ICNS"
-                icon={
-                  <QRCode
-                    className="h-7 w-7 text-neutral-1 hover:bg-blue-hover hover:text-blue-dark cursor-pointer"
-                    width={20}
-                  />
-                }
-                value={recipientAddress}
-                onChange={e => setRecipientAddress(e.target.value)}
-                className="text-white w-full"
-              />
-            </div>
-          </div>
+        <>
+          {/* Address Input */}
+          <AddressInput />
 
           {/* Separator */}
           <Separator variant="top" />
 
           {/* Send Section */}
-          <div className="flex items-center mb-4 space-x-2">
-            <label className="text-sm text-neutral-1 whitespace-nowrap">Sending:</label>
-            <div className="flex-grow">
-              <Input
-                variant="primary"
-                value={sendAmount}
-                onChange={e => setSendAmount(e.target.value)}
-                icon={
-                  <AssetSelectDialog
-                    selectedAsset={sendAsset}
-                    isSendDialog={true}
-                    onClick={setSendAsset}
-                  />
-                }
-                className={cn('p-2.5 text-white border border-neutral-2 rounded-md w-full h-10')}
-              />
-            </div>
-          </div>
+          <AssetInput
+            currentState={sendState}
+            updateAsset={updateSendAsset}
+            updateAmount={updateSendAmount}
+          />
 
           {/* Separator with reverse icon */}
           <div className="flex justify-center my-4">
-            <Button className="rounded-md h-9 w-9 bg-neutral-3" onClick={() => {}}>
+            <Button className="rounded-md h-9 w-9 bg-neutral-3" onClick={switchFields}>
               <Swap />
             </Button>
           </div>
 
           {/* Receive Section */}
-          <div className="flex items-center mb-4 space-x-2">
-            <label className="text-sm text-neutral-1 whitespace-nowrap">Receiving:</label>
-            <div className="flex-grow">
-              <Input
-                variant="primary"
-                value={receiveAmount}
-                onChange={e => setReceiveAmount(e.target.value)}
-                icon={
-                  <AssetSelectDialog
-                    selectedAsset={receiveAsset}
-                    isSendDialog={false}
-                    onClick={setReceiveAsset}
-                  />
-                }
-                className={cn('p-2.5 text-white border border-neutral-2 rounded-md w-full h-10')}
-              />
-            </div>
-          </div>
-        </div>
+          <AssetInput
+            isReceiveInput={true}
+            isDisabled={sendState.asset?.denom === receiveState.asset?.denom}
+            currentState={receiveState}
+            updateAsset={updateReceiveAsset}
+            updateAmount={updateReceiveAmount}
+          />
+        </>
 
         <div className="flex flex-grow" />
 
@@ -170,8 +390,14 @@ export const Send = () => {
           <Separator variant="top" />
 
           {/* Send Button */}
-          <Button className="w-full" onClick={handleSend}>
-            Send
+          <Button className="w-full" onClick={handleSend} disabled={isLoading}>
+            {/* TODO: pick between spinner and loader end ensure classNames are correct */}
+            {isLoading ? <Spinner className="w-5 h-5 text-white animate-spin" /> : 'Send'}
+            {/* {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader backgroundClass="inherit" />
+              </div>
+            )} */}
           </Button>
         </div>
       </div>
