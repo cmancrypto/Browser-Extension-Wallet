@@ -1,5 +1,6 @@
 import { DelegationResponse, ValidatorInfo } from '@/types';
 import { queryRestNode } from './queryNodes';
+import { CHAIN_ENDPOINTS } from '@/constants';
 
 // Fetch delegations (staked assets) from either the REST or RPC endpoint
 export const fetchDelegations = async (
@@ -7,11 +8,11 @@ export const fetchDelegations = async (
   validatorAddress?: string,
 ): Promise<{ delegations: DelegationResponse[]; pagination: any }> => {
   try {
-    let endpoint = `/cosmos/staking/v1beta1/delegations/${delegatorAddress}`;
+    let endpoint = `${CHAIN_ENDPOINTS.getDelegations}${delegatorAddress}`;
 
     // If a validatorAddress is provided, modify the endpoint to fetch delegation for that specific validator
     if (validatorAddress) {
-      endpoint = `/cosmos/staking/v1beta1/delegators/${delegatorAddress}/delegations/${validatorAddress}`;
+      endpoint = `${CHAIN_ENDPOINTS.getDelegations}${delegatorAddress}/delegations/${validatorAddress}`;
     }
 
     console.log(
@@ -47,11 +48,11 @@ export const fetchValidators = async (
   validatorAddress?: string,
 ): Promise<{ validators: ValidatorInfo[]; pagination: any }> => {
   try {
-    let endpoint = `/cosmos/staking/v1beta1/validators`;
+    let endpoint = `${CHAIN_ENDPOINTS.getValidators}`;
 
     // If a specific validatorAddress is provided, modify the endpoint to fetch that validator's info
     if (validatorAddress) {
-      endpoint = `/cosmos/staking/v1beta1/validators/${validatorAddress}`;
+      endpoint = `${CHAIN_ENDPOINTS.getValidators}${validatorAddress}`;
     }
 
     console.log('Fetching validator(s) info for:', validatorAddress || 'all validators');

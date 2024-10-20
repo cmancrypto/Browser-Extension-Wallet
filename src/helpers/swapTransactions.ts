@@ -1,7 +1,7 @@
 import { osmosis } from '@orchestra-labs/symphonyjs';
 import { incrementErrorCount, performRpcQuery, selectNodeProviders } from './queryNodes';
 import { SwapObject } from '@/types';
-import { DELAY_BETWEEN_NODE_ATTEMPTS, MAX_NODES_PER_QUERY } from '@/constants';
+import { CHAIN_ENDPOINTS, DELAY_BETWEEN_NODE_ATTEMPTS, MAX_NODES_PER_QUERY } from '@/constants';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { getSigningOsmosisClient } from '@orchestra-labs/symphonyjs';
 import { delay } from './timer';
@@ -60,7 +60,7 @@ const queryWithRetry = async ({
 };
 
 export const swapTransaction = async (fromAddress: string, swapObject: SwapObject) => {
-  const endpoint = '/cosmos.bank.v1beta1.MsgSend';
+  const endpoint = CHAIN_ENDPOINTS.sendMessage;
 
   const messages = [
     swapSend({
@@ -90,7 +90,7 @@ export const swapTransaction = async (fromAddress: string, swapObject: SwapObjec
 
 // TODO: support swapping multiple tramsactons (fee is currently a blocker)
 export const multiSwapTransaction = async (fromAddress: string, swapObjects: SwapObject[]) => {
-  const endpoint = '/cosmos.bank.v1beta1.MsgSend';
+  const endpoint = CHAIN_ENDPOINTS.sendMessage;
 
   const messages = swapObjects.map(swapObject =>
     swapSend({

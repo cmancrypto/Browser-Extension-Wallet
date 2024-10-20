@@ -1,8 +1,9 @@
+import { CHAIN_ENDPOINTS } from '@/constants';
 import { queryRpcNode } from './queryNodes';
 import { SendObject } from '@/types';
 
 export const sendTransaction = async (fromAddress: string, sendObject: SendObject) => {
-  const endpoint = '/cosmos.bank.v1beta1.MsgSend';
+  const endpoint = CHAIN_ENDPOINTS.sendMessage;
   const messages = [
     {
       typeUrl: endpoint,
@@ -29,7 +30,7 @@ export const sendTransaction = async (fromAddress: string, sendObject: SendObjec
 
 // TODO: suppose sends of multiple different currencies
 export const multiSendTransaction = async (fromAddress: string, sendObjects: SendObject[]) => {
-  const endpoint = '/cosmos.bank.v1beta1.MsgSend';
+  const endpoint = CHAIN_ENDPOINTS.sendMessage;
 
   const messages = sendObjects.map(sendObject => ({
     typeUrl: endpoint,
