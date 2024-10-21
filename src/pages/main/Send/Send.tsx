@@ -24,18 +24,6 @@ export const Send = () => {
   );
   const [sendAmount, setSendAmount] = useState('1');
   const [receiveAmount, setReceiveAmount] = useState('');
-  const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-
-  //alert config for tx success/fail
-  useEffect(() => {
-    if (alert) {
-      const timer = setTimeout(() => {
-        setAlert(null);
-      }, 5000); // Hide alert after 5 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [alert]);
 
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -77,21 +65,11 @@ export const Send = () => {
       } else {
         throw new Error('Invalid asset configuration');
       }
-
-      setAlert({
-        type: result.success ? 'success' : 'error',
-        message: result.message,
-      });
-
       if (!result.success) {
         console.error('Detailed error:', result.data);
       }
     } catch (error) {
       console.error('Error broadcasting transaction', error);
-      setAlert({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
-      });
     }
   };
   
@@ -205,25 +183,6 @@ export const Send = () => {
             Send
           </Button>
         </div>
-
-              {/* Tailwind CSS Alert */}
-      {alert && (
-        <div className={`fixed bottom-4 left-4 right-4 p-4 rounded-md ${
-          alert.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white shadow-lg transition-opacity duration-500 ease-in-out`}>
-          <div className="flex justify-between items-center">
-            <span>{alert.message}</span>
-            <button 
-              onClick={() => setAlert(null)}
-              className="text-white hover:text-gray-200 focus:outline-none"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   </div>
 
