@@ -97,11 +97,7 @@ export const CreateWallet = () => {
   /* Current TODOs */
   // TODO: provide updates to user as staking, claim, and unstaking information changes (successes, errors, and changing gas fees)
 
-  // TODO: change receiving asset with sending asset until receive asset is changed through saved wallet or directly
   // TODO: provide updates to user as send information updates (errors and changing gas fees)
-  // TODO: add mock max amount placeholder to amount sections (send and validator)
-  // TODO: add clear and max buttons to amount section
-  // TODO: check format of entered address for send field
   // TODO: add fields to let user know when sending over IBC
 
   // TODO: clean up helper functions and hooks
