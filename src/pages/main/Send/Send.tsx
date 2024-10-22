@@ -52,7 +52,7 @@ export const Send = () => {
     const sendAmount = sendState.amount;
     const receiveAsset = receiveState.asset;
 
-    if (!sendAsset) return;
+    if (!sendAsset || !receiveAsset) return;
     const assetToSend = walletAssets.find(a => a.denom === sendAsset.denom);
     if (!assetToSend) return;
     const adjustedAmount = (
