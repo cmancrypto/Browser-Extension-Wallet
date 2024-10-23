@@ -108,7 +108,13 @@ export const performRpcQuery = async (
           txHash: error.txHash || 'unknown'
         };
       }
-    }
+      else{
+        return {
+            code: 0,
+            message: "Transaction undetermined - node tx indexer disabled - check transaction manually"
+          }
+        }
+      }
     
     // Re-throw all other errors
     throw error;
