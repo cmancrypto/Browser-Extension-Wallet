@@ -18,14 +18,6 @@ const isIndexerError = (error: any): boolean => {
          error?.message?.includes('indexing is disabled');
 };
 
-//check the transaction
-const isTransactionSuccess = (error: any): boolean => {
-  // Check if the error actually contains a successful transaction
-  return isIndexerError(error) && 
-         error?.message?.includes('code: 0'); // Transaction success code
-};
-
-
 // Select and prioritize node providers based on their error counts
 export const selectNodeProviders = () => {
   const errorCounts = getNodeErrorCounts();
@@ -89,33 +81,21 @@ export const performRpcQuery = async (
         txHash: result.transactionHash,
         gasUsed: result.gasUsed?.toString(),
         gasWanted: result.gasWanted?.toString(),
+        message: 'Transaction success'
       };
     }
 
-    throw new Error('Transaction failed');
+    throw new Error(`Transaction failed with ${result.code}`);
   } catch (error: any) {
     // Check if it's an indexer error but the transaction was actually successful
-    if (error.message?.includes('transaction indexing is disabled')) {
-      // Look for success indicators in the error message
-      const includesSuccessCode = error.message.includes('code: 0') || 
-                                 error.message.includes('"code":0');
-      
-      if (includesSuccessCode) {
-        // Transaction was successful despite indexer error
+    if (isIndexerError(error)) {
         return {
           code: 0,
-          message: 'Transaction submitted successfully (indexer disabled)',
+          message: 'Transaction likely successful (node indexer disabled)',
           txHash: error.txHash || 'unknown'
         };
       }
-      else{
-        return {
-            code: 0,
-            message: "Transaction undetermined - node tx indexer disabled - check transaction manually"
-          }
-        }
-      }
-    
+  
     // Re-throw all other errors
     throw error;
   }
@@ -134,10 +114,8 @@ const queryWithRetry = async ({
   queryType?: 'GET' | 'POST';
   messages?: any[];
   feeDenom: string;
-}): Promise<any> => {
+}): Promise<RPCResponse> => {
   const providers = selectNodeProviders();
-  console.log('Selected node providers:', providers);
-
   let numberAttempts = 0;
   let lastError: any = null;
 
@@ -160,37 +138,13 @@ const queryWithRetry = async ({
 
           const offlineSigner = await createOfflineSignerFromMnemonic(mnemonic);
           const client = await SigningStargateClient.connectWithSigner(queryMethod, offlineSigner);
-
-          try {
-            const result = await performRpcQuery(client, address, messages, feeDenom);
-            return result;
-          } catch (rpcError: any) {
-            lastError = rpcError;
-            
-            // If it's an indexer error but transaction was successful
-            if (isTransactionSuccess(rpcError)) {
-              return {
-                code: 0,
-                message: 'Transaction submitted successfully (indexer disabled)',
-                txHash: rpcError?.txHash || 'unknown',
-              };
-            }
-
-            // If it's just an indexer error, try next node
-            if (isIndexerError(rpcError)) {
-              console.warn(`Node ${queryMethod} has indexing disabled, trying next node`);
-              continue;
-            }
-
-            // For other RPC errors, increment error count and try next node
-            incrementErrorCount(provider.rpc);
-            throw rpcError;
-          }
+          
+          const result = await performRpcQuery(client, address, messages, feeDenom);
+          return result;
+        } else {
+          const result = await performRestQuery(endpoint, queryMethod, queryType);
+          return result;
         }
-
-        // REST Query
-        const response = await performRestQuery(endpoint, queryMethod, queryType);
-        return response;
       } catch (error) {
         lastError = error;
         console.error('Error querying node:', error);
@@ -210,11 +164,11 @@ const queryWithRetry = async ({
     }
   }
 
-  // If the last error was an indexer error with successful transaction
-  if (isTransactionSuccess(lastError)) {
+  // If we got here and the last error was an indexer error
+  if (isIndexerError(lastError)) {
     return {
       code: 0,
-      message: 'Transaction submitted successfully (indexer disabled)',
+      message: 'Transaction likely successful (indexer disabled)',
       txHash: lastError?.txHash || 'unknown',
     };
   }
@@ -231,14 +185,14 @@ export const queryRestNode = async ({
   endpoint: string;
   queryType?: 'GET' | 'POST';
   feeDenom?: string;
-}): Promise<any> => {
-  return await queryWithRetry({
+}) => 
+  queryWithRetry({
     endpoint,
     useRPC: false,
     queryType,
     feeDenom,
   });
-};
+
 
 // RPC query function
 export const queryRpcNode = async ({
@@ -249,11 +203,11 @@ export const queryRpcNode = async ({
   endpoint: string;
   messages?: any[];
   feeDenom?: string;
-}): Promise<any> => {
-  return await queryWithRetry({
+}) => 
+  queryWithRetry({
     endpoint,
     useRPC: true,
     messages,
     feeDenom,
   });
-};
+
