@@ -96,7 +96,6 @@ export const performRpcQuery = async (
   } catch (error: any) {
     // Check if it's an indexer error but the transaction was actually successful
     if (error.message?.includes('transaction indexing is disabled')) {
-      console.log(error.message)
       // Look for success indicators in the error message
       const includesSuccessCode = error.message.includes('code: 0') || 
                                  error.message.includes('"code":0');
