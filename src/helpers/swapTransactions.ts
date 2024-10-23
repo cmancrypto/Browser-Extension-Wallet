@@ -33,6 +33,11 @@ const queryWithRetry = async ({
         console.log(`Querying node ${queryMethod} with endpoint: ${endpoint}`);
 
         const sessionToken = getSessionToken();
+        if (!sessionToken){
+          console.error('Error- getSessionTokenFailed');
+          return
+          
+        }
         const offlineSigner = await createOfflineSignerFromMnemonic(sessionToken.mnemonic || '');
 
         const client = await getSigningOsmosisClient({
