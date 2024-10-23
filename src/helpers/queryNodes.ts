@@ -8,16 +8,8 @@ import { getNodeErrorCounts, getSessionToken, storeNodeErrorCounts } from './loc
 import { SigningStargateClient } from '@cosmjs/stargate';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { delay } from './timer';
+import { RPCResponse } from '@/types';
 
-
-interface RPCResponse {
-  code: number;
-  txHash?: string;
-  gasUsed?: string;
-  gasWanted?: string;
-  rawLog?: string;
-  message?: string;
-}
 
 //indexer specific error - i.e tx submitted, but indexer disabled so returned incorrect 
 
