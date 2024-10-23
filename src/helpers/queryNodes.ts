@@ -9,6 +9,31 @@ import { SigningStargateClient } from '@cosmjs/stargate';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { delay } from './timer';
 
+
+interface RPCResponse {
+  code: number;
+  txHash?: string;
+  gasUsed?: string;
+  gasWanted?: string;
+  rawLog?: string;
+  message?: string;
+}
+
+//indexer specific error - i.e tx submitted, but indexer disabled so returned incorrect 
+
+const isIndexerError = (error: any): boolean => {
+  return error?.message?.includes('transaction indexing is disabled') ||
+         error?.message?.includes('indexing is disabled');
+};
+
+//check the transaction
+const isTransactionSuccess = (error: any): boolean => {
+  // Check if the error actually contains a successful transaction
+  return isIndexerError(error) && 
+         error?.message?.includes('code: 0'); // Transaction success code
+};
+
+
 // Select and prioritize node providers based on their error counts
 export const selectNodeProviders = () => {
   const errorCounts = getNodeErrorCounts();
@@ -55,14 +80,48 @@ export const performRpcQuery = async (
   walletAddress: string,
   messages: any[],
   feeDenom: string,
-) => {
-  // TODO: modify to support multi-send
-  const fee = {
-    amount: [{ denom: feeDenom, amount: '5000' }],
-    gas: '200000',
-  };
+): Promise<RPCResponse> => {
+  try {
+    // TODO: modify to support multi-send
+    const fee = {
+      amount: [{ denom: feeDenom, amount: '5000' }],
+      gas: '200000',
+    };
 
-  return await client.signAndBroadcast(walletAddress, messages, fee);
+    const result = await client.signAndBroadcast(walletAddress, messages, fee);
+
+    // Check if transaction was successful
+    if (result.code === 0) {
+      return {
+        code: 0,
+        txHash: result.transactionHash,
+        gasUsed: result.gasUsed?.toString(),
+        gasWanted: result.gasWanted?.toString(),
+        rawLog: result.rawLog
+      };
+    }
+
+    throw new Error(result.rawLog || 'Transaction failed');
+  } catch (error: any) {
+    // Check if it's an indexer error but the transaction was actually successful
+    if (error.message?.includes('transaction indexing is disabled')) {
+      // Look for success indicators in the error message
+      const includesSuccessCode = error.message.includes('code: 0') || 
+                                 error.message.includes('"code":0');
+      
+      if (includesSuccessCode) {
+        // Transaction was successful despite indexer error
+        return {
+          code: 0,
+          message: 'Transaction submitted successfully (indexer disabled)',
+          txHash: error.txHash || 'unknown'
+        };
+      }
+    }
+    
+    // Re-throw all other errors
+    throw error;
+  }
 };
 
 // Function to query the node with retries and delay
@@ -83,6 +142,7 @@ const queryWithRetry = async ({
   console.log('Selected node providers:', providers);
 
   let numberAttempts = 0;
+  let lastError: any = null;
 
   while (numberAttempts < MAX_NODES_PER_QUERY) {
     for (const provider of providers) {
@@ -90,37 +150,61 @@ const queryWithRetry = async ({
         const queryMethod = useRPC ? provider.rpc : provider.rest;
         console.log(`Querying node ${queryMethod} with endpoint: ${endpoint}`);
 
-        console.log(`use rpc: ${useRPC}`);
         if (useRPC) {
           const sessionToken = getSessionToken();
           if (!sessionToken) {
-            console.error('Session token doesnt exist');
-            return;
+            throw new Error('Session token doesnt exist');
           }
-          console.log(sessionToken)
           const mnemonic = sessionToken.mnemonic;
           const address = sessionToken.address;
           if (!mnemonic) {
-            console.error('Wallet is locked or unavailable');
-            return;
+            throw new Error('Wallet is locked or unavailable');
           }
 
-          const offlineSigner = await createOfflineSignerFromMnemonic(mnemonic || '');
+          const offlineSigner = await createOfflineSignerFromMnemonic(mnemonic);
           const client = await SigningStargateClient.connectWithSigner(queryMethod, offlineSigner);
 
-          const result = await performRpcQuery(client, address, messages, feeDenom);
-          return result;
+          try {
+            const result = await performRpcQuery(client, address, messages, feeDenom);
+            return result;
+          } catch (rpcError: any) {
+            lastError = rpcError;
+            
+            // If it's an indexer error but transaction was successful
+            if (isTransactionSuccess(rpcError)) {
+              return {
+                code: 0,
+                message: 'Transaction submitted successfully (indexer disabled)',
+                txHash: rpcError?.txHash || 'unknown',
+              };
+            }
+
+            // If it's just an indexer error, try next node
+            if (isIndexerError(rpcError)) {
+              console.warn(`Node ${queryMethod} has indexing disabled, trying next node`);
+              continue;
+            }
+
+            // For other RPC errors, increment error count and try next node
+            incrementErrorCount(provider.rpc);
+            throw rpcError;
+          }
         }
 
         // REST Query
         const response = await performRestQuery(endpoint, queryMethod, queryType);
         return response;
       } catch (error) {
-        incrementErrorCount(provider.rpc);
+        lastError = error;
         console.error('Error querying node:', error);
+        
+        // Don't increment error count for indexer issues
+        if (!isIndexerError(error)) {
+          incrementErrorCount(provider.rpc);
+        }
       }
+      
       numberAttempts++;
-
       if (numberAttempts >= MAX_NODES_PER_QUERY) {
         break;
       }
@@ -129,7 +213,16 @@ const queryWithRetry = async ({
     }
   }
 
-  throw new Error(`All node query attempts failed after ${MAX_NODES_PER_QUERY} attempts.`);
+  // If the last error was an indexer error with successful transaction
+  if (isTransactionSuccess(lastError)) {
+    return {
+      code: 0,
+      message: 'Transaction submitted successfully (indexer disabled)',
+      txHash: lastError?.txHash || 'unknown',
+    };
+  }
+
+  throw new Error(`All node query attempts failed after ${MAX_NODES_PER_QUERY} attempts. ${lastError?.message || ''}`);
 };
 
 // REST query function
