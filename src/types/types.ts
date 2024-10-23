@@ -83,3 +83,12 @@ export interface TransactionResult {
   message: string;
   data?: any;
 }
+
+export interface RPCResponse {
+  code: number;
+  txHash?: string;
+  gasUsed?: string;
+  gasWanted?: string;
+  rawLog?: string;
+  message?: string;
+}
