@@ -89,6 +89,5 @@ export interface RPCResponse {
   txHash?: string;
   gasUsed?: string;
   gasWanted?: string;
-  rawLog?: string;
   message?: string;
 }

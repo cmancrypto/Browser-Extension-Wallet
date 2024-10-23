@@ -89,11 +89,10 @@ export const performRpcQuery = async (
         txHash: result.transactionHash,
         gasUsed: result.gasUsed?.toString(),
         gasWanted: result.gasWanted?.toString(),
-        rawLog: result.rawLog
       };
     }
 
-    throw new Error(result.rawLog || 'Transaction failed');
+    throw new Error('Transaction failed');
   } catch (error: any) {
     // Check if it's an indexer error but the transaction was actually successful
     if (error.message?.includes('transaction indexing is disabled')) {
