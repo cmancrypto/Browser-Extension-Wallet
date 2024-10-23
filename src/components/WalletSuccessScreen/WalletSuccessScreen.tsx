@@ -6,6 +6,7 @@ import { ROUTES } from '@/constants';
 
 interface WalletSuccessScreenProps {
   caption: string;
+  txhash?: string;
 }
 
 export const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({ caption }) => {

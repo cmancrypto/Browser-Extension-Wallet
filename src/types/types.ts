@@ -81,7 +81,7 @@ export interface CombinedStakingInfo {
 export interface TransactionResult {
   success: boolean;
   message: string;
-  data?: any;
+  data?: RPCResponse
 }
 
 export interface RPCResponse {
