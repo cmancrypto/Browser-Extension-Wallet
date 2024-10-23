@@ -2,38 +2,34 @@ import React from 'react';
 import { ScrollArea } from '@/ui-kit';
 import { AssetTiles } from './AssetTiles';
 import { ValidatorTiles } from './ValidatorTiles';
-import { Asset } from '@/types';
+import { Asset, CombinedStakingInfo } from '@/types';
 
 interface TileScrollerProps {
   activeIndex: number;
-  displayWalletAssets?: boolean;
   isSelectable?: boolean;
   addMargin?: boolean;
   onSelectAsset?: (asset: Asset) => void;
+  onSelectValidator?: (validator: CombinedStakingInfo) => void;
 }
 
 export const TileScroller: React.FC<TileScrollerProps> = ({
   activeIndex,
-  displayWalletAssets = true,
   isSelectable = false,
   addMargin = true,
   onSelectAsset,
+  onSelectValidator,
 }) => {
   return (
-    <ScrollArea
-      className="flex-grow w-full overflow-y-auto"
-      type="always"
-      scrollbarProps={{ className: 'max-h-[93%]' }}
-    >
+    // TODO: add botder to TileScroller
+    <ScrollArea className="flex-grow w-full overflow-y-auto" type="always" scrollbarProps={{}}>
       {activeIndex === 0 ? (
-        <AssetTiles
-          displayWalletAssets={displayWalletAssets}
+        <AssetTiles isSelectable={isSelectable} addMargin={addMargin} onClick={onSelectAsset} />
+      ) : (
+        <ValidatorTiles
           isSelectable={isSelectable}
           addMargin={addMargin}
-          onClick={onSelectAsset}
+          onClick={onSelectValidator}
         />
-      ) : (
-        <ValidatorTiles isSelectable={isSelectable} addMargin={addMargin} />
       )}
     </ScrollArea>
   );
