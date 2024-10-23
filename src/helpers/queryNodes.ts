@@ -81,7 +81,7 @@ export const performRpcQuery = async (
     };
 
     const result = await client.signAndBroadcast(walletAddress, messages, fee);
-    console.log(result)
+
     // Check if transaction was successful
     if (result.code === 0) {
       return {
