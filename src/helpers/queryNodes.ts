@@ -93,6 +93,11 @@ const queryWithRetry = async ({
         console.log(`use rpc: ${useRPC}`);
         if (useRPC) {
           const sessionToken = getSessionToken();
+          if (!sessionToken) {
+            console.error('Session token doesnt exist');
+            return;
+          }
+          console.log(sessionToken)
           const mnemonic = sessionToken.mnemonic;
           const address = sessionToken.address;
           if (!mnemonic) {

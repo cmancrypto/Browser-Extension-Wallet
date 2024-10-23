@@ -156,32 +156,5 @@ export const setupWalletSession = async (walletAddress: string, mnemonic: string
   }
 };
 
-export const getSessionToken = (): SessionToken | null => {
-  try {
-    const tokenString = localStorage.getItem('sessionToken');
-    if (!tokenString) {
-      return null;
-    }
 
-    const token = JSON.parse(tokenString);
-    
-    // Validate token structure
-    if (!token || !token.mnemonic || !token.address) {
-      console.error('Invalid token structure:', token);
-      return null;
-    }
 
-    return token;
-  } catch (error) {
-    console.error('Error retrieving session token:', error);
-    return null;
-  }
-};
-
-export const clearSession = (): void => {
-  try {
-    localStorage.removeItem('sessionToken');
-  } catch (error) {
-    console.error('Error clearing session:', error);
-  }
-};
