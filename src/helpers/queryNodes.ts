@@ -5,7 +5,7 @@ import {
   MAX_NODES_PER_QUERY,
 } from '@/constants';
 import { getNodeErrorCounts, getSessionToken, storeNodeErrorCounts } from './localStorage';
-import { SigningStargateClient } from '@cosmjs/stargate';
+import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 import { createOfflineSignerFromMnemonic } from './wallet';
 import { delay } from './timer';
 import { RPCResponse } from '@/types';
@@ -58,6 +58,7 @@ const performRestQuery = async (
   return await response.json();
 };
 
+// TODO: modify to support multi-send
 // Helper: Perform an RPC query using signing, such as for claiming rewards or staking
 export const performRpcQuery = async (
   client: SigningStargateClient,
@@ -67,10 +68,28 @@ export const performRpcQuery = async (
 ): Promise<RPCResponse> => {
   try {
     // TODO: modify to support multi-send
-    const fee = {
-      amount: [{ denom: feeDenom, amount: '5000' }],
-      gas: '200000',
-    };
+  // Set a default fee for simulation
+  const defaultGasPrice = GasPrice.fromString(`0.025${feeDenom}`);
+
+  // TODO: add simulation parameter to functions to be able to update user on estimates in real time before real query
+  // Simulate transaction to estimate gas
+  let gasEstimation = await client.simulate(walletAddress, messages, '');
+  // Apply a 10% buffer for safety
+  gasEstimation = Math.ceil(gasEstimation * 1.1);
+  console.log('Simulated Gas Estimation:', gasEstimation);
+
+  // Calculate the fee based on the gas estimation
+  const fee = {
+    amount: [
+      {
+        denom: feeDenom,
+        amount: (gasEstimation * defaultGasPrice.amount.toFloatApproximation()).toFixed(0),
+      },
+    ],
+    gas: gasEstimation.toString(),
+  };
+
+
 
     const result = await client.signAndBroadcast(walletAddress, messages, fee);
 
@@ -99,7 +118,7 @@ export const performRpcQuery = async (
     // Re-throw all other errors
     throw error;
   }
-};
+}
 
 // Function to query the node with retries and delay
 const queryWithRetry = async ({

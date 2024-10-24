@@ -1,13 +1,13 @@
 import React from 'react';
 import { useAtomValue } from 'jotai';
 import { ValidatorScrollTile } from '../ValidatorScrollTile';
-import { filteredValidatorsAtom } from '@/atoms';
+import { filteredValidatorsAtom, filteredDialogValidatorsAtom } from '@/atoms';
 import { CombinedStakingInfo } from '@/types';
 
 interface ValidatorTilesProps {
   isSelectable?: boolean;
-  addMargin?: boolean;
   onClick?: (asset: CombinedStakingInfo) => void;
+  isDialog?: boolean;
 }
 
 // TODO: show some indicator of uptime (such as coloring symphony icon depending) (on all screen)
@@ -16,13 +16,15 @@ interface ValidatorTilesProps {
 // const denom = validatorReward.rewards[0]?.denom || 'UNKNOWN';
 export const ValidatorTiles: React.FC<ValidatorTilesProps> = ({
   isSelectable = false,
-  addMargin = true,
   onClick,
+  isDialog = false,
 }) => {
-  const filteredValidators = useAtomValue(filteredValidatorsAtom);
+  const filteredValidators = useAtomValue(
+    isDialog ? filteredDialogValidatorsAtom : filteredValidatorsAtom,
+  );
 
   if (filteredValidators.length === 0) {
-    return <p className="text-base text-neutral-1 px-4">No validators found</p>;
+    return <p className="text-base text-neutral-1">No validators found</p>;
   }
 
   console.log('filtered validators:', filteredValidators);
@@ -30,16 +32,12 @@ export const ValidatorTiles: React.FC<ValidatorTilesProps> = ({
   return (
     <>
       {filteredValidators.map(combinedStakingInfo => (
-        <>
-          {console.log('making tile for validator', combinedStakingInfo.validator.operator_address)}
-          <ValidatorScrollTile
-            key={`${combinedStakingInfo.validator.operator_address}`}
-            combinedStakingInfo={combinedStakingInfo}
-            isSelectable={isSelectable}
-            addMargin={addMargin}
-            onClick={onClick}
-          />
-        </>
+        <ValidatorScrollTile
+          key={`${combinedStakingInfo.validator.operator_address}`}
+          combinedStakingInfo={combinedStakingInfo}
+          isSelectable={isSelectable}
+          onClick={onClick}
+        />
       ))}
     </>
   );

@@ -5,7 +5,7 @@ import { LogoIcon } from '@/assets/icons';
 import { ScrollTile } from '../ScrollTile';
 import {
   claimAndRestake,
-  claimRewardsFromValidator,
+  claimRewards,
   convertToGreaterUnit,
   isValidUrl,
   removeTrailingZeroes,
@@ -15,21 +15,21 @@ import {
 } from '@/helpers';
 import { GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY } from '@/constants';
 import { useAtomValue } from 'jotai';
-import { walletStateAtom } from '@/atoms';
+import { selectedValidatorsAtom, walletStateAtom } from '@/atoms';
 
 interface ValidatorScrollTileProps {
   combinedStakingInfo: CombinedStakingInfo;
   isSelectable?: boolean;
-  addMargin?: boolean;
-  onClick?: (asset: CombinedStakingInfo) => void;
+  onClick?: (validator: CombinedStakingInfo) => void;
 }
 
 export const ValidatorScrollTile = ({
   combinedStakingInfo,
   isSelectable = false,
-  addMargin = true,
   onClick,
 }: ValidatorScrollTileProps) => {
+  const selectedValidators = useAtomValue(selectedValidatorsAtom);
+
   const [selectedAction, setSelectedAction] = useState<'stake' | 'unstake' | 'claim' | null>(
     !combinedStakingInfo.delegation ? 'stake' : null,
   );
@@ -39,14 +39,6 @@ export const ValidatorScrollTile = ({
   // Destructure combined info
   const { validator, delegation, balance, rewards } = combinedStakingInfo;
   const delegationResponse = { delegation, balance };
-
-  // TODO: address NaN on inactive nodes, jailed nodes, and non-delegated nodes
-  // Calculating the staked amount based on delegation.shares (as delegation is of type DelegationResponse['delegation'])
-  const delegatedAmount = delegation
-    ? `${removeTrailingZeroes(
-        convertToGreaterUnit(parseFloat(delegation.shares), GREATER_EXPONENT_DEFAULT),
-      )} ${LOCAL_ASSET_REGISTRY.note.symbol}`
-    : '0 MLD';
 
   // Aggregating the rewards (sum all reward amounts for this validator)
   const rewardAmount = rewards
@@ -58,9 +50,23 @@ export const ValidatorScrollTile = ({
     ),
   )} MLD`;
 
+  const delegatedAmount = removeTrailingZeroes(
+    convertToGreaterUnit(parseFloat(delegation.shares || '0'), GREATER_EXPONENT_DEFAULT),
+  );
+
   const title = validator.description.moniker || 'Unknown Validator';
-  const subTitle = delegatedAmount || '';
   const commission = `${parseFloat(validator.commission.commission_rates.rate) * 100}%`;
+
+  let subTitle: string;
+  if (validator.jailed) {
+    subTitle = 'Jailed';
+  } else if (validator.status === 'BOND_STATUS_UNBONDED') {
+    subTitle = 'Inactive';
+  } else if (delegatedAmount === '0') {
+    subTitle = 'No delegation';
+  } else {
+    subTitle = `${delegatedAmount} ${LOCAL_ASSET_REGISTRY.note.symbol}`;
+  }
 
   // TODO: pull dynamically from the validator
   const unbondingDays = 12;
@@ -94,6 +100,10 @@ export const ValidatorScrollTile = ({
     }
   };
 
+  const isSelected = selectedValidators.some(
+    v => v.delegation.validator_address === combinedStakingInfo.delegation.validator_address,
+  );
+
   return (
     <>
       {isSelectable ? (
@@ -103,7 +113,7 @@ export const ValidatorScrollTile = ({
           value={formattedRewardAmount}
           icon={<LogoIcon />}
           status={statusColor}
-          addMargin={addMargin}
+          selected={isSelected}
           onClick={handleClick}
         />
       ) : (
@@ -116,7 +126,6 @@ export const ValidatorScrollTile = ({
                 value={formattedRewardAmount}
                 icon={<LogoIcon />}
                 status={statusColor}
-                addMargin={addMargin}
               />
             </div>
           }
@@ -171,13 +180,14 @@ export const ValidatorScrollTile = ({
 
           {/* Action Selection */}
           {delegation && (
-            <div className="flex flex-col items-center justify-center grid grid-cols-3 w-full gap-x-4 px-2">
+            <div className="flex justify-between w-full px-2 mb-2">
+              {/* Apply flex here */}
               <Button className="w-full" onClick={() => setSelectedAction('stake')}>
                 Stake
               </Button>
               <Button
                 variant="secondary"
-                className="w-full"
+                className="w-full mx-2"
                 onClick={() => setSelectedAction('unstake')}
               >
                 Unstake
@@ -188,8 +198,7 @@ export const ValidatorScrollTile = ({
             </div>
           )}
 
-          <div className="flex flex-col items-center justify-center h-[4rem]">
-            {/* Stake and Unstake Actions */}
+          <div className="flex flex-col items-center justify-center h-[4rem] px-[1.5rem]">
             {(selectedAction === 'stake' || selectedAction === 'unstake') && (
               <>
                 <div className="flex items-center w-full">
@@ -219,50 +228,43 @@ export const ValidatorScrollTile = ({
                     {selectedAction === 'stake' ? 'Stake' : 'Unstake'}
                   </Button>
                 </div>
+                <div className="flex justify-between w-full mt-1">
+                  <Button
+                    size="xs"
+                    variant="unselected"
+                    className="px-2 rounded-md text-xs"
+                    onClick={() => setAmount('')}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="unselected"
+                    className="px-2 rounded-md text-xs"
+                    onClick={() => setAmount(subTitle)}
+                  >
+                    Max
+                  </Button>
+                </div>
               </>
             )}
 
-            {/* Claim Action */}
             {selectedAction === 'claim' && (
-              <div className="flex flex-col items-center justify-center grid grid-cols-2 gap-4 mt-[1.5rem]">
+              <div className="flex justify-between w-full px-4 mb-2">
                 <Button
                   variant="secondary"
                   className="w-full"
-                  onClick={() =>
-                    // TODO: update this entry in the validator list after completion (fix timing first.  can extract update function from that)
-                    claimRewardsFromValidator(walletState.address, validator.operator_address)
-                  }
+                  // TODO: update this entry in the validator list after completion
+                  onClick={() => claimRewards(walletState.address, validator.operator_address)}
                 >
                   Claim to Wallet
                 </Button>
-                <Button className="w-full" onClick={() => claimAndRestake(delegationResponse)}>
+                <Button className="w-full ml-2" onClick={() => claimAndRestake(delegationResponse)}>
                   Claim to Restake
                 </Button>
               </div>
             )}
           </div>
-          {(selectedAction === 'stake' || selectedAction === 'unstake') && (
-            <>
-              <div className="flex justify-between w-full mt-1">
-                <Button
-                  size="xs"
-                  variant="unselected"
-                  className="px-2 rounded-md text-xs"
-                  onClick={() => setAmount('')}
-                >
-                  Clear
-                </Button>
-                <Button
-                  size="xs"
-                  variant="unselected"
-                  className="px-2 rounded-md text-xs"
-                  onClick={() => setAmount(subTitle)}
-                >
-                  Max
-                </Button>
-              </div>
-            </>
-          )}
         </SlideTray>
       )}
     </>

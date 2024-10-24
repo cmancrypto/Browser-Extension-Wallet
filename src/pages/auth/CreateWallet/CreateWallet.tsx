@@ -96,40 +96,33 @@ export const CreateWallet = () => {
 
   /* ******************************************************************************************* */
   /* Chris current TODO */
+  // TODO: show errors to user (user displayable values)
   // TODO: provide updates to user as staking, claim, and unstaking information changes (successes, errors, and changing gas fees)
   // TODO: provide updates to user as send information updates (errors and changing gas fees)
   /* ******************************************************************************************* */
 
   /* ******************************************************************************************* */
   /* David Current TODOs */
-  // TODO: add search to other select dialogs
-  // TODO: add search icon, add search capability
-  // TODO: on select screen, tap to select, tap again to confirm selection/close
-  // TODO: apply sorting function to wallet asset list
-  // TODO: apply sorting function to validator list
-  // TODO: add current/all buttons to holdings, but make them non-zero/all
-
-  // TODO: add show/hide function to wallet asset list (select which assets to show.  add searchability to this)
-  // TODO: add show/hide function to validator list (by activity, by chain)
-
-  // TODO: add clear and max buttons to amount section
-  // TODO: test validation of format of entered address for send field
-  // TODO: make "clear" and "max" button placement and appearance more uniform (send and unstake sections)
-  // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
-
-  // TODO: remove "support" in favor of links to site and socials
-
+  // TODO: (test on validator screen, nodeshub and large amounts) within tilescroller, ensure overflow over some value results in ellipses.  they can click in for more information if needed
+  // TODO: add onHover and onClick color changes to password and create wallet buttons
+  // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
   // TODO: show green or red border for passphrase box on full verify, clear on start of typing
 
-  // TODO: change "options" to settings?
-  // TODO: show donut chart with assets rather than singular value
-
-  // TODO: emable selection in validator select dialog
-  // TODO: add conclusionary action with selection in asset select dialog.  should picking close the dialog?
-
-  // TODO: add onHover and onClick color changes to asset and validator tiles
-
+  // TODO: add option screen filter for validator list (by status.  default to not showing jailed validators)
   // TODO: apply regional formatting to regular display numbers
+  // TODO: format numbers on balance and asset value field to user locale.  start with US format, add others
+  // TODO: add option screen filter for regional display for numbers
+  // TODO: add clear and max buttons to amount section
+  // TODO: add search icon to search field, add onclick
+  // TODO: test validation of format of entered address for send field
+
+  // TODO: add swipe to dismiss on dialog trays
+  // TODO: add swipe to refresh on main page lists
+
+  // TODO: add conclusionary action with selection in asset select dialog.  should picking close the dialog?
+  // TODO: add confirm button to select dialogs.  does not need to be visible before selection
+  // TODO: make "clear" and "max" button placement and appearance more uniform (send and unstake sections)
+  // TODO: change "options" to settings?
   /* ******************************************************************************************* */
 
   /* Current TODOs */
@@ -138,7 +131,6 @@ export const CreateWallet = () => {
 
   // TODO: add fields to let user know when sending over IBC
   // TODO: abstract wallet prefix and mnemonic decryption
-  // TODO: ensure trim on completion of password entry (such as save to storage).  same on login.  to avoid copy/paste errors
   // TODO: add link to github repo for registry
   // TODO: abstract IBC needs
   // TODO: ensure pipeline to other registries is functional.  change here auto-PRs there
@@ -147,15 +139,21 @@ export const CreateWallet = () => {
   // TODO: prevent re-building auth every time wallet updates
 
   /* Inside wallet TODOs */
+  // TODO: add button to "add chain" at bottom of Holdings list
   // TODO: ensure new encrypted mnemonic overwrites old in case of same password and name (but let user know first)
 
   /* Wallet UI TODOs */
+  // TODO: add show/hide function to wallet asset list (select which assets to show.  add searchability to this)
+  // TODO: add show/hide function to validator list (by activity, by chain)
   // TODO: remove or enable connected services button <-- could be good for using firebase to transfer/remove settings data
   // TODO: remove or enable transaction history
-  // TODO: remove or enable expand view
   // TODO: security tab enables/disables need to confirm transactions/re-entry of password on transactions (3 levels of security)
-  // TODO: change options buttons
   // TODO: update transactions history button (need endpoint for this.  disable until ready)
+  // TODO: show donut chart with assets rather than singular value (requires connections to exchanges)
+
+  /* Interchain-compatibility TODOs */
+  // TODO: integrate skip protocol or automated use of exchange to allow swapping between chains
+  // TODO: modify claim, restake, and unstake functions to withdraw from all unique delegator addresses
 
   /* Less Critical Auth TODOs */
   // TODO: handle error printout for create/import wallet (in place of subtitle on verify screen?)
@@ -168,10 +166,8 @@ export const CreateWallet = () => {
   // TODO: create add wallet screen to allow management of multiple accounts
   // TODO: add save wallet screen for saving preferred received assets per wallet and wallet name/identifier (for those user sends to)
   // TODO: add qr code screen for transfer data (including account data).  or from google
-  // TODO: add swipe to dismiss on dialog trays
 
   /* Nice to have TODOs */
-  // TODO: add swipe to refresh on main page lists
   // TODO: add password complexity bar on entry
   // TODO: add toggle option for single-click transactions and another for force accepting/declining transactions
   // TODO: add toggle option for ultra-secure mode, using password auth for on every transaction like with hardware wallets.  in that mode, no session storage is used.
