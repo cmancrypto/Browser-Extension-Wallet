@@ -111,16 +111,39 @@ export interface RPCResponse {
   gasUsed?: string;
   gasWanted?: string;
   message?: string;
+  rawLog?: string;
   height?: number;
-  //add all other required fields until can fix with proper case by case typing
-  delegation_responses?: any[];
-  validators?: any[];
-  validator?: any;
-  pagination?: any;
-  rewards?: any;
-  balances?: any[];
-  denom_trace?: any;
-  return_coin?: any;
-  // Add catch-all for other properties
+  
+  // REST responses
+  delegation_responses?: Array<{
+    delegation: {
+      delegator_address: string;
+      validator_address: string;
+      shares: string;
+    };
+    balance: {
+      denom: string;
+      amount: string;
+    };
+  }>;
+  
+  // Validator fields
+  validators?: ValidatorInfo[];
+  validator?: ValidatorInfo;
+  
+  // Pagination fields
+  pagination?: {
+    next_key: string | null;
+    total: string;
+  };
+  
+  // Rewards fields
+  rewards?: Array<{
+    validator_address: string;
+    reward: any[];
+  }> | any[];  // Allow both formats of rewards
+  reward?: any[];  // For single validator rewards
+  
+  // Catch-all
   [key: string]: any;
 }
