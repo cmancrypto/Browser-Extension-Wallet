@@ -2,39 +2,40 @@ import React from 'react';
 import { ScrollArea } from '@/ui-kit';
 import { AssetTiles } from './AssetTiles';
 import { ValidatorTiles } from './ValidatorTiles';
-import { Asset } from '@/types';
+import { Asset, CombinedStakingInfo } from '@/types';
 
 interface TileScrollerProps {
   activeIndex: number;
-  displayWalletAssets?: boolean;
   isSelectable?: boolean;
-  addMargin?: boolean;
   onSelectAsset?: (asset: Asset) => void;
+  onSelectValidator?: (validator: CombinedStakingInfo) => void;
+  isDialog?: boolean;
 }
 
 export const TileScroller: React.FC<TileScrollerProps> = ({
   activeIndex,
-  displayWalletAssets = true,
   isSelectable = false,
-  addMargin = true,
   onSelectAsset,
+  onSelectValidator,
+  isDialog = false,
 }) => {
   return (
     <ScrollArea
-      className="flex-grow w-full overflow-y-auto"
+      className="flex-grow w-full overflow-y-auto border border-neutral-3 rounded-md"
       type="always"
-      scrollbarProps={{ className: 'max-h-[93%]' }}
+      scrollbarProps={{}}
     >
-      {activeIndex === 0 ? (
-        <AssetTiles
-          displayWalletAssets={displayWalletAssets}
-          isSelectable={isSelectable}
-          addMargin={addMargin}
-          onClick={onSelectAsset}
-        />
-      ) : (
-        <ValidatorTiles isSelectable={isSelectable} addMargin={addMargin} />
-      )}
+      <div className="pr-3">
+        {activeIndex === 0 ? (
+          <AssetTiles isSelectable={isSelectable} onClick={onSelectAsset} isDialog={isDialog} />
+        ) : (
+          <ValidatorTiles
+            isSelectable={isSelectable}
+            onClick={onSelectValidator}
+            isDialog={isDialog}
+          />
+        )}
+      </div>
     </ScrollArea>
   );
 };

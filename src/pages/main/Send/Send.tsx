@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { ArrowLeft, Spinner, Swap } from '@/assets/icons';
 import { DEFAULT_ASSET, GREATER_EXPONENT_DEFAULT, LOCAL_ASSET_REGISTRY, ROUTES } from '@/constants';
 import { Button, Separator } from '@/ui-kit';
@@ -11,6 +11,7 @@ import {
   receiveStateAtom,
   sendStateAtom,
   walletStateAtom,
+  selectedAssetAtom,
 } from '@/atoms';
 import { Asset, TransactionResult } from '@/types';
 import { removeTrailingZeroes, sendTransaction, swapTransaction } from '@/helpers';
@@ -20,11 +21,7 @@ import { useExchangeRate } from '@/hooks/';
 import { AssetInput } from './AssetInput';
 import { AddressInput } from './AddressInput';
 
-
 export const Send = () => {
-  const location = useLocation();
-  const selectedSendAsset = location.state?.selectedSendAsset || DEFAULT_ASSET;
-
   const walletState = useAtomValue(walletStateAtom);
   const walletAssets = walletState?.assets || [];
 
@@ -34,6 +31,7 @@ export const Send = () => {
   const [callbackChangeMap, setCallbackChangeMap] = useAtom(callbackChangeMapAtom);
   const [isLoading, setLoading] = useAtom(loadingAtom);
   const recipientAddress = useAtomValue(recipientAddressAtom);
+  const selectedAsset = useAtomValue(selectedAssetAtom);
 
   const { exchangeRate } = useExchangeRate();
 
@@ -52,9 +50,9 @@ export const Send = () => {
     const sendAmount = sendState.amount;
     const receiveAsset = receiveState.asset;
 
-    if (!sendAsset) return;
     const assetToSend = walletAssets.find(a => a.denom === sendAsset.denom);
     if (!assetToSend) return;
+
     const adjustedAmount = (
       sendAmount * Math.pow(10, assetToSend.exponent || GREATER_EXPONENT_DEFAULT)
     ).toFixed(0); // No decimals, as this is sending the minor unit, not the greater.
@@ -77,7 +75,7 @@ export const Send = () => {
         // Swap transaction
         const swapObject = { sendObject, resultDenom: receiveAsset.denom };
         result = await swapTransaction(walletState.address, swapObject);
-                setIsSuccess(true);
+        setIsSuccess(true);
       } else {
         throw new Error('Invalid asset configuration');
       }
@@ -327,9 +325,9 @@ export const Send = () => {
   }, [exchangeRate]);
 
   useEffect(() => {
-    updateSendAsset(selectedSendAsset);
-    updateReceiveAsset(selectedSendAsset);
-  }, [selectedSendAsset]);
+    updateSendAsset(selectedAsset);
+    updateReceiveAsset(selectedAsset);
+  }, []);
 
   if (isSuccess) {
     return <WalletSuccessScreen caption="Transaction success!" />;
@@ -375,7 +373,6 @@ export const Send = () => {
 
           {/* Send Section */}
           <AssetInput
-            currentState={sendState}
             placeholder={sendPlaceholder}
             updateAsset={updateSendAsset}
             updateAmount={updateSendAmount}
@@ -392,7 +389,6 @@ export const Send = () => {
           <AssetInput
             isReceiveInput={true}
             isDisabled={isNotSwappable}
-            currentState={receiveState}
             placeholder={receivePlaceholder}
             updateAsset={updateReceiveAsset}
             updateAmount={updateReceiveAmount}
@@ -413,7 +409,7 @@ export const Send = () => {
 
           {/* Send Button */}
           <Button className="w-full" onClick={handleSend} disabled={isLoading}>
-            {/* TODO: pick between spinner and loader end ensure classNames are correct */}
+            {/* TODO: pick between spinner and loader, animate, and ensure classNames are correct */}
             {isLoading ? <Spinner className="w-5 h-5 text-white animate-spin" /> : 'Send'}
             {/* {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center">

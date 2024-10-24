@@ -46,7 +46,6 @@ export interface Pagination {
   total: string;
 }
 
-// TODO: add delegation information to validator info (and rename validator info to validator)
 export interface ValidatorInfo {
   operator_address: string;
   jailed: boolean;
@@ -72,7 +71,14 @@ export interface ValidatorReward {
   rewards: any[];
 }
 
-export interface TransactionResult{
+export interface CombinedStakingInfo {
+  delegation: DelegationResponse['delegation'];
+  balance: DelegationResponse['balance'];
+  validator: ValidatorInfo;
+  rewards: ValidatorReward['rewards'];
+}
+
+export interface TransactionResult {
   success: boolean;
   message: string;
   data?: any;
