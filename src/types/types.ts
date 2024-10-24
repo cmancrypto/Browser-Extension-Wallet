@@ -78,21 +78,49 @@ export interface CombinedStakingInfo {
   rewards: ValidatorReward['rewards'];
 }
 
-export interface TransactionResult {
-  success: boolean;
-  message: string;
-  data?: RPCResponse
+
+//Create base RPC response interface
+export interface BaseRPCResponse {
+  code: number;
+  message?: string;
 }
 
-export interface RPCResponse {
-  code: number;
+//Extend specifically for tx's 
+export interface TransactionRPCResponse extends BaseRPCResponse {
   txHash?: string;
   gasUsed?: string;
   gasWanted?: string;
-  message?: string;
+  height?: number;
+}
+
+//TX result incl the response 
+export interface TransactionResult {
+  success: boolean;
+  message: string;
+  data?: TransactionRPCResponse
 }
 
 export interface TransactionSuccess {
   success: boolean;
   txHash?: string;
+}
+
+export interface RPCResponse {
+  code: number;
+  txhash?: string;
+  gasUsed?: string;
+  gasWanted?: string;
+  message?: string;
+  height?: number;
+  //add all other required fields until can fix with proper case by case typing
+  delegation_responses?: any[];
+  validators?: any[];
+  validator?: any;
+  pagination?: any;
+  rewards?: any;
+  balances?: any[];
+  denom_trace?: any;
+  return_coin?: any;
+  // Add catch-all for other properties
+  [key: string]: any;
 }
