@@ -12,7 +12,7 @@ import {
   sendStateAtom,
   walletStateAtom,
 } from '@/atoms';
-import { Asset, TransactionResult } from '@/types';
+import { Asset, TransactionResult , TransactionSuccess } from '@/types';
 import { removeTrailingZeroes, sendTransaction, swapTransaction } from '@/helpers';
 import { WalletSuccessScreen } from '@/components';
 import { loadingAtom } from '@/atoms/loadingAtom';
@@ -36,7 +36,7 @@ export const Send = () => {
 
   const { exchangeRate } = useExchangeRate();
 
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState<TransactionSuccess>({success: false});
 
   // TODO: write and enable function
   // const checkTransactionType = () => {
@@ -71,18 +71,20 @@ export const Send = () => {
       let result: TransactionResult;
       if (sendAsset?.denom === receiveAsset?.denom) {
         result = await sendTransaction(walletState.address, sendObject);
-        // Set success state to true after transaction
-        setIsSuccess(true);
       } else if (receiveAsset) {
         // Swap transaction
         const swapObject = { sendObject, resultDenom: receiveAsset.denom };
         result = await swapTransaction(walletState.address, swapObject);
-        setIsSuccess(true);
       } else {
         throw new Error('Invalid asset configuration');
       }
-      if (!result.success) {
-        console.error('Detailed error:', result.data);
+      //check if tx successful and code = 0 (success)
+      if (result.success && result.data?.code === 0) {
+
+        setIsSuccess({success: true, txHash: result.data?.txHash});
+      }
+      else{
+        console.error('Transaction failed detailed error:', result.data);
       }
     } catch (error) {
       console.error('Error broadcasting transaction', error);
@@ -331,8 +333,13 @@ export const Send = () => {
     updateReceiveAsset(selectedSendAsset);
   }, [selectedSendAsset]);
 
-  if (isSuccess) {
-    return <WalletSuccessScreen caption="Transaction success!" />;
+  if (isSuccess.success) {
+    return (
+    <WalletSuccessScreen 
+    caption="Transaction success!" 
+    txHash={isSuccess.txHash}
+    />
+    );
   }
 
   const isNotSwappable =

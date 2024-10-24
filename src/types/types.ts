@@ -91,3 +91,8 @@ export interface RPCResponse {
   gasWanted?: string;
   message?: string;
 }
+
+export interface TransactionSuccess {
+  success: boolean;
+  txHash?: string;
+}
